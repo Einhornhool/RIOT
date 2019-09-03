@@ -1,24 +1,25 @@
 PKG_NAME=cryptoauthlib
-PKG_URL=https://github.com/MicrochipTech/cryptoauthlib
-PKG_VERSION=90591bb6de3702d5eab37b9d147608450a586a24
+#PKG_URL=https://github.com/MicrochipTech/cryptoauthlib
+PKG_SOURCE_LOCAL=~/riot/cryptoauthlib
+#PKG_VERSION=90591bb6de3702d5eab37b9d147608450a586a24
 PKG_LICENSE=BSD-3-Clause
 
 .PHONY: all..cmake_version_supported
 
 CMAKE_MINIMAL_VERSION = 3.6.0
 
-CFLAGS += -std=gnu11 -fms-extensions
+CFLAGS += -std=gnu11
 
 TOOLCHAIN_FILE=$(PKG_BUILDDIR)/xcompile-toolchain.cmake
 
 all: $(PKG_BUILDDIR)/Makefile
-	COMP="$(filter-out -Werror -Werror=old-style-definition -Werror=strict-prototypes -std=gnu11, $(CFLAGS) ) " \
+	C_FLAGS="$(filter-out -Werror -Werror=old-style-definition -Werror=strict-prototypes -std=gnu99, $(CFLAGS) ) " \
 	$(MAKE) -C $(PKG_BUILDDIR)/lib && \
 	cp $(PKG_BUILDDIR)/lib/libcryptoauth.a $(BINDIR)/$(PKG_NAME).a
 
 $(PKG_BUILDDIR)/Makefile: $(TOOLCHAIN_FILE)
 	cd $(PKG_BUILDDIR)/lib && \
-	COMP="$(filter-out -Werror -Werror=old-style-definition -Werror=strict-prototypes -std=gnu11, $(CFLAGS) ) " \
+	C_FLAGS="$(filter-out -Werror -Werror=old-style-definition -Werror=strict-prototypes -std=gnu99, $(CFLAGS) ) " \
 	cmake -DCMAKE_TOOLCHAIN_FILE=$(TOOLCHAIN_FILE) \
 		  -Wno-dev
 
