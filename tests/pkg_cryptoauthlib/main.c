@@ -6,12 +6,12 @@
 
 int main(void)
 {
-    ATCA_STATUS status = 6;
+    // ATCA_STATUS status;
     // ATCAPacket packet;
 
     // packet.param1 = INFO_MODE_REVISION;
     // status = atca_execute_command(&packet, _gDevice);
 
-    printf("%x\n", status);
+    printf("whut\n");
     return 0;
 }
