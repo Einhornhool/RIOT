@@ -1,9 +1,17 @@
 #include <stdio.h>
 #include <string.h>
 
-//#include "cryptoauthlib/cryptoauthlib.h"
+#include "cryptoauthlib.h"
+#include "atca_execution.h"
 
-void main()
+int main(void)
 {
-    printf("Sacre bleu\n");
+    ATCA_STATUS status = 6;
+    // ATCAPacket packet;
+
+    // packet.param1 = INFO_MODE_REVISION;
+    // status = atca_execute_command(&packet, _gDevice);
+
+    printf("%x\n", status);
+    return 0;
 }
