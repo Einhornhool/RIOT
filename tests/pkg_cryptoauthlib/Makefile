@@ -1,6 +1,6 @@
 include ../Makefile.tests_common
 
+CFLAGS += -std=gnu11
 USEPKG += cryptoauthlib
-#USEMODULE += cryptoauthlib
 
 include $(RIOTBASE)/Makefile.include
