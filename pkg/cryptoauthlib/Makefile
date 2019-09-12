@@ -13,13 +13,13 @@ CFLAGS += -std=gnu11
 TOOLCHAIN_FILE=$(PKG_BUILDDIR)/xcompile-toolchain.cmake
 
 all: $(PKG_BUILDDIR)/Makefile
-	C_FLAGS="$(filter-out -Werror -Werror=old-style-definition -Werror=strict-prototypes -std=gnu99, $(CFLAGS) ) " \
+	CFLAGS="$(filter-out -Werror -Werror=old-style-definition -Werror=strict-prototypes -Werror=pedantic -Wpedantic -pedantic -std=gnu99, $(CFLAGS) ) " \
 	$(MAKE) -C $(PKG_BUILDDIR)/lib && \
 	cp $(PKG_BUILDDIR)/lib/libcryptoauth.a $(BINDIR)/$(PKG_NAME).a
 
 $(PKG_BUILDDIR)/Makefile: $(TOOLCHAIN_FILE)
 	cd $(PKG_BUILDDIR)/lib && \
-	C_FLAGS="$(filter-out -Werror -Werror=old-style-definition -Werror=strict-prototypes -std=gnu99, $(CFLAGS) ) " \
+	CFLAGS="$(filter-out -Werror -Werror=old-style-definition -Werror=strict-prototypes -Werror=pedantic -Wpedantic -pedantic -std=gnu99, $(CFLAGS) ) " \
 	cmake -DCMAKE_TOOLCHAIN_FILE=$(TOOLCHAIN_FILE) \
 		  -Wno-dev
 
