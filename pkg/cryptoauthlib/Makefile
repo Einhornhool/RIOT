@@ -8,7 +8,8 @@ PKG_LICENSE=BSD-3-Clause
 
 CMAKE_MINIMAL_VERSION = 3.6.0
 
-CFLAGS += -std=gnu11
+#CFLAGS += -std=gnu11 #-mfloat-abi=softfp
+CFLAGS += -Wno-unused-parameter -Wno-type-limits -Wno-implicit-fallthrough -Wno-unused-variable -Wno-strict-aliasing
 
 TOOLCHAIN_FILE=$(PKG_BUILDDIR)/xcompile-toolchain.cmake
 
@@ -18,10 +19,11 @@ all: $(PKG_BUILDDIR)/Makefile
 	cp $(PKG_BUILDDIR)/lib/libcryptoauth.a $(BINDIR)/$(PKG_NAME).a
 
 $(PKG_BUILDDIR)/Makefile: $(TOOLCHAIN_FILE)
-	cd $(PKG_BUILDDIR)/lib && \
+	cd $(PKG_BUILDDIR)/lib && CC="$(CC)" CXX="$(CXX)" \
 	CFLAGS="$(filter-out -Werror -Werror=old-style-definition -Werror=strict-prototypes -Werror=pedantic -Wpedantic -pedantic -std=gnu99, $(CFLAGS) ) " \
 	cmake -DCMAKE_TOOLCHAIN_FILE=$(TOOLCHAIN_FILE) \
-		  -Wno-dev
+		  -Wno-dev \
+		  -DCFLAGS="$(CFLAGS)" .
 
 $(TOOLCHAIN_FILE): git-download
 	$(RIOTTOOLS)/cmake/generate-xcompile-toolchain.sh > $(TOOLCHAIN_FILE)
