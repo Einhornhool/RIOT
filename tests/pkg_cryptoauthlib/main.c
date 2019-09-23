@@ -4,6 +4,7 @@
 #include "cryptoauthlib.h"
 #include "atca_execution.h"
 #include "periph/i2c.h"
+#include "periph_conf.h"
 
 #include <stdint.h>
 
@@ -52,11 +53,13 @@ void atca_delay_ms(uint32_t delay)
 
 int main(void)
 {
+    printf("first in main\n");
     ATCA_STATUS status;
     ATCAPacket packet;
 
     packet.param1 = INFO_MODE_REVISION;
     status = atca_execute_command(&packet, _gDevice);
+    printf("fourth in main\n");
 
     printf("%d\n", status);
     return status;
