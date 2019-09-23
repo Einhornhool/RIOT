@@ -8,8 +8,7 @@ PKG_LICENSE=BSD-3-Clause
 
 CMAKE_MINIMAL_VERSION = 3.6.0
 
-#CFLAGS += -std=gnu11 #-mfloat-abi=softfp
-CFLAGS += -Wno-unused-parameter -Wno-type-limits -Wno-implicit-fallthrough -Wno-unused-variable -Wno-strict-aliasing
+CFLAGS += -Wno-unused-parameter -Wno-type-limits -Wno-implicit-fallthrough -Wno-unused-variable -Wno-strict-aliasing -Wno-pedantic -std=gnu11
 
 TOOLCHAIN_FILE=$(PKG_BUILDDIR)/xcompile-toolchain.cmake
 
