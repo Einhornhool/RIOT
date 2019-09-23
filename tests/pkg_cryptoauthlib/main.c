@@ -56,10 +56,12 @@ int main(void)
     printf("first in main\n");
     ATCA_STATUS status;
     ATCAPacket packet;
-
+    ATCACommand ca_cmd = _gDevice->mCommands;
+    printf("%d\n", _gDevice->mCommands->dt);
     packet.param1 = INFO_MODE_REVISION;
+    status = atInfo(ca_cmd, &packet);
     status = atca_execute_command(&packet, _gDevice);
-    printf("fourth in main\n");
+    printf("second in main\n");
 
     printf("%d\n", status);
     return status;

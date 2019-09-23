@@ -22,7 +22,7 @@ $(PKG_BUILDDIR)/Makefile: $(TOOLCHAIN_FILE)
 	CFLAGS="$(filter-out -Werror -Werror=old-style-definition -Werror=strict-prototypes -Werror=pedantic -Wpedantic -pedantic -std=gnu99, $(CFLAGS) ) " \
 	cmake -DCMAKE_TOOLCHAIN_FILE=$(TOOLCHAIN_FILE) \
 		  -Wno-dev \
-		  -DCFLAGS="$(CFLAGS)" .
+		  -DCFLAGS="$(CFLAGS)" . 
 
 $(TOOLCHAIN_FILE): git-download
 	$(RIOTTOOLS)/cmake/generate-xcompile-toolchain.sh > $(TOOLCHAIN_FILE)
