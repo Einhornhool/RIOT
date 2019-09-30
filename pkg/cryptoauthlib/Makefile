@@ -8,8 +8,7 @@ PKG_LICENSE=BSD-3-Clause
 
 CMAKE_MINIMAL_VERSION = 3.6.0
 
-CFLAGS += -Wno-unused-parameter -Wno-type-limits -Wno-implicit-fallthrough -Wno-unused-variable -Wno-strict-aliasing -Wno-pedantic -std=gnu11
-
+CFLAGS += -Wno-unused-parameter -Wno-type-limits -Wno-implicit-fallthrough -Wno-unused-variable -Wno-strict-aliasing -Wno-pedantic -std=gnu11 -DATCA_HAL_I2C
 TOOLCHAIN_FILE=$(PKG_BUILDDIR)/xcompile-toolchain.cmake
 
 all: $(PKG_BUILDDIR)/Makefile
