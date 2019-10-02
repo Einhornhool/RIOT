@@ -1,19 +1,19 @@
 #include <stdint.h>
 #include <stdio.h>
-
 #include "periph/i2c.h"
+#include "periph/gpio.h"
 #include "periph_conf.h"
 #include "cryptoauthlib.h"
-#include "atca_hal.h"
+#include "hal/atca_hal.h"
 
 #include "xtimer.h"
-
 /* For ATECC508A*/
 /* Default adresse shifted by 1, to ignore lsb (rw bit) (0xC0 >> 1) */
 #define DEV_ADR (0x60)
 /* Word Address -> data area to read */
 #define WORD_ADR (0x03)
 
+#define DEVICE (I2C_DEV(0))
 /** \defgroup hal_ Hardware abstraction layer (hal_)
  *
  * \brief
@@ -55,7 +55,8 @@ void atca_delay_ms(uint32_t delay)
 
 ATCA_STATUS hal_i2c_init(void *hal, ATCAIfaceCfg *cfg)
 {
-    i2c_init(I2C_DEV(0));
+    i2c_init(DEVICE);
+    return ATCA_SUCCESS;
 }
 
 ATCA_STATUS hal_i2c_post_init(ATCAIface iface)
@@ -65,35 +66,47 @@ ATCA_STATUS hal_i2c_post_init(ATCAIface iface)
 
 ATCA_STATUS hal_i2c_send(ATCAIface iface, uint8_t *txdata, int txlength)
 {
-
+    i2c_write_regs(DEVICE, DEV_ADR, WORD_ADR, txdata, txlength, 0);
+    return ATCA_SUCCESS;
 }
 
 ATCA_STATUS hal_i2c_receive(ATCAIface iface, uint8_t *rxdata, uint16_t *rxlength)
 {
-    if (i2c_read_regs(I2C_DEV(0), DEV_ADR, WORD_ADR, rxdata, *rxlength))
-    {
-        
-    }
+    i2c_read_regs(DEVICE, DEV_ADR, WORD_ADR, rxdata, *rxlength, 0);
+    return ATCA_SUCCESS;
 }
 
 ATCA_STATUS hal_i2c_wake(ATCAIface iface)
 {
+    /* SDA as GPIO, Output */
+    gpio_init(GPIO_PIN(0, 16), GPIO_OUT);
+    gpio_clear(GPIO_PIN(0, 16));
 
+    /* wait 0 us (t(WLO)) */
+    xtimer_usleep(30);
+
+    /* reinitialize i2c-Device */
+    i2c_init(I2C_DEV(0));
+
+    /* wait 1500 us (t(WHI)) */
+    xtimer_usleep(1500);
+
+    return ATCA_SUCCESS;
 }
 
 ATCA_STATUS hal_i2c_idle(ATCAIface iface)
 {
-
+    return ATCA_UNIMPLEMENTED;
 }
 
 ATCA_STATUS hal_i2c_sleep(ATCAIface iface)
 {
-
+    return ATCA_UNIMPLEMENTED;
 }
 
 ATCA_STATUS hal_i2c_release(void *hal_data)
 {
-    if(i2c_release(I2C_DEV(0)) == -1)
+    if(i2c_release(DEVICE) == -1)
     {
         return ATCA_COMM_FAIL;
     }

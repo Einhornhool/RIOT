@@ -5,68 +5,38 @@
 #include "atca_execution.h"
 #include "hal/atca_hal.h"
 #include "periph/i2c.h"
+
+#include "periph/gpio.h"
 #include "periph_conf.h"
 
 #include <stdint.h>
 
 #include "xtimer.h"
 
-/** \defgroup hal_ Hardware abstraction layer (hal_)
- *
- * \brief
- * These methods define the hardware abstraction layer for communicating with a CryptoAuth device
- *
-   @{ */
-
-
-/** \brief This function delays for a number of microseconds.
- *
- * \param[in] delay number of microseconds to delay
- */
-void atca_delay_us(uint32_t delay)
-{
-    xtimer_usleep(delay);
-}
-
-/** \brief This function delays for a number of tens of microseconds.
- *
- * \param[in] delay number of 0.01 milliseconds to delay
- */
-void atca_delay_10us(uint32_t delay)
-{
-    atca_delay_us(delay * 10);
-}
-
-
-/** \brief This function delays for a number of milliseconds.
- *
- *         You can override this function if you like to do
- *         something else in your system while delaying.
- * \param[in] delay number of milliseconds to delay
- */
-
-/* ASF already has delay_ms - see delay.h */
-void atca_delay_ms(uint32_t delay)
-{
-    atca_delay_us(delay * 1000);
-}
-
-
 int main(void)
 {
-    printf("first in main\n");
     ATCA_STATUS status;
-    // uint8_t serial[9];
-    // ATCAPacket packet;
-    // ATCACommand ca_cmd = _gDevice->mCommands;
-    // printf("%d\n", _gDevice->mCommands->dt);
-    // packet.param1 = INFO_MODE_REVISION;
-    // status = atInfo(ca_cmd, &packet);
-    // status = atca_execute_command(&packet, _gDevice);
-    // status = atcab_read_serial_number(serial);
-    status=atcab_init(&cfg_ateccx08a_i2c_default);
-    printf("second in main\n");
-    // printf("serialno: %x %x %x %x", serial[0], serial[1], serial[2], serial[3]);
-    printf("%d\n", status);
-    return status;
+
+    ATCAIfaceCfg cfg = {
+                .iface_type             = ATCA_I2C_IFACE,
+                .devtype                = ATECC508A,
+                .atcai2c.slave_address  = 0XC0,
+                .atcai2c.bus            = 0,
+                .atcai2c.baud           = 400000,
+                .wake_delay             = 1500,
+                .rx_retries             = 20
+    };
+
+    uint8_t rand_out;
+    
+    status = atcab_init(&cfg);
+    printf("%x\n", status);
+    status = atcab_random(&rand_out);
+    printf("%x\n", status);
+
+    // uint8_t serial[4];
+    // atcab_read_serial_number(serial);
+    // printf("%d %d\n", serial[0], serial[1]);
+
+    return 0;
 }
