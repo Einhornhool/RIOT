@@ -86,7 +86,7 @@ void infoCmd(void)
     infoCmd.opcode = CMD_INFO;
     infoCmd.param1 = 0;
     infoCmd.param2 = 0;
-    infoCmd.count = sizeof(infoCmd);
+    infoCmd.count = CMD_SIZE_MIN;
 
     /* sizeof(infoCmd) minus checksum-bytes */
     uint16_t checksum = atCRC(infoCmd.count-2, &(infoCmd.count));
@@ -94,12 +94,12 @@ void infoCmd(void)
     infoCmd.data[1] = checksum >> 8;
 
     i2c_wakeup();
-    i2c_write_regs(I2C_DEV(0), DEV_ADR, WORD_ADR, &infoCmd, sizeof(infoCmd), 0);
+    i2c_write_regs(I2C_DEV(0), DEV_ADR, WORD_ADR, &infoCmd, CMD_SIZE_MIN, 0);
 
     /* 0,1 ms warten (Max Cmd Execution Time) */
     xtimer_usleep(INFO_EXEC_TIME);
 
-    i2c_read_bytes(I2C_DEV(0), DEV_ADR, &infoCmd, sizeof(infoCmd), 0);
+    i2c_read_bytes(I2C_DEV(0), DEV_ADR, &infoCmd, CMD_SIZE_MIN, 0);
 }
 
 /*  https://passwordsgenerator.net/sha256-hash-generator/
@@ -108,12 +108,12 @@ void infoCmd(void)
 
 int shaCmd(void)
 {
-    char teststring[] = "chili cheese frie";
+    char teststring[] = "chili cheese fries";
     uint8_t hashTest[] = {0x36, 0x46, 0xEF, 0xD6, 0x27, 0x6C, 0x0D, 0xCB, 0x4B, 0x07, 0x73, 0x41, 0x88, 0xF4, 
                             0x17, 0xB4, 0x38, 0xAA, 0xCF, 0xC6, 0xAE, 0xEF, 0xFA, 0xBE, 0xF3, 0xA8, 0x5D, 0x67, 0x42, 0x0D, 0xFE, 0xE5};
 
     uint8_t result[SHA256_HASH_SIZE+3];
-    memset(result, 0, SHA256_HASH_SIZE+3);
+    memset(result, 0, SHA256_HASH_SIZE+3); // alles in result auf 0 setzen
 
     uint16_t testStringSize = sizeof(teststring) -1;
 
@@ -160,16 +160,16 @@ int shaCmd(void)
 
 int main (void)
 {
-    // infoCmd();
-    int result = shaCmd();
-    if ( result == 0)
-    {
-        printf("Success\n");
-    }
-    else
-    {
-        printf("Bitch, this is wrong\n");
-    }
+    infoCmd();
+    // int result = shaCmd();
+    // if ( result == 0)
+    // {
+    //     printf("Success\n");
+    // }
+    // else
+    // {
+    //     printf("Bitch, this is wrong\n");
+    // }
     
 
     return 0;
