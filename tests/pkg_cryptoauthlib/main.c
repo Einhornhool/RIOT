@@ -27,11 +27,11 @@ int main(void)
                 .rx_retries             = 20
     };
 
-    uint8_t rand_out;
+    uint8_t revision[4];
     
     status = atcab_init(&cfg);
     printf("%x\n", status);
-    status = atcab_random(&rand_out);
+    status = atcab_info(revision);
     printf("%x\n", status);
 
     // uint8_t serial[4];
