@@ -66,13 +66,13 @@ ATCA_STATUS hal_i2c_post_init(ATCAIface iface)
 
 ATCA_STATUS hal_i2c_send(ATCAIface iface, uint8_t *txdata, int txlength)
 {
-    i2c_write_regs(DEVICE, DEV_ADR, WORD_ADR, txdata, txlength, 0);
+    i2c_write_bytes(DEVICE, DEV_ADR, txdata, txlength, 0);
     return ATCA_SUCCESS;
 }
 
 ATCA_STATUS hal_i2c_receive(ATCAIface iface, uint8_t *rxdata, uint16_t *rxlength)
 {
-    i2c_read_regs(DEVICE, DEV_ADR, WORD_ADR, rxdata, *rxlength, 0);
+    i2c_read_bytes(DEVICE, DEV_ADR, rxdata, *rxlength, 0);
     return ATCA_SUCCESS;
 }
 
@@ -96,12 +96,18 @@ ATCA_STATUS hal_i2c_wake(ATCAIface iface)
 
 ATCA_STATUS hal_i2c_idle(ATCAIface iface)
 {
-    return ATCA_UNIMPLEMENTED;
+    uint8_t idle[1] = { 1 }; // idle state = write byte to register adr. 0x02
+    i2c_write_regs(DEVICE, DEV_ADR, 0x02, idle, 1, 0);
+
+    return ATCA_SUCCESS;
 }
 
 ATCA_STATUS hal_i2c_sleep(ATCAIface iface)
 {
-    return ATCA_UNIMPLEMENTED;
+    uint8_t sleep[1] = {0x01};
+    i2c_write_regs(DEVICE, DEV_ADR, 0x02, sleep, 1, 0);
+
+    return ATCA_SUCCESS;
 }
 
 ATCA_STATUS hal_i2c_release(void *hal_data)
