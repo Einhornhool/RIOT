@@ -36,7 +36,7 @@ int main(void)
 
     // uint8_t serial[4];
     // atcab_read_serial_number(serial);
-    // printf("%d %d\n", serial[0], serial[1]);
+    printf("%d %d %d %d\n", revision[0], revision[1], revision[2], revision[3]);
 
     return 0;
 }
