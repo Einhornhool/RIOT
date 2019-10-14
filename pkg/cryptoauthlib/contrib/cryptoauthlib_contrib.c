@@ -7,13 +7,14 @@
 #include "hal/atca_hal.h"
 
 #include "xtimer.h"
+
 /* For ATECC508A*/
-/* Default adresse shifted by 1, to ignore lsb (rw bit) (0xC0 >> 1) */
+/* Default adress shifted by 1, to ignore lsb (rw bit) (0xC0 >> 1) */
 #define DEV_ADR (0x60)
 /* Word Address -> data area to read */
 #define WORD_ADR (0x03)
-
 #define DEVICE (I2C_DEV(0))
+
 /** \defgroup hal_ Hardware abstraction layer (hal_)
  *
  * \brief
@@ -66,7 +67,9 @@ ATCA_STATUS hal_i2c_post_init(ATCAIface iface)
 
 ATCA_STATUS hal_i2c_send(ATCAIface iface, uint8_t *txdata, int txlength)
 {
-    i2c_write_bytes(DEVICE, DEV_ADR, txdata, txlength, 0);
+    /* send txdata+1 to ignore _reserved-byte in command packet*/
+    i2c_write_regs(DEVICE, DEV_ADR, WORD_ADR, txdata+1, txlength, 0);
+    
     return ATCA_SUCCESS;
 }
 
@@ -78,7 +81,7 @@ ATCA_STATUS hal_i2c_receive(ATCAIface iface, uint8_t *rxdata, uint16_t *rxlength
 
 ATCA_STATUS hal_i2c_wake(ATCAIface iface)
 {
-    /* SDA as GPIO, Output */
+    /* SDA as GPIO, Output  to manually set it to low */
     gpio_init(GPIO_PIN(0, 16), GPIO_OUT);
     gpio_clear(GPIO_PIN(0, 16));
 
