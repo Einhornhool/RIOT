@@ -67,9 +67,9 @@ ATCA_STATUS hal_i2c_post_init(ATCAIface iface)
 
 ATCA_STATUS hal_i2c_send(ATCAIface iface, uint8_t *txdata, int txlength)
 {
-    txdata[0] = 0x03;
-    printf("txlength: %x", txlength);
-    i2c_write_bytes(DEVICE, DEV_ADR, txdata, txlength+1, 0); //txlength + 1 to send complete packet
+    txdata[0] = 0x03; // use _reserved byte in cmd packet to send word address
+    printf("txlength: %x\n", txlength);
+    i2c_write_bytes(DEVICE, DEV_ADR, txdata, txlength+1, 0); //txlength + 1 to send complete packet including word address
     
     return ATCA_SUCCESS;
 }
