@@ -160,16 +160,16 @@ int shaCmd(void)
 
 int main (void)
 {
-    infoCmd();
-    // int result = shaCmd();
-    // if ( result == 0)
-    // {
-    //     printf("Success\n");
-    // }
-    // else
-    // {
-    //     printf("Bitch, this is wrong\n");
-    // }
+    // infoCmd();
+    int result = shaCmd();
+    if ( result == 0)
+    {
+        printf("Success\n");
+    }
+    else
+    {
+        printf("Bitch, this is wrong\n");
+    }
     
 
     return 0;
