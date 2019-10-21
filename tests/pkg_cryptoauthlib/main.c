@@ -28,8 +28,6 @@ int main(void)
                 .wake_delay             = 1500,
                 .rx_retries             = 20
     };
-
-    // uint8_t revision[4] = { 0x00, 0x00, 0x00, 0x00 };
     
     uint8_t teststring[] = "chili cheese fries";
     uint8_t hashTest[] = {0x36, 0x46, 0xEF, 0xD6, 0x27, 0x6C, 0x0D, 0xCB, 0x4B, 0x07, 0x73, 0x41, 0x88, 0xF4, 
@@ -40,13 +38,14 @@ int main(void)
 
     uint16_t testStringSize = (sizeof(teststring)-1); // -1 to ignore \0
     
-    status = atcab_init(&cfg);
-    
-    // status = atcab_info(revision);
-    // printf("Execution: %x\n", status);
-    
+    status = atcab_init(&cfg);    
     status = atcab_sha_start();
     status = atcab_sha_end(result, testStringSize, teststring);
+
+    // status = atcab_random(result);
+    // printf("Status: %x\n", status);
+    // printf("Number: %x %x %x %x %x %x %x %x\n", 
+    // result[0], result[1], result[2],result[3], result[4],result[5],result[6],result[7]);
 
     if (memcmp(hashTest, result, SHA256_HASH_SIZE) == 0)
     {
@@ -54,8 +53,8 @@ int main(void)
     }
     else
     {
-        printf("Not a success: Error %x\n", status);
-    }
+        printf("Not a success. Status: %x\n", status);
+    // }
 
     return 0;
 }
