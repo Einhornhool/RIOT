@@ -11,17 +11,10 @@
 /* For ATECC508A*/
 /* Default adress shifted by 1, to ignore lsb (rw bit) (0xC0 >> 1) */
 #define DEV_ADR (0x60)
+
 /* Word Address -> data area to read */
 #define WORD_ADR (0x03)
 #define DEVICE (I2C_DEV(0))
-
-/** \defgroup hal_ Hardware abstraction layer (hal_)
- *
- * \brief
- * These methods define the hardware abstraction layer for communicating with a CryptoAuth device
- *
-   @{ */
-
 
 /** \brief This function delays for a number of microseconds.
  *
@@ -54,6 +47,7 @@ void atca_delay_ms(uint32_t delay)
     xtimer_usleep(delay * 1000);
 }
 
+
 ATCA_STATUS hal_i2c_init(void *hal, ATCAIfaceCfg *cfg)
 {
     i2c_init(DEVICE);
@@ -68,7 +62,6 @@ ATCA_STATUS hal_i2c_post_init(ATCAIface iface)
 ATCA_STATUS hal_i2c_send(ATCAIface iface, uint8_t *txdata, int txlength)
 {
     txdata[0] = 0x03; // use _reserved byte in cmd packet to send word address
-    printf("txlength: %x\n", txlength);
     i2c_write_bytes(DEVICE, DEV_ADR, txdata, txlength+1, 0); //txlength + 1 to send complete packet including word address
     
     return ATCA_SUCCESS;
@@ -76,7 +69,41 @@ ATCA_STATUS hal_i2c_send(ATCAIface iface, uint8_t *txdata, int txlength)
 
 ATCA_STATUS hal_i2c_receive(ATCAIface iface, uint8_t *rxdata, uint16_t *rxlength)
 {
-    i2c_read_bytes(DEVICE, DEV_ADR, rxdata, *rxlength, 0);
+    uint8_t retries = iface->mIfaceCFG->rx_retries;
+    uint8_t packageSize[1] = { 0 };
+    int ret = -1; // return value of riot functions
+
+    /*read first byte to get package size*/
+    while (retries-- > 0 && ret != 0)
+    {
+        ret = i2c_read_byte(DEVICE, DEV_ADR, packageSize, 0);
+    }
+
+    if (ret != 0)
+    {
+        return ATCA_RX_TIMEOUT;
+    }
+
+    uint8_t bytesToRead = packageSize[0]-1; // -1 because first byte was already read
+    
+    // if number of bytes exceeds length of rxdata, there's not enough space for result
+    if (bytesToRead > *rxlength) {
+        return ATCA_SMALL_BUFFER;
+    }
+
+    ret = -1;
+    retries = iface->mIfaceCFG->rx_retries;
+
+    while (retries-- > 0 && ret != 0)
+    {
+        ret = i2c_read_bytes(DEVICE, DEV_ADR, rxdata, bytesToRead, 0);
+    }
+
+    if (ret != 0)
+    {
+        return ATCA_RX_TIMEOUT;
+    }
+    
     return ATCA_SUCCESS;
 }
 
