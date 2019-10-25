@@ -1,6 +1,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include "cryptoauthlib_contrib.h"
+#include "atca_params.h"
 #include "xtimer.h"
 
 #include "errno.h"
@@ -29,7 +30,8 @@ void atca_delay_ms(uint32_t delay)
 
 ATCA_STATUS hal_i2c_init(void *hal, ATCAIfaceCfg *cfg)
 {
-    i2c_init(I2C_DEVICE);
+    i2c_init(ATCA_PARAM_I2C);
+    i2c_acquire(ATCA_PARAM_I2C);
     return ATCA_SUCCESS;
 }
 
@@ -48,7 +50,7 @@ ATCA_STATUS hal_i2c_send(ATCAIface iface, uint8_t *txdata, int txlength)
 
     /* reserved byte isn't included in txlength, yet, so we add 1 */
     int txlength_updated = txlength + 1;
-    ret = i2c_write_bytes(I2C_DEVICE, DEV_ADR, txdata, txlength_updated, 0); 
+    ret = i2c_write_bytes(ATCA_PARAM_I2C, ATCA_I2C_ADDRESS, txdata, txlength_updated, 0); 
     
     if (ret != 0)
     {
@@ -68,7 +70,7 @@ ATCA_STATUS hal_i2c_receive(ATCAIface iface, uint8_t *rxdata, uint16_t *rxlength
     to check if output will fit into rxdata */
     while (retries-- > 0 && ret != 0)
     {
-        ret = i2c_read_byte(I2C_DEVICE, DEV_ADR, length_package, 0);
+        ret = i2c_read_byte(ATCA_PARAM_I2C, ATCA_I2C_ADDRESS, length_package, 0);
     }
     if (ret != 0)
     {
@@ -93,7 +95,7 @@ ATCA_STATUS hal_i2c_receive(ATCAIface iface, uint8_t *rxdata, uint16_t *rxlength
     /* read rest of output and insert into rxdata array after first byte */
     while (retries-- > 0 && ret != 0)
     {
-        ret = i2c_read_bytes(I2C_DEVICE, DEV_ADR, (rxdata + 1), bytes_to_read, 0);
+        ret = i2c_read_bytes(ATCA_PARAM_I2C, ATCA_I2C_ADDRESS, (rxdata + 1), bytes_to_read, 0);
     }
 
     if (ret != 0)
@@ -108,7 +110,7 @@ ATCA_STATUS hal_i2c_receive(ATCAIface iface, uint8_t *rxdata, uint16_t *rxlength
 
 ATCA_STATUS hal_i2c_wake(ATCAIface iface)
 {
-    /* I2C_DEVICE needs to be woken up by holding sda pin low for some time and then reinitializing it */
+    /* ATCA_PARAM_I2C needs to be woken up by holding sda pin low for some time and then reinitializing it */
     
     /* SDA as GPIO, Output to manually set it to low */
     gpio_init(GPIO_PIN(0, 16), GPIO_OUT);
@@ -117,7 +119,7 @@ ATCA_STATUS hal_i2c_wake(ATCAIface iface)
     /* wait 30 us (t(WLO)) */
     xtimer_usleep(30);
 
-    /* reinitialize i2c-I2C_DEVICE */
+    /* reinitialize i2c-ATCA_PARAM_I2C */
     i2c_init(I2C_DEV(0));
 
     /* wait 1500 us (t(WHI)) */
@@ -130,7 +132,7 @@ ATCA_STATUS hal_i2c_idle(ATCAIface iface)
 {
     /* idle state = write byte to register adr. 0x02 */
     uint8_t idle[1] = { 0x01 }; 
-    i2c_write_regs(I2C_DEVICE, DEV_ADR, IDLE_ADR, idle, 1, 0);
+    i2c_write_regs(ATCA_PARAM_I2C, ATCA_I2C_ADDRESS, IDLE_ADR, idle, 1, 0);
 
     return ATCA_SUCCESS;
 }
@@ -139,14 +141,14 @@ ATCA_STATUS hal_i2c_sleep(ATCAIface iface)
 {
     /* sleep state = write byte to register adr. 0x01 */
     uint8_t sleep[1] = { 0x01 }; 
-    i2c_write_regs(I2C_DEVICE, DEV_ADR, SLEEP_ADR, sleep, 1, 0);
+    i2c_write_regs(ATCA_PARAM_I2C, ATCA_I2C_ADDRESS, SLEEP_ADR, sleep, 1, 0);
 
     return ATCA_SUCCESS;
 }
 
 ATCA_STATUS hal_i2c_release(void *hal_data)
 {
-    if(i2c_release(I2C_DEVICE) == -1)
+    if(i2c_release(ATCA_PARAM_I2C) == -1)
     {
         return ATCA_COMM_FAIL;
     }
@@ -158,7 +160,7 @@ ATCA_STATUS hal_i2c_discover_buses(int i2c_buses[], int max_buses)
     return ATCA_UNIMPLEMENTED;
 }
 
-ATCA_STATUS hal_i2c_discover_I2C_DEVICEs(int bus_num, ATCAIfaceCfg *cfg, int *found)
+ATCA_STATUS hal_i2c_discover_devices(int bus_num, ATCAIfaceCfg *cfg, int *found)
 {
     return ATCA_UNIMPLEMENTED;
 }
