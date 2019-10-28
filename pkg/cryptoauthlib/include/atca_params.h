@@ -27,7 +27,7 @@ extern "C" {
 #endif
 
 /**
- * @name    Set default configuration parameters for the ATCA Package
+ * @name    Set default configuration parameters for the ATCA device
  * @ingroup  config
  * @{
  */
@@ -37,20 +37,16 @@ extern "C" {
 #ifndef ATCA_PARAM_ADDR
 #define ATCA_PARAM_ADDR          (ATCA_I2C_ADDRESS)
 #endif
-#ifndef ATCA_PARAM_RATE
-#define ATCA_PARAM_RATE           
-#endif
 
 #ifndef ATCA_PARAMS
 #define ATCA_PARAMS                { .i2c  = ATCA_PARAM_I2C,  \
-                                     .addr = ATCA_PARAM_ADDR, \
-                                     .rate = ATCA_PARAM_RATE }
+                                     .addr = ATCA_PARAM_ADDR }
 #endif
 
 /**@}*/
 
 /**
- * @brief   ATCA configuration
+ * @brief   Allocation of ATCA configuration
  */
 static const ATCA_params_t ATCA_params[] =
 {

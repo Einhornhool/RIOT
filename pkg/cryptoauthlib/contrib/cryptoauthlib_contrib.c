@@ -13,6 +13,7 @@
 #include "hal/atca_hal.h"
 
 
+/* Timer functions */
 void atca_delay_us(uint32_t delay)
 {
     xtimer_usleep(delay);
@@ -28,6 +29,7 @@ void atca_delay_ms(uint32_t delay)
     xtimer_usleep(delay * 1000);
 }
 
+/* HAL I2C implementation */
 ATCA_STATUS hal_i2c_init(void *hal, ATCAIfaceCfg *cfg)
 {
     i2c_init(ATCA_PARAM_I2C);
@@ -46,11 +48,11 @@ ATCA_STATUS hal_i2c_send(ATCAIface iface, uint8_t *txdata, int txlength)
     
     /* First byte in command packages is reserved for HAL layer use as needed
     We use it for the word address value 0x03 */
-    txdata[0] = 0x03;
+    txdata[0] = ATCA_DATA_ADR;
 
     /* reserved byte isn't included in txlength, yet, so we add 1 */
     int txlength_updated = txlength + 1;
-    ret = i2c_write_bytes(ATCA_PARAM_I2C, ATCA_I2C_ADDRESS, txdata, txlength_updated, 0); 
+    ret = i2c_write_bytes(ATCA_PARAM_I2C, ATCA_PARAM_ADDR, txdata, txlength_updated, 0); 
     
     if (ret != 0)
     {
@@ -70,7 +72,7 @@ ATCA_STATUS hal_i2c_receive(ATCAIface iface, uint8_t *rxdata, uint16_t *rxlength
     to check if output will fit into rxdata */
     while (retries-- > 0 && ret != 0)
     {
-        ret = i2c_read_byte(ATCA_PARAM_I2C, ATCA_I2C_ADDRESS, length_package, 0);
+        ret = i2c_read_byte(ATCA_PARAM_I2C, ATCA_PARAM_ADDR, length_package, 0);
     }
     if (ret != 0)
     {
@@ -95,7 +97,7 @@ ATCA_STATUS hal_i2c_receive(ATCAIface iface, uint8_t *rxdata, uint16_t *rxlength
     /* read rest of output and insert into rxdata array after first byte */
     while (retries-- > 0 && ret != 0)
     {
-        ret = i2c_read_bytes(ATCA_PARAM_I2C, ATCA_I2C_ADDRESS, (rxdata + 1), bytes_to_read, 0);
+        ret = i2c_read_bytes(ATCA_PARAM_I2C, ATCA_PARAM_ADDR, (rxdata + 1), bytes_to_read, 0);
     }
 
     if (ret != 0)
@@ -132,7 +134,7 @@ ATCA_STATUS hal_i2c_idle(ATCAIface iface)
 {
     /* idle state = write byte to register adr. 0x02 */
     uint8_t idle[1] = { 0x01 }; 
-    i2c_write_regs(ATCA_PARAM_I2C, ATCA_I2C_ADDRESS, IDLE_ADR, idle, 1, 0);
+    i2c_write_regs(ATCA_PARAM_I2C, ATCA_PARAM_ADDR, ATCA_IDLE_ADR, idle, 1, 0);
 
     return ATCA_SUCCESS;
 }
@@ -141,7 +143,7 @@ ATCA_STATUS hal_i2c_sleep(ATCAIface iface)
 {
     /* sleep state = write byte to register adr. 0x01 */
     uint8_t sleep[1] = { 0x01 }; 
-    i2c_write_regs(ATCA_PARAM_I2C, ATCA_I2C_ADDRESS, SLEEP_ADR, sleep, 1, 0);
+    i2c_write_regs(ATCA_PARAM_I2C, ATCA_PARAM_ADDR, ATCA_SLEEP_ADR, sleep, 1, 0);
 
     return ATCA_SUCCESS;
 }
@@ -155,7 +157,7 @@ ATCA_STATUS hal_i2c_release(void *hal_data)
     return ATCA_SUCCESS;
 }
 
-ATCA_STATUS hal_i2c_discover_buses(int i2c_buses[], int max_buses)
+ATCA_STATUS hal_i2c_discover_buses(int ATCA_PARAM_I2Ces[], int max_buses)
 {
     return ATCA_UNIMPLEMENTED;
 }
