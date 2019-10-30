@@ -3,6 +3,7 @@ PKG_URL=https://github.com/MicrochipTech/cryptoauthlib
 #PKG_SOURCE_LOCAL=~/riot/cryptoauthlib
 PKG_VERSION=90591bb6de3702d5eab37b9d147608450a586a24
 PKG_LICENSE=BSD-3-Clause
+PKG_BUILDDIR ?= $(PKGDIRBASE)/$(PKG_NAME)
 
 .PHONY: all..cmake_version_supported
 

@@ -12,6 +12,16 @@
 #include "cryptoauthlib.h"
 #include "hal/atca_hal.h"
 
+void init_atca_cfg(ATCAIfaceCfg *cfg)
+{
+    cfg->iface_type             = ATCA_I2C_IFACE;
+    cfg->devtype                = ATECC508A;
+    cfg->atcai2c.slave_address  = 0XC0;
+    cfg->atcai2c.bus            = 0;
+    cfg->atcai2c.baud           = 400000;
+    cfg->wake_delay             = 1500;
+    cfg->rx_retries             = 20;
+}
 
 /* Timer functions */
 void atca_delay_us(uint32_t delay)

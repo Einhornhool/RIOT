@@ -48,7 +48,7 @@ typedef struct {
     uint8_t addr;           /**< the chip's address on the I2C bus */
     uint32_t baud;          /**< baud rate, typically 400 000 */
     uint16_t wake_delay;    /**< microseconds of tWHI + tWLO which varies based on chip type */
-    uint8_t rx_retries;        /**< number of retries to attempt for receiving bytes */
+    uint8_t rx_retries;     /**< number of retries to attempt for receiving bytes */
 } atca_params_t;
 
 /**

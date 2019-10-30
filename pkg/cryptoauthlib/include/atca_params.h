@@ -48,7 +48,7 @@ extern "C" {
 /**
  * @brief   Allocation of ATCA configuration
  */
-static const ATCA_params_t ATCA_params[] =
+static const atca_params_t ATCA_params[] =
 {
     ATCA_PARAMS
 };
