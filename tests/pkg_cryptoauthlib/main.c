@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "cryptoauthlib_contrib.h"
+
 #include "cryptoauthlib.h"
 #include "atca_execution.h"
 #include "hal/atca_hal.h"
@@ -19,6 +21,8 @@ int main(void)
 {
     ATCA_STATUS status;
 
+    atca_t dev;
+
     ATCAIfaceCfg cfg = {
                 .iface_type             = ATCA_I2C_IFACE,
                 .devtype                = ATECC508A,
@@ -28,7 +32,7 @@ int main(void)
                 .wake_delay             = 1500,
                 .rx_retries             = 20
     };
-    
+
     // uint8_t revision[4] = { 0x00, 0x00, 0x00, 0x00 };
 
     uint8_t teststring[] = "chili cheese fries";
