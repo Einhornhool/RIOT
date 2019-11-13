@@ -12,16 +12,22 @@
 #include "cryptoauthlib.h"
 #include "hal/atca_hal.h"
 
-void init_atca_cfg(ATCAIfaceCfg *cfg)
-{
-    cfg->iface_type             = ATCA_I2C_IFACE;
-    cfg->devtype                = ATECC508A;
-    cfg->atcai2c.slave_address  = 0XC0;
-    cfg->atcai2c.bus            = 0;
-    cfg->atcai2c.baud           = 400000;
-    cfg->wake_delay             = 1500;
-    cfg->rx_retries             = 20;
-}
+#define DEV_ADR (0x60)
+
+/* Word Address -> data area to read */
+#define WORD_ADR (0x03)
+#define DEVICE (I2C_DEV(0))
+
+// void init_atca_cfg(ATCAIfaceCfg *cfg)
+// {
+//     cfg->iface_type             = ATCA_I2C_IFACE;
+//     cfg->devtype                = ATECC508A;
+//     cfg->atcai2c.slave_address  = ATCA_I2C_ADDRESS;
+//     cfg->atcai2c.bus            = 0;
+//     cfg->atcai2c.baud           = 400000;
+//     cfg->wake_delay             = 1500;
+//     cfg->rx_retries             = 20;
+// }
 
 /* Timer functions */
 void atca_delay_us(uint32_t delay)
@@ -42,8 +48,8 @@ void atca_delay_ms(uint32_t delay)
 /* HAL I2C implementation */
 ATCA_STATUS hal_i2c_init(void *hal, ATCAIfaceCfg *cfg)
 {
-    i2c_init(ATCA_PARAM_I2C);
-    i2c_acquire(ATCA_PARAM_I2C);
+    i2c_init(DEVICE);
+    // i2c_acquire(ATCA_PARAM_I2C);
     return ATCA_SUCCESS;
 }
 
@@ -62,7 +68,7 @@ ATCA_STATUS hal_i2c_send(ATCAIface iface, uint8_t *txdata, int txlength)
 
     /* reserved byte isn't included in txlength, yet, so we add 1 */
     int txlength_updated = txlength + 1;
-    ret = i2c_write_bytes(ATCA_PARAM_I2C, ATCA_PARAM_ADDR, txdata, txlength_updated, 0); 
+    ret = i2c_write_bytes(DEVICE, DEV_ADR, txdata, txlength_updated, 0); 
     
     if (ret != 0)
     {
@@ -82,7 +88,7 @@ ATCA_STATUS hal_i2c_receive(ATCAIface iface, uint8_t *rxdata, uint16_t *rxlength
     to check if output will fit into rxdata */
     while (retries-- > 0 && ret != 0)
     {
-        ret = i2c_read_byte(ATCA_PARAM_I2C, ATCA_PARAM_ADDR, length_package, 0);
+        ret = i2c_read_byte(DEVICE, DEV_ADR, length_package, 0);
     }
     if (ret != 0)
     {
@@ -107,7 +113,7 @@ ATCA_STATUS hal_i2c_receive(ATCAIface iface, uint8_t *rxdata, uint16_t *rxlength
     /* read rest of output and insert into rxdata array after first byte */
     while (retries-- > 0 && ret != 0)
     {
-        ret = i2c_read_bytes(ATCA_PARAM_I2C, ATCA_PARAM_ADDR, (rxdata + 1), bytes_to_read, 0);
+        ret = i2c_read_bytes(DEVICE, DEV_ADR, (rxdata + 1), bytes_to_read, 0);
     }
 
     if (ret != 0)
@@ -144,7 +150,7 @@ ATCA_STATUS hal_i2c_idle(ATCAIface iface)
 {
     /* idle state = write byte to register adr. 0x02 */
     uint8_t idle[1] = { 0x01 }; 
-    i2c_write_regs(ATCA_PARAM_I2C, ATCA_PARAM_ADDR, ATCA_IDLE_ADR, idle, 1, 0);
+    i2c_write_regs(DEVICE, DEV_ADR, ATCA_IDLE_ADR, idle, 1, 0);
 
     return ATCA_SUCCESS;
 }
@@ -160,19 +166,18 @@ ATCA_STATUS hal_i2c_sleep(ATCAIface iface)
 
 ATCA_STATUS hal_i2c_release(void *hal_data)
 {
-    if(i2c_release(ATCA_PARAM_I2C) == -1)
-    {
-        return ATCA_COMM_FAIL;
-    }
+    i2c_release(DEVICE);
     return ATCA_SUCCESS;
 }
 
 ATCA_STATUS hal_i2c_discover_buses(int ATCA_PARAM_I2Ces[], int max_buses)
 {
+    printf("calling %s:%d\n",__FILE__, __LINE__);
     return ATCA_UNIMPLEMENTED;
 }
 
 ATCA_STATUS hal_i2c_discover_devices(int bus_num, ATCAIfaceCfg *cfg, int *found)
 {
+    printf("calling %s:%d\n",__FILE__, __LINE__);
     return ATCA_UNIMPLEMENTED;
 }

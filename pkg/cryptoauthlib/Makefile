@@ -1,7 +1,8 @@
 PKG_NAME=cryptoauthlib
 PKG_URL=https://github.com/MicrochipTech/cryptoauthlib
-#PKG_SOURCE_LOCAL=~/riot/cryptoauthlib
-PKG_VERSION=90591bb6de3702d5eab37b9d147608450a586a24
+# PKG_SOURCE_LOCAL=~/riot/cryptoauthlib
+PKG_VERSION=af8187776cd3f3faf8bed412eaf6ff7221862e19
+#PKG_VERSION=90591bb6de3702d5eab37b9d147608450a586a24
 PKG_LICENSE=BSD-3-Clause
 PKG_BUILDDIR ?= $(PKGDIRBASE)/$(PKG_NAME)
 
@@ -9,20 +10,21 @@ PKG_BUILDDIR ?= $(PKGDIRBASE)/$(PKG_NAME)
 
 CMAKE_MINIMAL_VERSION = 3.6.0
 
-CFLAGS += -Wno-unused-parameter -Wno-type-limits -Wno-implicit-fallthrough -Wno-unused-variable -Wno-strict-aliasing -Wno-pedantic -std=gnu11 -DATCA_HAL_I2C
+CFLAGS += -Wno-unused-parameter -Wno-missing-field-initializers -Wno-unused-function -Wno-type-limits -Wno-implicit-fallthrough -DRIOT -Wno-unused-variable -Wno-strict-aliasing -Wno-pedantic -std=gnu11 -DATCA_HAL_I2C
 TOOLCHAIN_FILE=$(PKG_BUILDDIR)/xcompile-toolchain.cmake
 
-all: $(PKG_BUILDDIR)/Makefile
+all: $(PKG_BUILDDIR)/lib/Makefile
 	CFLAGS="$(filter-out -Werror -Werror=old-style-definition -Werror=strict-prototypes -Werror=pedantic -Wpedantic -pedantic -std=gnu99, $(CFLAGS) ) " \
 	$(MAKE) -C $(PKG_BUILDDIR)/lib && \
 	cp $(PKG_BUILDDIR)/lib/libcryptoauth.a $(BINDIR)/$(PKG_NAME).a
 
-$(PKG_BUILDDIR)/Makefile: $(TOOLCHAIN_FILE)
+$(PKG_BUILDDIR)/lib/Makefile: $(TOOLCHAIN_FILE)
 	cd $(PKG_BUILDDIR)/lib && CC="$(CC)" CXX="$(CXX)" \
 	CFLAGS="$(filter-out -Werror -Werror=old-style-definition -Werror=strict-prototypes -Werror=pedantic -Wpedantic -pedantic -std=gnu99, $(CFLAGS) ) " \
 	cmake -DCMAKE_TOOLCHAIN_FILE=$(TOOLCHAIN_FILE) \
 		  -Wno-dev \
-		  -DCFLAGS="$(CFLAGS)" . 
+		  -DBUILD_TESTS=OFF \
+		  -DATCA_HAL_I2C:BOOL=TRUE .
 
 $(TOOLCHAIN_FILE): git-download
 	$(RIOTTOOLS)/cmake/generate-xcompile-toolchain.sh > $(TOOLCHAIN_FILE)
