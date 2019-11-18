@@ -1,5 +1,4 @@
 
-
 int run_cmd(const char *command);
 
 int main(void)

@@ -516,6 +516,7 @@ link: ..compiler-check ..build-message $(BASELIBS)
 endif # RIOTNOLINK
 
 $(ELFFILE): $(BASELIBS)
+	echo $(BASELIBS)
 	$(Q)$(_LINK) -o $@
 
 $(BINDIR)/$(APPLICATION_MODULE).a: pkg-build $(BUILDDEPS)
