@@ -7,7 +7,6 @@ TESTINCLDIR = $(PKGDIRBASE)/cryptoauthlib
 INCLUDES+= -I$(TESTINCLDIR)
 INCLUDES+= -I$(TESTINCLDIR)/test
 INCLUDES+= -I$(TESTINCLDIR)/test/jwt
-INCLUDES+= -I$(TESTINCLDIR)/test/lib
 INCLUDES+= -I$(TESTINCLDIR)/test/sha-byte-test-vectors
 INCLUDES+= -I$(TESTINCLDIR)/test/tng
 INCLUDES+= -I$(TESTINCLDIR)/test/aes_gcm_cavp_vectors
