@@ -1,8 +1,7 @@
 PKG_NAME=cryptoauthlib
-#PKG_URL=https://github.com/MicrochipTech/cryptoauthlib
-PKG_SOURCE_LOCAL=~/riot/cryptoauthlib
-#PKG_VERSION=af8187776cd3f3faf8bed412eaf6ff7221862e19
-#PKG_VERSION=90591bb6de3702d5eab37b9d147608450a586a24
+PKG_URL=https://github.com/MicrochipTech/cryptoauthlib
+# PKG_SOURCE_LOCAL=~/riot/cryptoauthlib
+PKG_VERSION=af8187776cd3f3faf8bed412eaf6ff7221862e19
 PKG_LICENSE=BSD-3-Clause
 PKG_BUILDDIR ?= $(PKGDIRBASE)/$(PKG_NAME)
 

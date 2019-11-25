@@ -1,7 +1,7 @@
 From 9b8457d4f7c351394241739cfd7febf0db59f321 Mon Sep 17 00:00:00 2001
 From: Lena Boeckmann <einhornhool@mobi31.inet.haw-hamburg.de>
 Date: Mon, 4 Nov 2019 13:34:57 +0100
-Subject: [PATCH 1/2] set cflags and correct commands
+Subject: [PATCH 1/3] set cflags and correct commands
 
 ---
  lib/CMakeLists.txt | 3 ++-
