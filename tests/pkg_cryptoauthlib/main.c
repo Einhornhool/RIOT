@@ -25,15 +25,15 @@ int main(void)
 
     // // atca_t dev;
 
-    // // ATCAIfaceCfg cfg = {
-    // //             .iface_type             = ATCA_I2C_IFACE,
-    // //             .devtype                = ATECC508A,
-    // //             .atcai2c.slave_address  = 0XC0,
-    // //             .atcai2c.bus            = 0,
-    // //             .atcai2c.baud           = 400000,
-    // //             .wake_delay             = 1500,
-    // //             .rx_retries             = 20
-    // // };
+    ATCAIfaceCfg cfg = {
+                .iface_type             = ATCA_I2C_IFACE,
+                .devtype                = ATECC508A,
+                .atcai2c.slave_address  = 0XC0,
+                .atcai2c.bus            = 200,
+                .atcai2c.baud           = 0,
+                .wake_delay             = 1500,
+                .rx_retries             = 20
+    };
 
     uint8_t revision[4] = { 0x00, 0x00, 0x00, 0x00 };
 
@@ -46,7 +46,8 @@ int main(void)
 
     // uint16_t test_string_size = (sizeof(teststring)-1); // -1 to ignore \0
     
-    status = atcab_init(&cfg_ateccx08a_i2c_default);
+    // status = atcab_init(&cfg_ateccx08a_i2c_default);
+    status = atcab_init(&cfg);
 
     // // status = atcab_random(result);
     // // printf("Status: %x\n", status);
