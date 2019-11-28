@@ -18,48 +18,9 @@
 #define SHA256_HASH_SIZE (32)
 
 
-static ATCA_STATUS get_info(uint8_t *revision)
-{
-    ATCA_STATUS status;
-
-    status = atcab_init(&cfg_ateccx08a_i2c_default);
-    if (status != ATCA_SUCCESS)
-    {
-        printf("atcab_init() failed with ret=0x%08X\r\n", status);
-        return status;
-    }
-
-    status = atcab_info(revision);
-    atcab_release();
-    if (status != ATCA_SUCCESS)
-    {
-        printf("atcab_info() failed with ret=0x%08X\r\n", status);
-    }
-
-    return status;
-}
-
-
-static void info(void)
-{
-    ATCA_STATUS status;
-    uint8_t revision[4];
-    char displaystr[15];
-    size_t displaylen = sizeof(displaystr);
-
-    status = get_info(revision);
-    if (status == ATCA_SUCCESS)
-    {
-        // dump revision
-        atcab_bin2hex(revision, 4, displaystr, &displaylen);
-        printf("revision:\r\n%s\r\n", displaystr);
-    }
-}
-
-
 int main(void)
 {
-    // ATCA_STATUS status;
+    ATCA_STATUS status;
 
 
     // // atca_t dev;
@@ -74,7 +35,7 @@ int main(void)
     // //             .rx_retries             = 20
     // // };
 
-    // // uint8_t revision[4] = { 0x00, 0x00, 0x00, 0x00 };
+    uint8_t revision[4] = { 0x00, 0x00, 0x00, 0x00 };
 
     // uint8_t teststring[] = "chili cheese fries";
     // uint8_t hash_test[] = {0x36, 0x46, 0xEF, 0xD6, 0x27, 0x6C, 0x0D, 0xCB, 0x4B, 0x07, 0x73, 0x41, 0x88, 0xF4, 
@@ -85,16 +46,16 @@ int main(void)
 
     // uint16_t test_string_size = (sizeof(teststring)-1); // -1 to ignore \0
     
-    // status = atcab_init(&cfg_ateccx08a_i2c_default);
+    status = atcab_init(&cfg_ateccx08a_i2c_default);
 
     // // status = atcab_random(result);
     // // printf("Status: %x\n", status);
     // // printf("Number: %x %x %x %x %x %x %x %x\n", 
     // // result[0], result[1], result[2],result[3], result[4],result[5],result[6],result[7]);
  
-    // // status = atcab_info(revision);
-    // // printf("info status= %x\n", status);
-    // // printf("Revision= %x %x %x %x\n", revision[0], revision[1], revision[2], revision[3]);
+    status = atcab_info(revision);
+    printf("info status= %x\n", status);
+    printf("Revision= %x %x %x %x\n", revision[0], revision[1], revision[2], revision[3]);
  
     // status = atcab_sha_start();
     // status = atcab_sha_end(result, test_string_size, teststring);
@@ -106,8 +67,6 @@ int main(void)
     // {
     //     printf("Not a success. Status: %x\n", status);
     // }
-
-    info();
 
     return 0;
 }
