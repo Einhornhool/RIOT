@@ -35,12 +35,12 @@ extern "C" {
 #define ATCA_PARAM_I2C           I2C_DEV(0)
 #endif
 #ifndef ATCA_PARAM_ADDR
-#define ATCA_PARAM_ADDR          (ATCA_I2C_ADDRESS)
+#define ATCA_PARAM_ADR          (ATCA_I2C_ADR)
 #endif
 
 #ifndef ATCA_PARAMS
 #define ATCA_PARAMS                { .i2c  = ATCA_PARAM_I2C,  \
-                                     .addr = ATCA_PARAM_ADDR }
+                                     .addr = ATCA_PARAM_ADR }
 #endif
 
 /**@}*/
@@ -48,7 +48,7 @@ extern "C" {
 /**
  * @brief   Allocation of ATCA configuration
  */
-static const atca_params_t ATCA_params[] =
+static const atca_params_t atca_params[] =
 {
     ATCA_PARAMS
 };
