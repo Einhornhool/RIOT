@@ -1,6 +1,6 @@
 #include <stdint.h>
 #include <stdio.h>
-#include "cryptoauthlib_contrib.h"
+#include "atca.h"
 #include "atca_params.h"
 #include "xtimer.h"
 
@@ -12,11 +12,12 @@
 #include "cryptoauthlib.h"
 #include "hal/atca_hal.h"
 
-#define DEV_ADR (0x60)
 
-/* Word Address -> data area to read */
-#define WORD_ADR (0x03)
-#define DEVICE (I2C_DEV(0))
+#define ATCA_SLEEP_ADR  (0x01)           /**< Address to write byte to enter sleep mode */
+#define ATCA_IDLE_ADR   (0x02)            /**< Address to write byte to enter idle mode */
+#define ATCA_DATA_ADR   (0x03)            /**< Word Address to read and write to data area */
+
+ATCAIfaceCfg dev;
 
 /* Timer functions */
 void atca_delay_us(uint32_t delay)
@@ -37,9 +38,9 @@ void atca_delay_ms(uint32_t delay)
 /* HAL I2C implementation */
 ATCA_STATUS hal_i2c_init(void *hal, ATCAIfaceCfg *cfg)
 {
-    /** init happens in auto_init */
-    // i2c_init(DEVICE);
-    // i2c_acquire(DEVICE);
+    ((atca_t*) hal)->params = *cfg;
+    dev = *cfg;
+    
     return ATCA_SUCCESS;
 }
 
@@ -58,7 +59,7 @@ ATCA_STATUS hal_i2c_send(ATCAIface iface, uint8_t *txdata, int txlength)
 
     /* reserved byte isn't included in txlength, yet, so we add 1 */
     int txlength_updated = txlength + 1;
-    ret = i2c_write_bytes(DEVICE, DEV_ADR, txdata, txlength_updated, 0); 
+    ret = i2c_write_bytes(dev.atcai2c.bus, dev.atcai2c.slave_address, txdata, txlength_updated, 0); 
     
     if (ret != 0)
     {
@@ -78,7 +79,7 @@ ATCA_STATUS hal_i2c_receive(ATCAIface iface, uint8_t *rxdata, uint16_t *rxlength
     to check if output will fit into rxdata */
     while (retries-- > 0 && ret != 0)
     {
-        ret = i2c_read_byte(DEVICE, DEV_ADR, length_package, 0);
+        ret = i2c_read_byte(dev.atcai2c.bus, dev.atcai2c.slave_address, length_package, 0);
     }
     if (ret != 0)
     {
@@ -103,7 +104,7 @@ ATCA_STATUS hal_i2c_receive(ATCAIface iface, uint8_t *rxdata, uint16_t *rxlength
     /* read rest of output and insert into rxdata array after first byte */
     while (retries-- > 0 && ret != 0)
     {
-        ret = i2c_read_bytes(DEVICE, DEV_ADR, (rxdata + 1), bytes_to_read, 0);
+        ret = i2c_read_bytes(dev.atcai2c.bus, dev.atcai2c.slave_address, (rxdata + 1), bytes_to_read, 0);
     }
 
     if (ret != 0)
@@ -140,7 +141,7 @@ ATCA_STATUS hal_i2c_idle(ATCAIface iface)
 {
     /* idle state = write byte to register adr. 0x02 */
     uint8_t idle[1] = { 0x01 }; 
-    i2c_write_regs(DEVICE, DEV_ADR, ATCA_IDLE_ADR, idle, 1, 0);
+    i2c_write_regs(dev.atcai2c.bus, dev.atcai2c.slave_address, ATCA_IDLE_ADR, idle, 1, 0);
 
     return ATCA_SUCCESS;
 }
@@ -149,14 +150,14 @@ ATCA_STATUS hal_i2c_sleep(ATCAIface iface)
 {
     /* sleep state = write byte to register adr. 0x01 */
     uint8_t sleep[1] = { 0x01 }; 
-    i2c_write_regs(ATCA_PARAM_I2C, ATCA_PARAM_ADDR, ATCA_SLEEP_ADR, sleep, 1, 0);
+    i2c_write_regs(ATCA_PARAM_I2C, ATCA_PARAM_ADR, ATCA_SLEEP_ADR, sleep, 1, 0);
 
     return ATCA_SUCCESS;
 }
 
 ATCA_STATUS hal_i2c_release(void *hal_data)
 {
-    i2c_release(DEVICE);
+    i2c_release(dev.atcai2c.bus);
     return ATCA_SUCCESS;
 }
 
