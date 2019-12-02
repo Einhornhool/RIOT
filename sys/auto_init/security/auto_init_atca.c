@@ -14,19 +14,21 @@
 #include "atca.h"
 #include "atca_params.h"
 
-#define ATCADEV_NUMOF (ARRAY_SIZE(atca_params))
+#define ENABLE_DEBUG                (0)
+#include "debug.h"
+
+#define ATCA_NUMOF (ARRAY_SIZE(atca_params))
 
 /**
  * @brief   Allocate memory for the device descriptors
  */
-static atca_t atca_devs[TMP00X_NUM];
+static atca_t atca_devs[ATCA_NUMOF];
 
 void auto_init_atca(void) {
-        for (int i = 0; i < ATCADEV_NUMOF; i++)
+        for (unsigned i = 0; i < ATCA_NUMOF; i++)
         {
-                atca_init(&atca_devs[i], &atca_params[i]);
+                hal_i2c_init(((void*) &atca_devs[i]), ((ATCAIfaceCfg*) &atca_params[i]));
         }
-    }
 }
 #else
 typedef int dont_be_pedantic;
