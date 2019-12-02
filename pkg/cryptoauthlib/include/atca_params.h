@@ -47,7 +47,7 @@ extern "C" {
 #ifndef ATCA_PARAMS
 #define ATCA_PARAMS                {    .iface_type             = ATCA_I2C_IFACE, \
                                         .devtype                = ATECC508A, \
-                                        .atcai2c.slave_address  = ATCA_I2C_ADR, \
+                                        .atcai2c.slave_address  = ATCA_PARAM_ADR, \
                                         .atcai2c.bus            = ATCA_PARAM_I2C, \
                                         .atcai2c.baud           = 0, \
                                         .wake_delay             = 1500, \
