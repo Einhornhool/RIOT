@@ -18,17 +18,6 @@
 #define WORD_ADR (0x03)
 #define DEVICE (I2C_DEV(0))
 
-// void init_atca_cfg(ATCAIfaceCfg *cfg)
-// {
-//     cfg->iface_type             = ATCA_I2C_IFACE;
-//     cfg->devtype                = ATECC508A;
-//     cfg->atcai2c.slave_address  = ATCA_I2C_ADDRESS;
-//     cfg->atcai2c.bus            = 0;
-//     cfg->atcai2c.baud           = 400000;
-//     cfg->wake_delay             = 1500;
-//     cfg->rx_retries             = 20;
-// }
-
 /* Timer functions */
 void atca_delay_us(uint32_t delay)
 {
@@ -48,8 +37,9 @@ void atca_delay_ms(uint32_t delay)
 /* HAL I2C implementation */
 ATCA_STATUS hal_i2c_init(void *hal, ATCAIfaceCfg *cfg)
 {
-    i2c_init(DEVICE);
-    // i2c_acquire(ATCA_PARAM_I2C);
+    /** init happens in auto_init */
+    // i2c_init(DEVICE);
+    // i2c_acquire(DEVICE);
     return ATCA_SUCCESS;
 }
 
