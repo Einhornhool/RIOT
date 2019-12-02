@@ -585,4 +585,13 @@ void auto_init(void)
     extern void suit_init_conditions(void);
     suit_init_conditions();
 #endif /* MODULE_SUIT */
+
+#ifdef MODULE_AUTO_INIT_SECURITY
+
+#ifdef MODULE_CRYPTOAUTHLIB
+    extern void auto_init_atca(void);
+    auto_init_atca();
+#endif /* MODULE_CRYPTOAUTHLIB */
+
+#endif /* MODULE_AUTO_INIT_SECURITY */
 }
