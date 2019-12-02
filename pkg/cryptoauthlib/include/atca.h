@@ -49,14 +49,6 @@ enum {
 #define ATCA_SLEEP_ADR (0x01)           /**< Address to write byte to enter sleep mode */
 #define ATCA_IDLE_ADR (0x02)            /**< Address to write byte to enter idle mode */
 
-// /**
-//  * @brief   ATCA configuration parameters
-//  */
-// typedef struct {
-//     i2c_t i2c;              /**< I2C bus the sensor is connected to */
-//     uint8_t addr;           /**< the chip's address on the I2C bus */
-// } atca_params_t;
-
 /**
  * @brief   Device descriptor contains ATCAIfaceCfg structure
  */

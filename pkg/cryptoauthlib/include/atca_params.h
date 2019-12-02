@@ -20,7 +20,6 @@
 #define ATCA_PARAMS_H
 
 #include "cryptoauthlib.h"
-#include "cryptoauthlib_contrib.h"
 
 #ifdef __cplusplus
 extern "C" {
