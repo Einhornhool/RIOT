@@ -30,7 +30,7 @@ extern "C" {
  * 
  * @brief   The CryptoAuth library defines the data structure ATCAIfaceCfg for device initialization.
  *          We use this instead of a self defined params struct and store it in the params array.
- *          The iface type can be defined by cflag.
+ *          The iface type can be defined via cflags.
  *          ATCAIfaceCfg contains a variable for the bus address, which is never used by the library. We use it to store Riot's I2C_DEV. 
  *          We also initialize the baud rate with zero, becaues Riot doesn't use baud.
  * 
@@ -43,6 +43,8 @@ extern "C" {
 #ifndef ATCA_PARAM_ADR
 #define ATCA_PARAM_ADR          (ATCA_I2C_ADR)
 #endif
+
+#define ATCA_NUMOF (sizeof(atca_params))
 
 #ifndef ATCA_PARAMS
 #define ATCA_PARAMS                {    .iface_type             = ATCA_I2C_IFACE, \
@@ -63,6 +65,11 @@ static const ATCAIfaceCfg atca_params[] =
 {
     ATCA_PARAMS
 };
+
+/**
+ * @brief   Allocate memory for the device descriptors
+ */
+static atca_t atca_devs[ATCA_NUMOF];
 
 #ifdef __cplusplus
 }

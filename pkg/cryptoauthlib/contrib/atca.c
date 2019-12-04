@@ -1,23 +1,13 @@
 #include <stdint.h>
 #include <stdio.h>
-#include "atca.h"
-#include "atca_params.h"
-#include "xtimer.h"
 
-#include "errno.h"
+#include "xtimer.h"
 #include "periph/i2c.h"
 #include "periph/gpio.h"
 #include "periph_conf.h"
 
-#include "cryptoauthlib.h"
-#include "hal/atca_hal.h"
-
-
-#define ATCA_SLEEP_ADR  (0x01)           /**< Address to write byte to enter sleep mode */
-#define ATCA_IDLE_ADR   (0x02)            /**< Address to write byte to enter idle mode */
-#define ATCA_DATA_ADR   (0x03)            /**< Word Address to read and write to data area */
-
-ATCAIfaceCfg dev;
+#include "atca.h"
+#include "atca_params.h"
 
 /* Timer functions */
 void atca_delay_us(uint32_t delay)
@@ -37,10 +27,18 @@ void atca_delay_ms(uint32_t delay)
 
 /* HAL I2C implementation */
 ATCA_STATUS hal_i2c_init(void *hal, ATCAIfaceCfg *cfg)
-{
-    ((atca_t*) hal)->params = *cfg;
-    dev = *cfg;
+{   
+    if(cfg->iface_type != ATCA_I2C_IFACE)
+    {
+        return ATCA_BAD_PARAM;
+    }
     
+    printf("Init params Bus: %x, Adress: %x\n", cfg->atcai2c.bus, cfg->atcai2c.slave_address);
+    atca_t* dev = &atca_devs[cfg->atcai2c.bus];
+
+    ((ATCAHAL_t*)hal)->hal_data = dev;
+    
+    printf("Bus: %x\n", cfg->atcai2c.bus);
     return ATCA_SUCCESS;
 }
 
@@ -51,6 +49,8 @@ ATCA_STATUS hal_i2c_post_init(ATCAIface iface)
 
 ATCA_STATUS hal_i2c_send(ATCAIface iface, uint8_t *txdata, int txlength)
 {
+    ATCAIfaceCfg *cfg = atgetifacecfg(iface);
+    
     int ret = -1; /* return value from riot functions */
     
     /* First byte in command packages is reserved for HAL layer use as needed
@@ -59,7 +59,7 @@ ATCA_STATUS hal_i2c_send(ATCAIface iface, uint8_t *txdata, int txlength)
 
     /* reserved byte isn't included in txlength, yet, so we add 1 */
     int txlength_updated = txlength + 1;
-    ret = i2c_write_bytes(dev.atcai2c.bus, dev.atcai2c.slave_address, txdata, txlength_updated, 0); 
+    ret = i2c_write_bytes(cfg->atcai2c.bus, (cfg->atcai2c.slave_address >> 1), txdata, txlength_updated, 0); 
     
     if (ret != 0)
     {
@@ -71,7 +71,8 @@ ATCA_STATUS hal_i2c_send(ATCAIface iface, uint8_t *txdata, int txlength)
 
 ATCA_STATUS hal_i2c_receive(ATCAIface iface, uint8_t *rxdata, uint16_t *rxlength)
 {
-    uint8_t retries = iface->mIfaceCFG->rx_retries;
+    ATCAIfaceCfg *cfg = atgetifacecfg(iface);
+    uint8_t retries = cfg->rx_retries;
     int ret = -1; /* return value of riot functions */
     uint8_t length_package[1] = { 0 };
 
@@ -79,7 +80,7 @@ ATCA_STATUS hal_i2c_receive(ATCAIface iface, uint8_t *rxdata, uint16_t *rxlength
     to check if output will fit into rxdata */
     while (retries-- > 0 && ret != 0)
     {
-        ret = i2c_read_byte(dev.atcai2c.bus, dev.atcai2c.slave_address, length_package, 0);
+        ret = i2c_read_byte(cfg->atcai2c.bus, (cfg->atcai2c.slave_address >> 1), length_package, 0);
     }
     if (ret != 0)
     {
@@ -104,7 +105,7 @@ ATCA_STATUS hal_i2c_receive(ATCAIface iface, uint8_t *rxdata, uint16_t *rxlength
     /* read rest of output and insert into rxdata array after first byte */
     while (retries-- > 0 && ret != 0)
     {
-        ret = i2c_read_bytes(dev.atcai2c.bus, dev.atcai2c.slave_address, (rxdata + 1), bytes_to_read, 0);
+        ret = i2c_read_bytes(cfg->atcai2c.bus, (cfg->atcai2c.slave_address >> 1), (rxdata + 1), bytes_to_read, 0);
     }
 
     if (ret != 0)
@@ -139,9 +140,10 @@ ATCA_STATUS hal_i2c_wake(ATCAIface iface)
 
 ATCA_STATUS hal_i2c_idle(ATCAIface iface)
 {
+    ATCAIfaceCfg *cfg = atgetifacecfg(iface);
     /* idle state = write byte to register adr. 0x02 */
-    uint8_t idle[1] = { 0x01 }; 
-    i2c_write_regs(dev.atcai2c.bus, dev.atcai2c.slave_address, ATCA_IDLE_ADR, idle, 1, 0);
+    uint8_t idle[1] = { 0x02 }; 
+    i2c_write_regs(cfg->atcai2c.bus, (cfg->atcai2c.slave_address >> 1), ATCA_IDLE_ADR, idle, 1, 0);
 
     return ATCA_SUCCESS;
 }
@@ -157,7 +159,8 @@ ATCA_STATUS hal_i2c_sleep(ATCAIface iface)
 
 ATCA_STATUS hal_i2c_release(void *hal_data)
 {
-    i2c_release(dev.atcai2c.bus);
+    atca_t* hal = (atca_t*)hal_data;
+    i2c_release(hal->params.atcai2c.bus);
     return ATCA_SUCCESS;
 }
 

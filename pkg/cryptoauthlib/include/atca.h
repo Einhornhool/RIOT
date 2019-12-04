@@ -25,8 +25,12 @@ extern "C" {
 
 /* For ATECC508A*/
 #ifndef ATCA_I2C_ADR
-#define ATCA_I2C_ADR (0x60)    /**< Default device adress is 0xC0. We need to shift it by 1, to ignore lsb (rw bit) */
+#define ATCA_I2C_ADR (0xC0)    /**< Default device adress is 0xC0. We need to shift it by 1, to ignore lsb (rw bit) */
 #endif
+
+#define ATCA_SLEEP_ADR  (0x01)           /**< Address to write byte to enter sleep mode */
+#define ATCA_IDLE_ADR   (0x02)            /**< Address to write byte to enter idle mode */
+#define ATCA_DATA_ADR   (0x03)            /**< Word Address to read and write to data area */
 
 /**
  * @brief   Device descriptor contains ATCAIfaceCfg structure
@@ -34,11 +38,6 @@ extern "C" {
 typedef struct {
     ATCAIfaceCfg params;        /**< device configuration */
 } atca_t;
-
-/**
- * @brief   ATCA device init
- */
-ATCA_STATUS hal_i2c_init(void *hal, ATCAIfaceCfg *cfg);
 
 #ifdef __cplusplus
 }
