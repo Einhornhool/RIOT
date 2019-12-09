@@ -1,6 +1,6 @@
 PKG_NAME=cryptoauthlib
 PKG_URL=https://github.com/MicrochipTech/cryptoauthlib
-# PKG_SOURCE_LOCAL=~/riot/cryptoauthlib
+# PKG_SOURCE_LOCAL=~/riot/crypto-patched
 PKG_VERSION=af8187776cd3f3faf8bed412eaf6ff7221862e19
 PKG_LICENSE=BSD-3-Clause
 PKG_BUILDDIR ?= $(PKGDIRBASE)/$(PKG_NAME)
@@ -9,7 +9,7 @@ PKG_BUILDDIR ?= $(PKGDIRBASE)/$(PKG_NAME)
 
 CMAKE_MINIMAL_VERSION = 3.6.0
 
-CFLAGS += -Wno-unused-parameter -Wno-missing-field-initializers -Wno-unused-function -Wno-type-limits -Wno-implicit-fallthrough -DRIOT -Wno-unused-variable -Wno-strict-aliasing -Wno-pedantic -std=gnu11 -DATCA_HAL_I2C
+CFLAGS += -Wno-unused-parameter -Wno-missing-field-initializers -Wno-unused-function -Wno-type-limits -Wno-implicit-fallthrough -DRIOT -Wno-unused-variable -Wno-strict-aliasing -Wno-pedantic -std=gnu11 
 TOOLCHAIN_FILE=$(PKG_BUILDDIR)/xcompile-toolchain.cmake
 
 all: $(PKG_BUILDDIR)/lib/Makefile
