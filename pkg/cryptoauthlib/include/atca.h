@@ -7,7 +7,7 @@
 * @file
 * @brief
 *
-* More detailed information about the file and the functionality implemented.
+* Some adress defines and device descriptor for Atmel CryptoAuth devices
 *
 * @author      
 *
@@ -19,7 +19,7 @@
 #include "periph/i2c.h"
 #include "cryptoauthlib.h"
 
-#ifdef __cplusplus
+#ifdef __cpluspluses
 extern "C" {
 #endif
 
