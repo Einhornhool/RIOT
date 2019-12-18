@@ -1,7 +1,7 @@
 INCLUDES += -I$(PKGDIRBASE)/cryptoauthlib
 INCLUDES += -I$(PKGDIRBASE)/cryptoauthlib/lib 
 INCLUDES += -I$(PKGDIRBASE)/cryptoauthlib/app
-INCLUDES += -I$(RIOTBASE)/pkg/cryptoauthlib/include
+INCLUDES += -I$(RIOTPKG)/cryptoauthlib/include
 
 DIRS += $(RIOTPKG)/cryptoauthlib/contrib
 
