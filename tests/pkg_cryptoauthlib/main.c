@@ -58,9 +58,7 @@ int main(void)
     // ATCA_STATUS status;
 
     // uint8_t revision[4] = { 0x00, 0x00, 0x00, 0x00 };
-    gpio_init(GPIO_PIN(0,18), GPIO_OUT);
     gpio_init(GPIO_PIN(0,22), GPIO_OUT);
-    gpio_init(GPIO_PIN(0,23), GPIO_OUT);
 
     uint8_t teststring[] = "chili cheese fries";
     uint8_t expected[] = {0x36, 0x46, 0xEF, 0xD6, 0x27, 0x6C, 0x0D, 0xCB, 0x4B, 0x07, 0x73, 0x41, 0x88, 0xF4, 
