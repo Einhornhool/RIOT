@@ -1,3 +1,18 @@
+/*
+ * Copyright (C)
+ *
+ * This file is subject to the terms and conditions of the GNU Lesser
+ * General Public License v2.1. See the file LICENSE in the top level
+ * directory for more details.
+ */
+
+/**
+ * @{
+ *
+ * @file
+ * @author
+ */
+
 #include <stdint.h>
 
 #include "xtimer.h"
@@ -27,13 +42,14 @@ void atca_delay_ms(uint32_t delay)
 /* Hal I2C implementation */
 ATCA_STATUS hal_i2c_init(void *hal, ATCAIfaceCfg *cfg)
 {   
-    
     if(cfg->iface_type != ATCA_I2C_IFACE)
     {
         return ATCA_BAD_PARAM;
     }
     
     ((ATCAHAL_t*)hal)->hal_data = cfg;
+    
+    atcab_wakeup();
     
     return ATCA_SUCCESS;
 }
@@ -45,9 +61,6 @@ ATCA_STATUS hal_i2c_post_init(ATCAIface iface)
 
 ATCA_STATUS hal_i2c_send(ATCAIface iface, uint8_t *txdata, int txlength)
 {
-    
-    gpio_set(GPIO_PIN(0,18));
-    
     ATCAIfaceCfg *cfg = atgetifacecfg(iface);
     
     int ret = -1; 
@@ -66,13 +79,11 @@ ATCA_STATUS hal_i2c_send(ATCAIface iface, uint8_t *txdata, int txlength)
     {
         return ATCA_TX_FAIL;
     }
-    gpio_clear(GPIO_PIN(0,18));
     return ATCA_SUCCESS;
 }
 
 ATCA_STATUS hal_i2c_receive(ATCAIface iface, uint8_t *rxdata, uint16_t *rxlength)
 {
-    gpio_set(GPIO_PIN(0,22));
     ATCAIfaceCfg *cfg = atgetifacecfg(iface);
 
     uint8_t retries = cfg->rx_retries;
@@ -118,31 +129,27 @@ ATCA_STATUS hal_i2c_receive(ATCAIface iface, uint8_t *rxdata, uint16_t *rxlength
 
     *rxlength = length_package[0];
     
-    gpio_clear(GPIO_PIN(0,22));
     return ATCA_SUCCESS;
 }
 
 ATCA_STATUS hal_i2c_wake(ATCAIface iface)
 {
-    /* ATCA_PARAM_I2C needs to be woken up by holding the sda pin low for some time and then reinitializing it */
     ATCAIfaceCfg *cfg = atgetifacecfg(iface);
+    /* ATCA_PARAM_I2C needs to be woken up by holding the sda pin low for some time and then reinitializing it */
     /* SDA as GPIO, Output to manually set it to low */
-    if(gpio_init(GPIO_PIN(0, 16), GPIO_OUT) == -1)
+    if(gpio_init(ATCA_GPIO_WAKE, GPIO_OUT) == -1)
     {
         return ATCA_GEN_FAIL;
     }
-
-    gpio_clear(GPIO_PIN(0, 16));
-
+    gpio_clear(ATCA_GPIO_WAKE);
     /* wait 30 us (t(WLO)) */
     xtimer_usleep(30);
-
+    
     /* reinitialize i2c-ATCA_PARAM_I2C */
     i2c_init(cfg->atcai2c.bus);
 
     /* wait 1500 us (t(WHI)) */
     xtimer_usleep(1500);
-
     return ATCA_SUCCESS;
 }
 
@@ -150,8 +157,8 @@ ATCA_STATUS hal_i2c_idle(ATCAIface iface)
 {
     ATCAIfaceCfg *cfg = atgetifacecfg(iface);
     /* idle state = write byte to register adr. 0x02 */
-    uint8_t idle[1] = { 0x02 }; 
-    i2c_write_regs(cfg->atcai2c.bus, (cfg->atcai2c.slave_address >> 1), ATCA_IDLE_ADR, idle, 1, 0);
+    uint8_t idle = 0x02; 
+    i2c_write_byte(cfg->atcai2c.bus, (cfg->atcai2c.slave_address >> 1), idle, 0);
 
     return ATCA_SUCCESS;
 }
@@ -160,8 +167,8 @@ ATCA_STATUS hal_i2c_sleep(ATCAIface iface)
 {
     ATCAIfaceCfg *cfg = atgetifacecfg(iface);
     /* sleep state = write byte to register adr. 0x01 */
-    uint8_t sleep[1] = { 0x01 }; 
-    i2c_write_regs(cfg->atcai2c.bus, (cfg->atcai2c.slave_address >> 1), ATCA_SLEEP_ADR, sleep, 1, 0);
+    uint8_t sleep = 0x01; 
+    i2c_write_byte(cfg->atcai2c.bus, (cfg->atcai2c.slave_address >> 1), sleep, 0);
 
     return ATCA_SUCCESS;
 }
