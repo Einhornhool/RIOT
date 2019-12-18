@@ -28,8 +28,10 @@ extern "C" {
 #define ATCA_I2C_ADR (0xC0)    /**< Default device adress is 0xC0. We need to shift it by 1, to ignore lsb (rw bit) */
 #endif
 
-#define ATCA_SLEEP_ADR  (0x01)           /**< Address to write byte to enter sleep mode */
-#define ATCA_IDLE_ADR   (0x02)            /**< Address to write byte to enter idle mode */
+#ifndef ATCA_GPIO_WAKE
+#define ATCA_GPIO_WAKE (GPIO_PIN(0, 16))     /**< Default GPIO pin to map SDA for wake function */
+#endif
+
 #define ATCA_DATA_ADR   (0x03)            /**< Word Address to read and write to data area */
 
 /**
