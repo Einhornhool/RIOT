@@ -1,6 +1,3 @@
 USEMODULE += xtimer
 USEMODULE += auto_init_security
-
-ifneq (,$(filter cryptoauthlib,$(USEPKG)))
-  USEMODULE += cryptoauthlib_contrib
-endif
+USEMODULE += cryptoauthlib_contrib
