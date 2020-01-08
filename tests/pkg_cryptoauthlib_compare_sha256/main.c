@@ -32,11 +32,13 @@
 /**
  * Function to call Riot software implementation of SHA-256
  */
-int test_riot_sha256(uint8_t* teststring, uint16_t len, uint8_t* expected, uint8_t* result)
+static int test_riot_sha256(uint8_t *teststring, uint16_t len, uint8_t *expected,
+                     uint8_t *result)
 {
-    sha256_context_t ctx;    
+    sha256_context_t ctx;
+
     sha256_init(&ctx);
-    sha256_update(&ctx, (void*)teststring, len);
+    sha256_update(&ctx, (void *)teststring, len);
     sha256_final(&ctx, result);
     return memcmp(expected, result, SHA256_HASH_SIZE);
 }
@@ -44,7 +46,8 @@ int test_riot_sha256(uint8_t* teststring, uint16_t len, uint8_t* expected, uint8
 /**
  * Function to call CryptoAuth hardware implementation of SHA-256
  */
-int test_atca_sha(uint8_t* teststring, uint16_t len, uint8_t* expected, uint8_t* result)
+static int test_atca_sha(uint8_t *teststring, uint16_t len, uint8_t *expected,
+                  uint8_t *result)
 {
     atcab_sha_start();
     atcab_sha_end(result, len, teststring);
@@ -54,30 +57,30 @@ int test_atca_sha(uint8_t* teststring, uint16_t len, uint8_t* expected, uint8_t*
 int main(void)
 {
     uint8_t teststring[] = "chili cheese fries";
-    uint8_t expected[] = {0x36, 0x46, 0xEF, 0xD6, 0x27, 0x6C, 0x0D, 0xCB, 0x4B, 0x07,0x73, 0x41, 0x88, 0xF4, 0x17, 0xB4, 0x38, 0xAA, 0xCF, 0xC6, 0xAE, 0xEF, 0xFA, 0xBE, 0xF3, 0xA8, 0x5D, 0x67, 0x42, 0x0D, 0xFE, 0xE5};
+    uint8_t expected[] =
+    { 0x36, 0x46, 0xEF, 0xD6, 0x27, 0x6C, 0x0D, 0xCB, 0x4B, 0x07, 0x73, 0x41,
+      0x88, 0xF4, 0x17, 0xB4, 0x38, 0xAA, 0xCF, 0xC6, 0xAE, 0xEF, 0xFA, 0xBE,
+      0xF3, 0xA8, 0x5D, 0x67, 0x42, 0x0D, 0xFE, 0xE5 };
 
-    uint8_t result[SHA256_HASH_SIZE]; // +3 to fit 1 byte length and 2 bytes checksum
-    memset(result, 0, SHA256_HASH_SIZE); // alles in result auf 0 setzen
+    uint8_t result[SHA256_HASH_SIZE];                       // +3 to fit 1 byte length and 2 bytes checksum
 
-    uint16_t test_string_size = (sizeof(teststring)-1); // -1 to ignore \0
+    memset(result, 0, SHA256_HASH_SIZE);                    // alles in result auf 0 setzen
 
-    if (test_riot_sha256(teststring, test_string_size, expected, result) == 0)
-    {
+    uint16_t test_string_size = (sizeof(teststring) - 1);   // -1 to ignore \0
+
+    if (test_riot_sha256(teststring, test_string_size, expected, result) == 0) {
         printf("Riot SHA256: Success\n");
     }
-    else
-    {
+    else {
         printf("Riot SHA256: Not a success.\n");
     }
     atca_delay_us(10);
     memset(result, 0, SHA256_HASH_SIZE);
 
-    if (test_atca_sha(teststring, test_string_size, expected, result) == 0)
-    {
+    if (test_atca_sha(teststring, test_string_size, expected, result) == 0) {
         printf("ATCA SHA256: Success\n");
     }
-    else
-    {
+    else {
         printf("ATCA SHA256: Not a success.\n");
     }
 
