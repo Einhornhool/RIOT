@@ -1,7 +1,7 @@
 PKG_NAME=cryptoauthlib
 PKG_URL=https://github.com/MicrochipTech/cryptoauthlib
 PKG_VERSION=af8187776cd3f3faf8bed412eaf6ff7221862e19
-PKG_LICENSE=BSD-3-Clause
+PKG_LICENSE=LGPL-2.1
 PKG_BUILDDIR ?= $(PKGDIRBASE)/$(PKG_NAME)
 
 .PHONY: all..cmake_version_supported
