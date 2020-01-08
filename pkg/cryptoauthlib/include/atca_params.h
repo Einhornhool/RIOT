@@ -29,22 +29,25 @@ extern "C" {
 
 /**
  * @name    Set default GPIO pin for wake function.
- * 
- * @brief   If the device is asleep it needs to be woken up by driving the SDA pin
+ *
+ *          If the device is asleep it needs to be woken up by driving the SDA pin
  *          low for some time and reinitializing the bus. The GPIO pin must be the
  *          same as the SDA pin of the I2C device.
- * 
+ *
  * @ingroup  config
  * @{
  */
+
 #ifndef ATCA_GPIO_WAKE
 #define ATCA_GPIO_WAKE (GPIO_PIN(0, 16))
 #endif
 
+/**@}*/
+
 /**
  * @name    Set default configuration parameters for the ATCA device
  *
- * @brief   The CryptoAuth library defines the data structure ATCAIfaceCfg for
+ *          The CryptoAuth library defines the data structure ATCAIfaceCfg for
  *          device initialization. We use this instead of a self defined params
  *          struct and store it in the params array.
  *          ATCAIfaceCfg contains a variable for the bus address, which is never
@@ -59,18 +62,22 @@ extern "C" {
 #ifndef ATCA_PARAM_I2C
 #define ATCA_PARAM_I2C           I2C_DEV(0)
 #endif
-#ifndef ATCA_PARAM_ADR
-#define ATCA_PARAM_ADR          (ATCA_I2C_ADR)
+#ifndef ATCA_PARAM_ADDR
+#define ATCA_PARAM_ADDR          (ATCA_I2C_ADDR)
+#endif
+#ifndef ATCA_RX_RETRIES
+#define ATCA_RX_RETRIES          (20)
 #endif
 
 #ifndef ATCA_PARAMS
-#define ATCA_PARAMS                {    .iface_type             = ATCA_I2C_IFACE, \
-                                        .devtype                = ATECC508A, \
-                                        .atcai2c.slave_address  = ATCA_PARAM_ADR, \
-                                        .atcai2c.bus            = ATCA_PARAM_I2C, \
-                                        .atcai2c.baud           = 0, \
-                                        .wake_delay             = 1500, \
-                                        .rx_retries             = 20 }
+#define ATCA_PARAMS                {    .iface_type = ATCA_I2C_IFACE, \
+                                        .devtype = ATECC508A, \
+                                        .atcai2c.slave_address = \
+                                            ATCA_PARAM_ADDR, \
+                                        .atcai2c.bus = ATCA_PARAM_I2C, \
+                                        .atcai2c.baud = -1,                        /**< Not used in RIOT */ \
+                                        .wake_delay = 1500, \
+                                        .rx_retries = ATCA_RX_RETRIES }
 #endif
 
 /**@}*/

@@ -25,8 +25,8 @@ extern "C" {
 #endif
 
 /**
- * @name    Helper function to use the library's unittests
- * @brief   This function is defined in the cryptoauth library via patch.
+ * @brief   Helper function to use the library's unittests
+ *          This function is defined in the cryptoauth library via patch.
  *          It is used to pass commands to run built-in unit tests of the library.
  */
 int run_cmd(const char *command);
