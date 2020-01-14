@@ -17,7 +17,7 @@
  *
  * @}
  */
-
+#include <stdio.h>
 #include <stdint.h>
 #include "xtimer.h"
 #include "periph/i2c.h"
@@ -49,7 +49,6 @@ ATCA_STATUS hal_i2c_init(void *hal, ATCAIfaceCfg *cfg)
     if (cfg->iface_type != ATCA_I2C_IFACE) {
         return ATCA_BAD_PARAM;
     }
-
     ((ATCAHAL_t *)hal)->hal_data = cfg;
 
     atcab_wakeup();
@@ -145,21 +144,29 @@ ATCA_STATUS hal_i2c_receive(ATCAIface iface, uint8_t *rxdata,
 ATCA_STATUS hal_i2c_wake(ATCAIface iface)
 {
     ATCAIfaceCfg *cfg = atgetifacecfg(iface);
+    uint8_t data[4];
+    i2c_acquire(cfg->atcai2c.bus);
+    i2c_write_byte(cfg->atcai2c.bus, ATCA_WAKE_ADDR, 0x00, 0);
+    i2c_release(cfg->atcai2c.bus);
 
-    /* ATCA_PARAM_I2C needs to be woken up by holding the sda pin low for some time and then reinitializing it */
-    /* SDA as GPIO, Output to manually set it to low */
-    if (gpio_init(ATCA_GPIO_WAKE, GPIO_OUT) == -1) {
-        return ATCA_GEN_FAIL;
+    atca_delay_us(cfg->wake_delay);
+
+    uint8_t retries = cfg->rx_retries;
+    int status = -1;
+
+    i2c_acquire(cfg->atcai2c.bus);
+    while (retries-- > 0 && status != 0) {
+        status = i2c_read_bytes(cfg->atcai2c.bus,
+                               (cfg->atcai2c.slave_address >> 1),
+                               &data[0], 4, 0);
     }
-    gpio_clear(ATCA_GPIO_WAKE);
-    /* wait 30 us (t(WLO)) */
-    xtimer_usleep(WAKE_LOW_DURATION);
+    i2c_release(cfg->atcai2c.bus);
 
-    /* reinitialize i2c-ATCA_PARAM_I2C */
-    i2c_init(cfg->atcai2c.bus);
-    /* wait 1500 us (t(WHI)) */
-    xtimer_usleep(cfg->wake_delay);
-    return ATCA_SUCCESS;
+    if (status != ATCA_SUCCESS) {
+        return ATCA_COMM_FAIL;
+    }
+
+    return hal_check_wake(data, 4);
 }
 
 ATCA_STATUS hal_i2c_idle(ATCAIface iface)
