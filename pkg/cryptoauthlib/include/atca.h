@@ -33,6 +33,7 @@ extern "C" {
  */
 #define ATCA_I2C_ADDR (0xC0)    /**< Default device address is 0xC0 */
 
+#define ATCA_WAKE_ADDR   (0x00) /**< Word address to write 0 to device */
 #define ATCA_SLEEP_ADDR  (0x01) /**< Word address to write to for sleep mode */
 #define ATCA_IDLE_ADDR   (0x02) /**< Word address to write to for idle mode */
 #define ATCA_DATA_ADDR   (0x03) /**< Word address to read and write to data area */
