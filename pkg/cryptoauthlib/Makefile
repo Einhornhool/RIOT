@@ -2,18 +2,17 @@ PKG_NAME=cryptoauthlib
 PKG_URL=https://github.com/MicrochipTech/cryptoauthlib
 PKG_VERSION=af8187776cd3f3faf8bed412eaf6ff7221862e19
 PKG_LICENSE=LGPL-2.1
-PKG_BUILDDIR ?= $(PKGDIRBASE)/$(PKG_NAME)
+PKG_TEST_NAME=cryptoauthlib_test
+TESTINCLDIR = $(PKG_BUILDDIR)/test
 
 .PHONY: all..cmake_version_supported
 
 CMAKE_MINIMAL_VERSION = 3.6.0
 
-CFLAGS += -Wno-unused-parameter -Wno-missing-field-initializers -Wno-unused-function -Wno-type-limits -Wno-strict-aliasing  -Wno-unused-variable
+CFLAGS += -Wno-unused-parameter -Wno-missing-field-initializers -Wno-unused-function -Wno-type-limits -Wno-strict-aliasing -Wno-unused-variable -DATCA_HAL_I2C
 TOOLCHAIN_FILE=$(PKG_BUILDDIR)/xcompile-toolchain.cmake
 
 ifneq (,$(filter cryptoauthlib_test,$(USEMODULE)))
-PKG_TEST_NAME=cryptoauthlib_test \
-TESTINCLDIR = $(PKG_BUILDDIR)/test \
 all: cryptoauth build_tests
 else
 all: cryptoauth
