@@ -28,23 +28,6 @@ extern "C" {
 #endif
 
 /**
- * @name    Set default GPIO pin for wake function.
- *
- *          If the device is asleep it needs to be woken up by driving the SDA pin
- *          low for some time and reinitializing the bus. The GPIO pin must be the
- *          same as the SDA pin of the I2C device.
- *
- * @ingroup  config
- * @{
- */
-
-#ifndef ATCA_GPIO_WAKE
-#define ATCA_GPIO_WAKE (GPIO_PIN(0, 16))
-#endif
-
-/**@}*/
-
-/**
  * @name    Set default configuration parameters for the ATCA device
  *
  *          The CryptoAuth library defines the data structure ATCAIfaceCfg for
