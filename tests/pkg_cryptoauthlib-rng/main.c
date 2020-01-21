@@ -27,10 +27,14 @@
 int main(void)
 {
     uint8_t randout[4];
-    while(1) {
+    atcab_random(randout);
+    printf("%02x%02x%02x%02x\n", randout[0], randout[1], randout[2], randout[3]);
+    atcab_random(randout);
+    printf("%02x%02x%02x%02x\n", randout[0], randout[1], randout[2], randout[3]);
+    for(int i = 0; i < 3000000; i++) {
         atcab_random(randout);
         printf("%02x%02x%02x%02x\n", randout[0], randout[1], randout[2], randout[3]);
-        atca_delay_ms(500);
+        // atca_delay_ms(500);
     }
 
     return 0;
