@@ -32,13 +32,6 @@
  * Currently the functions hal_i2c_discover_devices and hal_i2c_discover_buses
  * are unimplemented, as well as hal_i2c_post_init.
  *
- * ### Wake up procedure
- *
- * When the device is in sleep or idle mode, it's necessary to send a wake up
- * sequence. In this implementation the wake up function maps the SDA pin to GPIO,
- * drives it low for 30 us, then reinitializes the bus and waits for 1500 us before
- * proceeding.
- *
  *
  * ## Tests
  *
@@ -50,7 +43,4 @@
  * as needed. Zones can only be locked permanently. Unlocking is not possible!
  * Also there is a test for comparing the runtime of the RIOT software implementation
  * and the CryptoAuth hardware implementation for calculating a SHA-256 hash value.
- * Currently the hardware is much slower than the software implementation, because
- * the way we implemented the function to wake up the device takes a very long time.
- * We're working on fixing this.
  */

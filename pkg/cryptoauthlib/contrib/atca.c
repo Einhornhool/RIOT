@@ -46,10 +46,10 @@ void atca_delay_ms(uint32_t delay)
 /* Hal I2C implementation */
 ATCA_STATUS hal_i2c_init(void *hal, ATCAIfaceCfg *cfg)
 {
+    (void) hal;
     if (cfg->iface_type != ATCA_I2C_IFACE) {
         return ATCA_BAD_PARAM;
     }
-    ((ATCAHAL_t *)hal)->hal_data = cfg;
 
     atcab_wakeup();
 
@@ -66,7 +66,6 @@ ATCA_STATUS hal_i2c_send(ATCAIface iface, uint8_t *txdata, int txlength)
 {
     ATCAIfaceCfg *cfg = atgetifacecfg(iface);
     int ret = -1;
-
     /* The first byte of the command package contains the word address */
     txdata[0] = ATCA_DATA_ADDR;
 
@@ -121,7 +120,7 @@ ATCA_STATUS hal_i2c_receive(ATCAIface iface, uint8_t *rxdata,
 
     /* reset ret and retries to read the rest of the output */
     ret = -1;
-    retries = iface->mIfaceCFG->rx_retries;
+    retries = cfg->rx_retries;
 
     /* read rest of output and insert into rxdata array after first byte */
     i2c_acquire(cfg->atcai2c.bus);
@@ -144,9 +143,9 @@ ATCA_STATUS hal_i2c_receive(ATCAIface iface, uint8_t *rxdata,
 ATCA_STATUS hal_i2c_wake(ATCAIface iface)
 {
     ATCAIfaceCfg *cfg = atgetifacecfg(iface);
-    uint8_t data[4];
+    uint8_t data[4] = { 0 };
     i2c_acquire(cfg->atcai2c.bus);
-    i2c_write_byte(cfg->atcai2c.bus, ATCA_WAKE_ADDR, 0x00, 0);
+    i2c_write_byte(cfg->atcai2c.bus, ATCA_WAKE_ADDR, data[0], 0);
     i2c_release(cfg->atcai2c.bus);
 
     atca_delay_us(cfg->wake_delay);
@@ -193,9 +192,10 @@ ATCA_STATUS hal_i2c_sleep(ATCAIface iface)
 
 ATCA_STATUS hal_i2c_release(void *hal_data)
 {
-    ATCAIfaceCfg *cfg = (ATCAIfaceCfg *)hal_data;
-
-    i2c_release(cfg->atcai2c.bus);
+    (void) hal_data;
+    /* This function is unimplemented, because currently the bus gets acquired
+    and released before and after each read or write operation. It returns
+    a success code, in case it gets called somewhere in the library. */
     return ATCA_SUCCESS;
 }
 
