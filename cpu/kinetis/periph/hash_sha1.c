@@ -60,21 +60,31 @@ static void sha1_step(int count, int func, int *i, int constant, sha1_context *c
     int temp;
     printf("index: %d\n", index);
     for (int j = 0; j < count; j++) {
+            /* Call hash function on states 1-3 and add state 4 */
+            /* ADRA -> Add to accumulation register */
             CAU->DIRECT[0] = MMCAU_2_CMDS((HASH+func), (ADRA+CA4));
+            /* Add constant to accumulation register */
             CAU->ADR_CAA = constant;
+            /* Load next value from buffer to CA5 register */
             CAU->LDR_CA[5] = ctx->buffer[index];
             temp = check_index(*i, 2);
             printf("temp + 2: %d\n", temp);
+            /* XOR content of CA5 with value +2 from buffer */
             CAU->XOR_CA[5] = ctx->buffer[temp];
             temp = check_index(*i, 8);
             printf("temp + 8: %d\n", temp);
+            /* XOR content of CA5 with value +8 from buffer */
             CAU->XOR_CA[5] = ctx->buffer[temp];
             temp = check_index(*i, 13);
             printf("temp + 13: %d\n", temp);
+            /* XOR content of CA5 with value +13 from buffer */
             CAU->XOR_CA[5] = ctx->buffer[temp];
+            /* rotate CA5 by 1 */
             CAU->ROTL_CA[5] = 1;
+            /* Load result in CA5 in next free position in buffer */
             ctx->buffer[index % 16] = CAU->STR_CA[5];
             index++;
+            /* add CA5 to accumulation register and shift registers */
             CAU->DIRECT[0] = MMCAU_2_CMDS((ADRA+CA5), SHS);
         }
     *i = index;
@@ -85,28 +95,40 @@ static void sha1_hash_block(sha1_context *ctx)
     int j;
     int i = 0;
     for (j = 0; j < 5; j++) {
+        /* Load states 0-4 into CA0-CA4 */
         CAU->LDR_CA[j] = ctx->state[j];
     }
 
+    /* Move CA0 into accumulation register CAA */
     CAU->DIRECT[0] = MMCAU_1_CMD((MVRA+CA0));       /* a -> CAA */
+    /* rotate CAA by 5 */
     CAU->ROTL_CAA = 5;                              /* rotate 5 */
 
+    /* the algorithm hashes 512 bit blocks (16 * 32 bit) */
+    /* add 16 * 32 bits to accumulation register CAA */
     for (j = 0; j < 16; j++) {
+        /* add Ch(b, c, d) and CA4 to CAA*/
         CAU->DIRECT[0] = MMCAU_2_CMDS((HASH+HFC), (ADRA+CA4));
+        /* add K0 to CAA */
         CAU->ADR_CAA = SHA1_K0;
+        /* add next value from buffer to CAA */
         CAU->ADR_CAA = ctx->buffer[i++];
+        /* shift registers */
         CAU->DIRECT[0] = MMCAU_1_CMD(SHS);
     }
 
+    /* perform hash algorithm on input */
     sha1_step(4, HFC, &i, SHA1_K0, ctx);
     sha1_step(20, HFP, &i, SHA1_K20, ctx);
     sha1_step(20, HFM, &i, SHA1_K40, ctx);
     sha1_step(20, HFP, &i, SHA1_K60, ctx);
 
     for (j = 0; j < 5; j++) {
+        /* add current states to registers CA0 - CA4 */
         CAU->ADR_CA[j] = ctx->state[j];
     }
     for (j = 4; j >= 0; j--) {
+        /* store CA0 - CA4 in state variables */
         ctx->state[j] = CAU->STR_CA[j];
     }
 }
