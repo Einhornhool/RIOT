@@ -17,9 +17,7 @@
  *
  * @file
  * @brief       Implementation of the SHA-1 hashing function
- *              https://github.com/linwenjian/Quadcopter_Will/blob/fd0b0d3db28ff4d2b93b3c481a0378bd0302ae57/Software/SDK1_1/platform/drivers/src/mmcau/src/mmcau_sha1_functions.c
  *
- * @author      Wei Dai and others
  * @author      Lena Boeckmann <lena.boeckmann@haw-hamburg.de>
  */
 
@@ -30,7 +28,7 @@
 #include "hashes/sha1.h"
 #include "mmcau_hash_sha1.h"
 
-#define ENABLE_DEBUG    (1)
+#define ENABLE_DEBUG    (0)
 #include "debug.h"
 
 #define SHA1_K0  0x5a827999
@@ -51,26 +49,41 @@ void sha1_init(sha1_context *ctx)
     ctx->buffer_offset = 0;
 }
 
-static void sha1_step(int count, int func, int* i, int constant, int *w)
+static int check_index(int ind, int off)
 {
+    return ((ind + off) >= 16) ? ((ind + off) % 16) : (ind + off);
+}
+
+static void sha1_step(int count, int func, int *i, int constant, sha1_context *ctx)
+{
+    int index = check_index(*i, 0);
+    int temp;
+    printf("index: %d\n", index);
     for (int j = 0; j < count; j++) {
             CAU->DIRECT[0] = MMCAU_2_CMDS((HASH+func), (ADRA+CA4));
             CAU->ADR_CAA = constant;
-            CAU->LDR_CA[5] = w[(*i)-16];
-            CAU->XOR_CA[5] = w[(*i)-14];
-            CAU->XOR_CA[5] = w[(*i)-8];
-            CAU->XOR_CA[5] = w[(*i)-3];
+            CAU->LDR_CA[5] = ctx->buffer[index];
+            temp = check_index(*i, 2);
+            printf("temp + 2: %d\n", temp);
+            CAU->XOR_CA[5] = ctx->buffer[temp];
+            temp = check_index(*i, 8);
+            printf("temp + 8: %d\n", temp);
+            CAU->XOR_CA[5] = ctx->buffer[temp];
+            temp = check_index(*i, 13);
+            printf("temp + 13: %d\n", temp);
+            CAU->XOR_CA[5] = ctx->buffer[temp];
             CAU->ROTL_CA[5] = 1;
-            w[(*i)++] = CAU->STR_CA[5];
+            ctx->buffer[index % 16] = CAU->STR_CA[5];
+            index++;
             CAU->DIRECT[0] = MMCAU_2_CMDS((ADRA+CA5), SHS);
         }
+    *i = index;
 }
 
 static void sha1_hash_block(sha1_context *ctx)
 {
     int j;
     int i = 0;
-    int w[80];
     for (j = 0; j < 5; j++) {
         CAU->LDR_CA[j] = ctx->state[j];
     }
@@ -79,17 +92,16 @@ static void sha1_hash_block(sha1_context *ctx)
     CAU->ROTL_CAA = 5;                              /* rotate 5 */
 
     for (j = 0; j < 16; j++) {
-        w[i] = ctx->buffer[i];
         CAU->DIRECT[0] = MMCAU_2_CMDS((HASH+HFC), (ADRA+CA4));
         CAU->ADR_CAA = SHA1_K0;
-        CAU->ADR_CAA = w[i++];
+        CAU->ADR_CAA = ctx->buffer[i++];
         CAU->DIRECT[0] = MMCAU_1_CMD(SHS);
     }
 
-    sha1_step(4, HFC, &i, SHA1_K0, w);
-    sha1_step(20, HFP, &i, SHA1_K20, w);
-    sha1_step(20, HFM, &i, SHA1_K40, w);
-    sha1_step(20, HFP, &i, SHA1_K60, w);
+    sha1_step(4, HFC, &i, SHA1_K0, ctx);
+    sha1_step(20, HFP, &i, SHA1_K20, ctx);
+    sha1_step(20, HFM, &i, SHA1_K40, ctx);
+    sha1_step(20, HFP, &i, SHA1_K60, ctx);
 
     for (j = 0; j < 5; j++) {
         CAU->ADR_CA[j] = ctx->state[j];

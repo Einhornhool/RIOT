@@ -96,6 +96,3 @@
 
 #define MMCAU_PPB_INDIRECT  (0xe0081800u)
 #define MMCAU_PPB_DIRECT    (0xe0081000u)
-
-// uint32_t* const mmcau_ppb_indirect = (uint32_t *)0xe0081800;
-// uint32_t* const mmcau_ppb_direct = (uint32_t *)0xe0081000;

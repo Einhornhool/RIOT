@@ -22,6 +22,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <string.h>
+
 #include "hashes/sha1.h"
 
 #include "periph/gpio.h"
@@ -43,7 +44,9 @@ int main(void)
 
     gpio_set(GPIO_PIN(2,5));
     sha1_init(&ctx);
+    gpio_clear(GPIO_PIN(2,5));
     sha1_update(&ctx, (unsigned char*)teststring, teststring_size);
+    gpio_set(GPIO_PIN(2,5));
     sha1_final(&ctx, result);
     gpio_clear(GPIO_PIN(2,5));
     if (memcmp(result, expected_result, SHA1_DIGEST_LENGTH) != 0) {
