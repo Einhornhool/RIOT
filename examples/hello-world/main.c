@@ -182,7 +182,6 @@ static void cifra_aes(void)
         printf("FAILED\n");
     }
 
-
     t_start = xtimer_now_usec();
     cf_aes_decrypt(&ctx, cipher, result);
     t_stop = xtimer_now_usec();
@@ -194,34 +193,6 @@ static void cifra_aes(void)
     printf("\n");
 }
 
-// static void relic_aes(void)
-// {
-//     printf("Relic AES\n");
-//     int aes_block_size = 16;
-//     uint8_t cipher[_AES_BLOCK_SIZE] = { 0x00 };
-//     uint8_t result[_AES_BLOCK_SIZE] = {0x00};
-//     uint8_t iv[16] = { 0x00 };
-//     uint8_t err;
-//     t_start = xtimer_now_usec();
-//     err = bc_aes_cbc_enc(cipher, &aes_block_size, TEST_0_INP, sizeof(TEST_0_INP), TEST_0_KEY, sizeof(TEST_0_KEY), iv);
-//     t_stop = xtimer_now_usec();
-//     time_diff = t_stop - t_start;
-//     printf("Err: %d\nEncryption: %ld us\n", err, time_diff);
-//     if (memcmp(cipher, TEST_0_ENC, _AES_BLOCK_SIZE) != 0) {
-//         printf("FAILED\n");
-//     }
-
-//     t_start = xtimer_now_usec();
-//     err = bc_aes_cbc_dec(result, &aes_block_size, cipher, sizeof(cipher), TEST_0_KEY, sizeof(TEST_0_KEY), iv);
-//     t_stop = xtimer_now_usec();
-//     time_diff = t_stop - t_start;
-//     printf("Err: %d\n Decryption: %ld us\n", err, time_diff);
-
-//     if (memcmp(result, TEST_0_INP, _AES_BLOCK_SIZE) != 0) {
-//         printf("FAILED\n");
-//     }
-//     printf("\n");
-// }
 int main(void)
 {
     puts("Hello World!");
@@ -229,10 +200,9 @@ int main(void)
     printf("You are running RIOT on a(n) %s board.\n", RIOT_BOARD);
     printf("This board features a(n) %s MCU.\n", RIOT_MCU);
 
-    // riot_aes();
-    // tinycrypt_aes();
-    // wolfssl_aes();
+    riot_aes();
+    tinycrypt_aes();
+    wolfssl_aes();
     cifra_aes();
-    // relic_aes();
     return 0;
 }

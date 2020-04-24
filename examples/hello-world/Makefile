@@ -15,7 +15,8 @@ USEPKG += cifra
 # USEPKG += relic
 USEMODULE += xtimer
 
-USEMODULE += crypto_3des
+# USEMODULE += crypto_aes
+USEMODULE += crypto_aes_precalculated
 USEMODULE += cipher_modes
 USEMODULE += wolfcrypt
 USEMODULE += wolfcrypt_aes
