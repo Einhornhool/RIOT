@@ -20,9 +20,14 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <stdint.h>
 
 #include "fmt.h"
 #include "tinycrypt/aes.h"
+
+#include "xtimer.h"
+
+uint32_t start, stop, t_diff;
 
 static void dump_block(const char *head, const uint8_t *block)
 {
@@ -55,8 +60,11 @@ int main(void)
     puts("128-bit key used for this test:");
     printf("key (ASCII): '%s'\n", key);
     dump_block("      key:", (const uint8_t *)key);
+    start = xtimer_now_usec();
     tc_aes128_set_encrypt_key(&s, (const uint8_t *)key);
-
+    stop = xtimer_now_usec();
+    t_diff = stop - start;
+    printf("TC set encrypt key: %ld us\n", t_diff);
     puts("\nData to encrypt (1 block of 16 bytes):");
     printf(" plain text: '%s'\n", plain);
     dump_block("      hex:", (const uint8_t *)plain);
@@ -65,14 +73,28 @@ int main(void)
     dump_block("   cypher:", cipher);
 
     /* encrypt data */
+
+    start = xtimer_now_usec();
     tc_aes_encrypt(cipher, (const uint8_t *)plain, &s);
+    stop = xtimer_now_usec();
+    t_diff = stop - start;
+    printf("TC encrypt: %ld us\n", t_diff);
 
     puts("\nEncrypted data:");
     dump_block("encrypted:", cipher);
 
     /* decrypt data again */
+    start = xtimer_now_usec();
     tc_aes128_set_decrypt_key(&s, (const uint8_t *)key);
+    stop = xtimer_now_usec();
+    t_diff = stop - start;
+    printf("TC set decrypt key: %ld us\n", t_diff);
+
+    start = xtimer_now_usec();
     tc_aes_decrypt(result, cipher, &s);
+    stop = xtimer_now_usec();
+    t_diff = stop - start;
+    printf("TC decrypt: %ld us\n", t_diff);
 
     puts("\nAnd now decrypt the cipher again:");
     dump_block("decrypted:", result);

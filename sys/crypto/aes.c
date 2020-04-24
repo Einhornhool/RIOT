@@ -39,12 +39,15 @@
 #include <stdint.h>
 #include "crypto/aes.h"
 #include "crypto/ciphers.h"
+#include "xtimer.h"
+
+uint32_t start[2], stop[2], t_diff[2];
 
 /**
  * Interface to the aes cipher
  */
 static const cipher_interface_t aes_interface = {
-    AES_BLOCK_SIZE,
+    _AES_BLOCK_SIZE,
     AES_KEY_SIZE,
     aes_init,
     aes_encrypt,
@@ -1031,13 +1034,15 @@ static int aes_set_decrypt_key(const unsigned char *userKey, const int bits,
 int aes_encrypt(const cipher_context_t *context, const uint8_t *plainBlock,
                 uint8_t *cipherBlock)
 {
+     start[0] = xtimer_now_usec();
     /* setup AES_KEY */
     int res;
     AES_KEY aeskey;
     const AES_KEY *key = &aeskey;
-
+     start[1] = xtimer_now_usec();
     res = aes_set_encrypt_key((unsigned char *)context->context,
                               AES_KEY_SIZE * 8, &aeskey);
+     stop[1] = xtimer_now_usec();
     if (res < 0) {
         return res;
     }
@@ -1289,6 +1294,10 @@ int aes_encrypt(const cipher_context_t *context, const uint8_t *plainBlock,
         (Te4((t2) & 0xff)       & 0x000000ff) ^
         rk[3];
     PUTU32(cipherBlock + 12, s3);
+    stop[0] = xtimer_now_usec();
+    t_diff[0] = stop[0] - start[0];
+    t_diff[1] = stop[1] - start[1];
+    printf("Set Encrypt Key: %ld us\nEncrypt: %ld us\n", t_diff[1], t_diff[0]);
     return 1;
 }
 
@@ -1300,13 +1309,14 @@ int aes_decrypt(const cipher_context_t *context, const uint8_t *cipherBlock,
                 uint8_t *plainBlock)
 {
     /* setup AES_KEY */
+    start[0] = xtimer_now_usec();
     int res;
     AES_KEY aeskey;
     const AES_KEY *key = &aeskey;
-
+     start[1] = xtimer_now_usec();
     res = aes_set_decrypt_key((unsigned char *)context->context,
                               AES_KEY_SIZE * 8, &aeskey);
-
+     stop[1] = xtimer_now_usec();
     if (res < 0) {
         return res;
     }
@@ -1550,6 +1560,10 @@ int aes_decrypt(const cipher_context_t *context, const uint8_t *cipherBlock,
         (Td4((t0) & 0xff)       & 0x000000ff) ^
         rk[3];
     PUTU32(plainBlock + 12, s3);
+    stop[0] = xtimer_now_usec();
+    t_diff[0] = stop[0] - start[0];
+    t_diff[1] = stop[1] - start[1];
+    printf("Set decrypt key: %ld us\nDecrypt: %ld us\n", t_diff[1], t_diff[0]);
     return 1;
 }
 

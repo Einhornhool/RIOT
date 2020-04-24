@@ -45,7 +45,7 @@ typedef uint8_t u8;
                           (ct)[3] = (u8)(st); }
 
 #define AES_MAXNR         14
-#define AES_BLOCK_SIZE    16
+#define _AES_BLOCK_SIZE    16
 #define AES_KEY_SIZE      16
 
 /**
