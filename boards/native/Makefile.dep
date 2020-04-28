@@ -21,3 +21,5 @@ ifneq (,$(filter socket_zep,$(USEMODULE)))
 endif
 
 USEMODULE += native-drivers
+
+-include $(RIOTCPU)/native/Makefile.dep

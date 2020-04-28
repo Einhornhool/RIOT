@@ -50,6 +50,20 @@ extern "C" {
 /** @} */
 
 /**
+ * @brief   Hardware crypto configuration
+ * @{
+ */
+static const hwcrypto_conf_t hwcrypto_config[] = {
+    {
+        .dev = CRYPTO,
+        .cmu = cmuClock_CRYPTO
+    }
+};
+
+#define HWCRYPTO_NUMOF      (1)
+/** @} */
+
+/**
  * @name    ADC configuration
  * @{
  */
