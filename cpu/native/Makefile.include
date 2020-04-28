@@ -8,5 +8,10 @@ endif
 ifneq (,$(filter periph_can,$(USEMODULE)))
   LINKFLAGS += -lsocketcan
 endif
+# include common hardware crypto functions
+USEMODULE += periph_common
+
+USEMODULE += periph
+USEMODULE += periph_uart
 
 TOOLCHAINS_SUPPORTED = gnu llvm afl

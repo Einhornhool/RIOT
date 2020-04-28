@@ -88,6 +88,19 @@ typedef enum {
 #endif /* MODULE_PERIPH_GPIO_LINUX | DOXYGEN */
 
 /**
+ * @name    Hardware crypto configuration
+ * @{
+ */
+#define HAVE_HWCRYPTO_AES128
+#define HAVE_HWCRYPTO_AES256
+#define HAVE_HWCRYPTO_SHA1
+#define HAVE_HWCRYPTO_SHA224
+#define HAVE_HWCRYPTO_SHA256
+#define HAVE_HWCRYPTO_SHA384
+#define HAVE_HWCRYPTO_SHA512
+/** @} */
+
+/**
  * @brief   Prevent shared timer functions from being used
  */
 #define PERIPH_TIMER_PROVIDES_SET
