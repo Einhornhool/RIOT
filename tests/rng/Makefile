@@ -5,7 +5,7 @@ MAIN_THREAD_SIZE = THREAD_STACKSIZE_DEFAULT+THREAD_EXTRA_STACKSIZE_PRINTF+256
 CFLAGS += -DTHREAD_STACKSIZE_MAIN=\($(MAIN_THREAD_SIZE)\)
 
 # override PRNG if desired (see sys/random for alternatives)
-# USEMODULE += prng_minstd
+USEMODULE += prng_sha1prng
 
 USEMODULE += fmt
 USEMODULE += random
