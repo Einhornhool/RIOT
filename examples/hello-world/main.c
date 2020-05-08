@@ -306,34 +306,34 @@ uint32_t start, stop, t_diff;
     }
 #endif
 
-// static void gecko_hw_aes(void)
-// {
-//     uint8_t data[AES_BLOCK_SIZE];
-//     memset(data, 0, AES_BLOCK_SIZE);
+static void gecko_hw_aes(void)
+{
+    uint8_t data[AES_BLOCK_SIZE];
+    memset(data, 0, AES_BLOCK_SIZE);
 
-//     CRYPTO_AES_ECB128(hwcrypto_config[0].dev, data, TEST_0_INP, 16, TEST_0_KEY, true);
-//     if (!memcmp(data, TEST_0_ENC, AES_BLOCK_SIZE)) {
-//         printf("AES encryption successful\n");
-//     }
-//     else {
-//         printf("AES encryption failed\n");
-//         for (int i = 0; i < 16; i++) {
-//             printf("%02x ", data[i]);
-//         }
-//         printf("\n");
-//     }
-//     CRYPTO_AES_ECB128(hwcrypto_config[0].dev, data, TEST_0_ENC, 16, TEST_0_KEY, false);
-//     if (!memcmp(data, TEST_0_INP, AES_BLOCK_SIZE)) {
-//         printf("AES decryption successful\n");
-//     }
-//     else {
-//         printf("AES decryption failed\n");
-//         for (int i = 0; i < 16; i++) {
-//             printf("%02x ", data[i]);
-//         }
-//         printf("\n");
-//     }
-// }
+    CRYPTO_AES_ECB128(CRYPTO, data, TEST_0_INP, 16, TEST_0_KEY, true);
+    if (!memcmp(data, TEST_0_ENC, AES_BLOCK_SIZE)) {
+        printf("Gecko AES encryption successful\n");
+    }
+    else {
+        printf("Gecko AES encryption failed\n");
+        for (int i = 0; i < 16; i++) {
+            printf("%02x ", data[i]);
+        }
+        printf("\n");
+    }
+    CRYPTO_AES_ECB128(CRYPTO, data, TEST_0_ENC, 16, TEST_0_KEY, false);
+    if (!memcmp(data, TEST_0_INP, AES_BLOCK_SIZE)) {
+        printf("Cecko AES decryption successful\n");
+    }
+    else {
+        printf("Gecko AES decryption failed\n");
+        for (int i = 0; i < 16; i++) {
+            printf("%02x ", data[i]);
+        }
+        printf("\n");
+    }
+}
 
 int main(void)
 {
@@ -347,8 +347,8 @@ int main(void)
     // and encryption much slower, though. */
 #ifdef FREESCALE_MMCAU
     mmcau_aes_test();
-// #elif MODULE_GECKO_SDK
-//     gecko_hw_aes();
+#elif MODULE_GECKO_SDK
+    gecko_hw_aes();
 #elif MODULE_TINYCRYPT
     tinycrypt_sha256();
     tinycrypt_aes();
