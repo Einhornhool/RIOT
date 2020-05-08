@@ -11,8 +11,6 @@ CFLAGS += -DWOLFSSL_AES_DIRECT
 
 USEPKG += tinycrypt
 USEPKG += wolfssl
-USEPKG += cifra
-# USEPKG += relic
 USEMODULE += xtimer
 
 # USEMODULE += crypto_aes

@@ -27,7 +27,8 @@
 #include "wolfssl/wolfcrypt/settings.h"
 #include "wolfssl/wolfcrypt/aes.h"
 #include "user_settings.h"
-// #include "relic.h"
+#include "em_device.h"
+#include "em_crypto.h"
 #include "xtimer.h"
 
 /* AES Test */
@@ -159,38 +160,20 @@ static void wolfssl_aes(void)
     printf("\n");
 }
 
-static void cifra_aes(void)
+static void gecko_hw_aes(void)
 {
-    printf("Cifra AES\n");
-    cf_aes_context ctx;
+    uint8_t cipher[32];
+    uint8_t result[32];
 
-    uint8_t cipher[_AES_BLOCK_SIZE] = {0x00};
-    uint8_t result[_AES_BLOCK_SIZE] = {0x00};
-
-    t_start = xtimer_now_usec();
-    cf_aes_init(&ctx, TEST_0_KEY, sizeof(TEST_0_KEY));
-    t_stop = xtimer_now_usec();
-    time_diff = t_stop - t_start;
-    printf("Set Key: %ld us\n", time_diff);
-
-    t_start = xtimer_now_usec();
-    cf_aes_encrypt(&ctx, TEST_0_INP, cipher);
-    t_stop = xtimer_now_usec();
-    time_diff = t_stop - t_start;
-    printf("Encryption: %ld us\n", time_diff);
+    CRYPTO_AES_ECB128(CRYPTO, cipher, TEST_0_INP, AES_BLOCK_SIZE, TEST_0_KEY, true);
     if (memcmp(cipher, TEST_0_ENC, _AES_BLOCK_SIZE) != 0) {
-        printf("FAILED\n");
+        printf("FAILED: %02x %02x %02x %02x\n", cipher[0], cipher[1], cipher[2], cipher[3]);
     }
 
-    t_start = xtimer_now_usec();
-    cf_aes_decrypt(&ctx, cipher, result);
-    t_stop = xtimer_now_usec();
-    time_diff = t_stop - t_start;
-    printf("Decryption: %ld us\n", time_diff);
+    CRYPTO_AES_ECB128(CRYPTO, result, TEST_0_ENC, AES_BLOCK_SIZE, TEST_0_KEY, false);
     if (memcmp(result, TEST_0_INP, _AES_BLOCK_SIZE) != 0) {
-        printf("FAILED\n");
+        printf("FAILED: %02x %02x %02x %02x\n", result[0], result[1], result[2], result[3]);
     }
-    printf("\n");
 }
 
 int main(void)
@@ -203,6 +186,6 @@ int main(void)
     riot_aes();
     tinycrypt_aes();
     wolfssl_aes();
-    cifra_aes();
+    gecko_hw_aes();
     return 0;
 }
