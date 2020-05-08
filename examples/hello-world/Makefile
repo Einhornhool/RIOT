@@ -8,7 +8,7 @@ BOARD ?= native
 # CFLAGS=-DFREESCALE_MMCAU
 
 # BASELIBS += ./lib_mmcau.a
-
+USEPKG += tinycrypt
 CFLAGS += -DCRYPTO_AES -Wno-unused-function
 
 # This has to be the absolute path to the RIOT base directory:

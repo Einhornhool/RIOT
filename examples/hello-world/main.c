@@ -23,13 +23,24 @@
 #include <stdint.h>
 #include <string.h>
 
+#ifdef FREESCALE_MMCAU
 #include "cau_api.h"
+#endif
+
+#ifdef MODULE_TINYCRYPT
+#include "tinycrypt/aes.h"
+#include "tinycrypt/sha256.h"
+#endif
+
+#include "em_device.h"
+#include "em_crypto.h"
 
 #include "hashes/sha1.h"
 #include "hashes/sha256.h"
 #include "crypto/aes.h"
 #include "crypto/ciphers.h"
 #include "xtimer.h"
+#include "periph_conf.h"
 #include "periph/gpio.h"
 
 /* SHA Tests */
@@ -61,55 +72,135 @@ static uint8_t TEST_0_ENC[] = {
 /* Timer variables */
 uint32_t start, stop, t_diff;
 
-static void sha1_test(void)
-{
-    #ifdef FREESCALE_MMCAU
-        printf("MMCAU Sha1\n");
-    #endif
-    start = xtimer_now_usec();
-    sha1(sha1_result, (unsigned char*)teststring, teststring_size);
-    stop = xtimer_now_usec();
-    t_diff = stop - start;
-    printf("Sha1 Time: %ld us\n", t_diff);
+#ifdef MODULE_TINYCRYPT
+/* Tinycrypt functions */
+    static void tinycrypt_aes(void)
+    {
+        printf("Tinycrypt AES\n");
+        struct tc_aes_key_sched_struct s;
 
-    gpio_clear(GPIO_PIN(2,5));
-    if (memcmp(sha1_result, expected_result_sha1, SHA1_DIGEST_LENGTH) != 0) {
-        printf("SHA-1 Failure\n");
+        /* some memory to store the encrypted data (add '\0` termination)*/
+        uint8_t cipher[TC_AES_BLOCK_SIZE + 1];
+        uint8_t result[TC_AES_BLOCK_SIZE + 1];
+        memset(cipher, 0, TC_AES_BLOCK_SIZE + 1);
+        memset(result, 0, TC_AES_BLOCK_SIZE + 1);
 
-        for (int i = 0; i < SHA1_DIGEST_LENGTH; i++) {
-            printf("%02x ", sha1_result[i]);
+        /* Initialize Key */
+        start = xtimer_now_usec();
+        tc_aes128_set_encrypt_key(&s, TEST_0_KEY);
+        stop = xtimer_now_usec();
+        t_diff = stop - start;
+        printf("TC set encrypt key: %ld us\n", t_diff);
+
+        /* encrypt data */
+        start = xtimer_now_usec();
+        tc_aes_encrypt(cipher, TEST_0_INP, &s);
+        stop = xtimer_now_usec();
+        t_diff = stop - start;
+        printf("TC encrypt: %ld us\n", t_diff);
+        if (memcmp(cipher, TEST_0_ENC, AES_BLOCK_SIZE) != 0) {
+            printf("FAILED\n");
+        }
+
+        /* decrypt data again */
+        start = xtimer_now_usec();
+        tc_aes128_set_decrypt_key(&s, TEST_0_KEY);
+        stop = xtimer_now_usec();
+        t_diff = stop - start;
+        printf("TC set decrypt key: %ld us\n", t_diff);
+
+        start = xtimer_now_usec();
+        tc_aes_decrypt(result, cipher, &s);
+        stop = xtimer_now_usec();
+        t_diff = stop - start;
+        printf("TC decrypt: %ld us\n", t_diff);
+        if (memcmp(result, TEST_0_INP, AES_BLOCK_SIZE) != 0) {
+            printf("FAILED\n");
         }
         printf("\n");
     }
-    else {
-        printf("SHA-1 Success\n");
-    }
-}
 
-static void sha256_test(void)
-{
-    #ifdef FREESCALE_MMCAU
-        printf("MMCAU Sha256\n");
-    #endif
-    start = xtimer_now_usec();
-    sha256((unsigned char*)teststring, teststring_size, sha256_result);
-    stop = xtimer_now_usec();
-    t_diff = stop - start;
-    printf("Sha256 Time: %ld us\n", t_diff);
+    static void tinycrypt_sha256(void) {
+        struct tc_sha256_state_struct s;
 
-    gpio_clear(GPIO_PIN(2,5));
-    if (memcmp(sha256_result, expected_result_sha256, SHA256_DIGEST_LENGTH) != 0) {
-        printf("SHA-256 Failure\n");
+        tc_sha256_init(&s);
 
-        for (int i = 0; i < SHA256_DIGEST_LENGTH; i++) {
-            printf("%02x ", sha256_result[i]);
+        start = xtimer_now_usec();
+        tc_sha256_update(&s, (uint8_t*) teststring, teststring_size);
+        stop = xtimer_now_usec();
+        t_diff = stop - start;
+        printf("Tinycrypt Sha256 Update: %ld us\n", t_diff);
+
+        start = xtimer_now_usec();
+        tc_sha256_final(sha256_result, &s);
+        stop = xtimer_now_usec();
+        t_diff = stop - start;
+        printf("Tinycrypt Sha256 Final: %ld us\n", t_diff);
+
+        gpio_clear(GPIO_PIN(2,5));
+        if (memcmp(sha256_result, expected_result_sha256, SHA256_DIGEST_LENGTH) != 0) {
+            printf("SHA-256 Failure\n");
+
+            for (int i = 0; i < SHA256_DIGEST_LENGTH; i++) {
+                printf("%02x ", sha256_result[i]);
+            }
+            printf("\n");
         }
-        printf("\n");
+        else {
+            printf("Tinycrypt SHA-256 Success\n");
+        }
     }
-    else {
-        printf("SHA-256 Success\n");
+#else
+    static void sha1_test(void)
+    {
+        #ifdef FREESCALE_MMCAU
+            printf("MMCAU Sha1\n");
+        #endif
+        start = xtimer_now_usec();
+        sha1(sha1_result, (unsigned char*)teststring, teststring_size);
+        stop = xtimer_now_usec();
+        t_diff = stop - start;
+        printf("Sha1 Time: %ld us\n", t_diff);
+
+        gpio_clear(GPIO_PIN(2,5));
+        if (memcmp(sha1_result, expected_result_sha1, SHA1_DIGEST_LENGTH) != 0) {
+            printf("SHA-1 Failure\n");
+
+            for (int i = 0; i < SHA1_DIGEST_LENGTH; i++) {
+                printf("%02x ", sha1_result[i]);
+            }
+            printf("\n");
+        }
+        else {
+            printf("SHA-1 Success\n");
+        }
     }
-}
+
+    static void sha256_test(void)
+    {
+        #ifdef FREESCALE_MMCAU
+            printf("MMCAU Sha256\n");
+        #endif
+        start = xtimer_now_usec();
+        sha256((unsigned char*)teststring, teststring_size, sha256_result);
+        stop = xtimer_now_usec();
+        t_diff = stop - start;
+        printf("Sha256 Time: %ld us\n", t_diff);
+
+        gpio_clear(GPIO_PIN(2,5));
+        if (memcmp(sha256_result, expected_result_sha256, SHA256_DIGEST_LENGTH) != 0) {
+            printf("SHA-256 Failure\n");
+
+            for (int i = 0; i < SHA256_DIGEST_LENGTH; i++) {
+                printf("%02x ", sha256_result[i]);
+            }
+            printf("\n");
+        }
+        else {
+            printf("SHA-256 Success\n");
+        }
+    }
+#endif
 
 #ifdef FREESCALE_MMCAU
     static void mmcau_aes_test(void)
@@ -212,6 +303,36 @@ static void sha256_test(void)
         }
     }
 #endif
+
+static void gecko_hw_aes(void)
+{
+    uint8_t data[AES_BLOCK_SIZE];
+    memset(data, 0, AES_BLOCK_SIZE);
+
+    CRYPTO_AES_ECB128(hwcrypto_config[0].dev, data, TEST_0_INP, 16, TEST_0_KEY, true);
+    if (!memcmp(data, TEST_0_ENC, AES_BLOCK_SIZE)) {
+        printf("AES encryption successful\n");
+    }
+    else {
+        printf("AES encryption failed\n");
+        for (int i = 0; i < 16; i++) {
+            printf("%02x ", data[i]);
+        }
+        printf("\n");
+    }
+    CRYPTO_AES_ECB128(hwcrypto_config[0].dev, data, TEST_0_ENC, 16, TEST_0_KEY, false);
+    if (!memcmp(data, TEST_0_INP, AES_BLOCK_SIZE)) {
+        printf("AES decryption successful\n");
+    }
+    else {
+        printf("AES decryption failed\n");
+        for (int i = 0; i < 16; i++) {
+            printf("%02x ", data[i]);
+        }
+        printf("\n");
+    }
+}
+
 int main(void)
 {
     puts("Hello World!");
@@ -222,11 +343,16 @@ int main(void)
     // Algorithms, which can be activated by setting the ENABLE_DEBUG flag
     // in the API Because of the internal printfs his makes the hashing
     // and encryption much slower, though. */
-    sha1_test();
-    sha256_test();
 #ifdef FREESCALE_MMCAU
     mmcau_aes_test();
+// #elif MODULE_GECKO_SDK
+//     gecko_hw_aes();
+#elif MODULE_TINYCRYPT
+    tinycrypt_sha256();
+    tinycrypt_aes();
 #else
+    sha1_test();
+    sha256_test();
     aes_test();
 #endif
     return 0;
