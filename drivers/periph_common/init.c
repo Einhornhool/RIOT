@@ -84,9 +84,3 @@ void periph_init(void)
     wdt_init();
 #endif
 }
-#ifdef MODULE_GECKO_SDK
-    /* initialize hardware crypto devices */
-    for (unsigned i = 0; i < HWCRYPTO_NUMOF; i++) {
-        hwcrypto_init(HWCRYPTO_DEV(i));
-    }
-#endif
