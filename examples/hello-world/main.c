@@ -32,8 +32,10 @@
 #include "tinycrypt/sha256.h"
 #endif
 
+#ifdef MODULE_GECKO_SDK
 #include "em_device.h"
 #include "em_crypto.h"
+#endif
 
 #include "hashes/sha1.h"
 #include "hashes/sha256.h"
@@ -157,7 +159,7 @@ uint32_t start, stop, t_diff;
             printf("MMCAU Sha1\n");
         #endif
         start = xtimer_now_usec();
-        sha1(sha1_result, (unsigned char*)teststring, teststring_size);
+        sha1(sha1_result, (unsigned char*)teststring, 20);
         stop = xtimer_now_usec();
         t_diff = stop - start;
         printf("Sha1 Time: %ld us\n", t_diff);
@@ -182,7 +184,7 @@ uint32_t start, stop, t_diff;
             printf("MMCAU Sha256\n");
         #endif
         start = xtimer_now_usec();
-        sha256((unsigned char*)teststring, teststring_size, sha256_result);
+        sha256((unsigned char*)teststring, 32, sha256_result);
         stop = xtimer_now_usec();
         t_diff = stop - start;
         printf("Sha256 Time: %ld us\n", t_diff);
@@ -304,34 +306,34 @@ uint32_t start, stop, t_diff;
     }
 #endif
 
-static void gecko_hw_aes(void)
-{
-    uint8_t data[AES_BLOCK_SIZE];
-    memset(data, 0, AES_BLOCK_SIZE);
+// static void gecko_hw_aes(void)
+// {
+//     uint8_t data[AES_BLOCK_SIZE];
+//     memset(data, 0, AES_BLOCK_SIZE);
 
-    CRYPTO_AES_ECB128(hwcrypto_config[0].dev, data, TEST_0_INP, 16, TEST_0_KEY, true);
-    if (!memcmp(data, TEST_0_ENC, AES_BLOCK_SIZE)) {
-        printf("AES encryption successful\n");
-    }
-    else {
-        printf("AES encryption failed\n");
-        for (int i = 0; i < 16; i++) {
-            printf("%02x ", data[i]);
-        }
-        printf("\n");
-    }
-    CRYPTO_AES_ECB128(hwcrypto_config[0].dev, data, TEST_0_ENC, 16, TEST_0_KEY, false);
-    if (!memcmp(data, TEST_0_INP, AES_BLOCK_SIZE)) {
-        printf("AES decryption successful\n");
-    }
-    else {
-        printf("AES decryption failed\n");
-        for (int i = 0; i < 16; i++) {
-            printf("%02x ", data[i]);
-        }
-        printf("\n");
-    }
-}
+//     CRYPTO_AES_ECB128(hwcrypto_config[0].dev, data, TEST_0_INP, 16, TEST_0_KEY, true);
+//     if (!memcmp(data, TEST_0_ENC, AES_BLOCK_SIZE)) {
+//         printf("AES encryption successful\n");
+//     }
+//     else {
+//         printf("AES encryption failed\n");
+//         for (int i = 0; i < 16; i++) {
+//             printf("%02x ", data[i]);
+//         }
+//         printf("\n");
+//     }
+//     CRYPTO_AES_ECB128(hwcrypto_config[0].dev, data, TEST_0_ENC, 16, TEST_0_KEY, false);
+//     if (!memcmp(data, TEST_0_INP, AES_BLOCK_SIZE)) {
+//         printf("AES decryption successful\n");
+//     }
+//     else {
+//         printf("AES decryption failed\n");
+//         for (int i = 0; i < 16; i++) {
+//             printf("%02x ", data[i]);
+//         }
+//         printf("\n");
+//     }
+// }
 
 int main(void)
 {
