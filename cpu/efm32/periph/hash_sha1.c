@@ -6,6 +6,8 @@
 #include "em_crypto.h"
 #include "em_device.h"
 
+#include "periph/hwcrypto.h"
+
 #include "periph_conf.h"
 
 #include "xtimer.h"
@@ -15,6 +17,8 @@
 
 uint32_t t_start[2], t_stop[2];
 uint32_t time[5];
+
+hwcrypto_t sha1_dev = HWCRYPTO_DEV(0);
 
 void sha1_init(sha1_context *ctx)
 {
@@ -29,11 +33,6 @@ void sha1_update(sha1_context *ctx, const void *data, size_t len)
     (void) len;
 }
 
-// static void sha1_pad(sha1_context *s)
-// {
-//     (void) s;
-// }
-
 void sha1_final(sha1_context *ctx, void *digest)
 {
    (void) ctx;
@@ -42,7 +41,9 @@ void sha1_final(sha1_context *ctx, void *digest)
 
 void sha1(void *digest, const void *data, size_t len)
 {
-    CRYPTO_SHA_1(hwcrypto_config[0].dev, data, (uint64_t) len, digest);
+    hwcrypto_acquire(sha1_dev);
+    CRYPTO_SHA_1(hwcrypto_config[sha1_dev].dev, (uint8_t*)data, (uint64_t) len, digest);
+    hwcrypto_release(sha1_dev);
 }
 
 #define HMAC_IPAD 0x36

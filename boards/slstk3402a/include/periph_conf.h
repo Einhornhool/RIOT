@@ -60,7 +60,7 @@ static const hwcrypto_conf_t hwcrypto_config[] = {
     }
 };
 
-#define HWCRYPTO_NUMOF      PERIPH_NUMOF(hwcrypto_config)
+#define HWCRYPTO_NUMOF      (1)
 /** @} */
 
 /**

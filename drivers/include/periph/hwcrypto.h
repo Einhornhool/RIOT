@@ -41,4 +41,28 @@ typedef unsigned int hwcrypto_t;
  */
 void hwcrypto_init(hwcrypto_t dev);
 
+/**
+ * @brief   Get mutually exclusive access to the hardware crypto peripheral.
+ *
+ * In case the peripheral is busy, this function will block until the
+ * peripheral is available again.
+ *
+ * @param[in] dev           the device to initialize
+ *
+ */
+void hwcrypto_acquire(hwcrypto_t dev);
+
+/**
+ * @brief   Release the hardware crypto peripheral to be used by others.
+ *
+ * @param[in] dev           the device to initialize
+ *
+ */
+void hwcrypto_release(hwcrypto_t dev);
+
+#ifdef __cplusplus
+}
+#endif
+
 #endif /* HWCRYPTO_H */
+/** @} */

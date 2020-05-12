@@ -67,6 +67,13 @@ void periph_init(void)
     rtc_init();
 #endif
 
+/* initialize hardware crypto devices */
+#ifdef MODULE_PERIPH_HWCRYPTO
+    for (unsigned i = 0; i < HWCRYPTO_NUMOF; i++) {
+        hwcrypto_init(HWCRYPTO_DEV(i));
+    }
+#endif
+
     /* Initialize RTT */
 #ifdef MODULE_PERIPH_RTT
     rtt_init();
