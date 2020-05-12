@@ -32,9 +32,15 @@
 #include "tinycrypt/sha256.h"
 #endif
 
+#include "periph/hwcrypto.h"
 #ifdef MODULE_GECKO_SDK
 #include "em_device.h"
 #include "em_crypto.h"
+#endif
+
+#ifdef ARM_CRYPTOCELL
+#include "crys_hash.h"
+#include "ssi_aes.h"
 #endif
 
 #include "hashes/sha1.h"
@@ -73,6 +79,137 @@ static uint8_t TEST_0_ENC[] = {
 
 /* Timer variables */
 uint32_t start, stop, t_diff;
+
+#ifdef ARM_CRYPTOCELL
+    static void cryptocell_sha1(void)
+    {
+        CRYS_HASHUserContext_t ctx;
+        CRYS_HASH_Result_t result;
+        start = xtimer_now_usec();
+        if (CRYS_HASH_Init(&ctx, CRYS_HASH_SHA1_mode)) {
+            printf("CC310 Sha1 Init failed\n");
+        }
+        if (CRYS_HASH_Update(&ctx, (uint8_t*)teststring, teststring_size)) {
+            printf("CC310 Sha1 Update failed\n");
+        }
+        if (CRYS_HASH_Finish(&ctx, result)) {
+            printf("CC310 Sha1 finish failed\n");
+        }
+        stop = xtimer_now_usec();
+        t_diff = stop - start;
+        printf("CC310 Sha1 Time: %ld us\n", t_diff);
+
+        if (memcmp((uint8_t*)result, expected_result_sha1, SHA1_DIGEST_LENGTH) != 0) {
+                printf("CC310 SHA-1 Failure\n");
+
+                for (int i = 0; i < SHA1_DIGEST_LENGTH; i++) {
+                    printf("%02x ", sha1_result[i]);
+                }
+                printf("\n");
+        }
+        else {
+            printf("CC310 SHA-1 Success\n");
+        }
+    }
+
+    static void cryptocell_sha256(void)
+    {
+        CRYS_HASHUserContext_t ctx;
+        CRYS_HASH_Result_t result;
+        start = xtimer_now_usec();
+        if (CRYS_HASH_Init(&ctx, CRYS_HASH_SHA256_mode)) {
+            printf("CC310 Sha256 Init failed\n");
+        }
+        if (CRYS_HASH_Update(&ctx, (uint8_t*) teststring, teststring_size)) {
+            printf("CC310 Sha256 Update failed\n");
+        }
+        if (CRYS_HASH_Finish(&ctx, result)) {
+            printf("CC310 Sha256 finish failed\n");
+        }
+        stop = xtimer_now_usec();
+        t_diff = stop - start;
+        printf("CC310 Sha256 Time: %ld us\n", t_diff);
+
+        if (memcmp((uint8_t*)result, expected_result_sha256, SHA256_DIGEST_LENGTH) != 0) {
+                printf("CC310 SHA-256 Failure\n");
+
+                for (int i = 0; i < SHA256_DIGEST_LENGTH; i++) {
+                    printf("%02x ", sha256_result[i]);
+                }
+                printf("\n");
+        }
+        else {
+            printf("CC310 SHA-256 Success\n");
+        }
+    }
+
+    static void cryptocell_aes(void)
+    {
+        SaSiAesUserContext_t enc, dec;
+        uint8_t data[AES_BLOCK_SIZE];
+        size_t data_size = 16;
+        if (SaSi_AesInit(&enc, SASI_AES_ENCRYPT, SASI_AES_MODE_ECB, SASI_AES_PADDING_NONE)) {
+            printf("CC310 AES encrypt init failed\n");
+        }
+        if (SaSi_AesInit(&enc, SASI_AES_DECRYPT, SASI_AES_MODE_ECB, SASI_AES_PADDING_NONE)) {
+            printf("CC310 AES decrypt init failed\n");
+        }
+
+        /* Encryption */
+        start = xtimer_now_usec();
+        if (SaSi_AesSetKey(&enc, SASI_AES_USER_KEY, TEST_0_KEY, AES_KEY_SIZE)) {
+            printf("CC310 AES set encrypt key failed\n");
+        }
+        stop = xtimer_now_usec();
+        t_diff = stop - start;
+        printf("CC310 AES set encrypt key time: %ld us\n", t_diff);
+
+        start = xtimer_now_usec();
+        if (SaSi_AesFinish(&enc, AES_BLOCK_SIZE, TEST_0_INP, AES_BLOCK_SIZE, data, &data_size)) {
+            printf("CC310 AES encrypt failed\n");
+        }
+        stop = xtimer_now_usec();
+        t_diff = stop - start;
+        printf("CC310 AES encryption time: %ld us\n", t_diff);
+        if (!memcmp(data, TEST_0_ENC, AES_BLOCK_SIZE)) {
+            printf("CC310 AES encryption successful\n");
+        }
+        else {
+            printf("CC310 AES encryption failed\n");
+            for (int i = 0; i < 16; i++) {
+                printf("%02x ", data[i]);
+            }
+            printf("\n");
+        }
+
+        /* Decryption */
+        start = xtimer_now_usec();
+        if (SaSi_AesSetKey(&dec, SASI_AES_USER_KEY, TEST_0_KEY, AES_KEY_SIZE)) {
+            printf("CC310 AES set decrypt key failed\n");
+        }
+        stop = xtimer_now_usec();
+        t_diff = stop - start;
+        printf("CC310 AES set decrypt key time: %ld us\n", t_diff);
+
+        start = xtimer_now_usec();
+        if (SaSi_AesFinish(&dec, AES_BLOCK_SIZE, TEST_0_ENC, AES_BLOCK_SIZE, data, &data_size)) {
+            printf("CC310 AES decrypt failed\n");
+        }
+        stop = xtimer_now_usec();
+        t_diff = stop - start;
+        printf("CC310 AES decryption time: %ld us\n", t_diff);
+        if (!memcmp(data, TEST_0_ENC, AES_BLOCK_SIZE)) {
+            printf("CC310 AES decryption successful\n");
+        }
+        else {
+            printf("CC310 AES decryption failed\n");
+            for (int i = 0; i < 16; i++) {
+                printf("%02x ", data[i]);
+            }
+            printf("\n");
+        }
+    }
+#endif
 
 #ifdef MODULE_TINYCRYPT
 /* Tinycrypt functions */
@@ -157,9 +294,11 @@ uint32_t start, stop, t_diff;
     {
         #ifdef FREESCALE_MMCAU
             printf("MMCAU Sha1\n");
+        #elif MODULE_GECKO_SDK
+            printf("Gecko SDK Sha1\n");
         #endif
         start = xtimer_now_usec();
-        sha1(sha1_result, (unsigned char*)teststring, 20);
+        sha1(sha1_result, (unsigned char*)teststring, teststring_size);
         stop = xtimer_now_usec();
         t_diff = stop - start;
         printf("Sha1 Time: %ld us\n", t_diff);
@@ -182,9 +321,11 @@ uint32_t start, stop, t_diff;
     {
         #ifdef FREESCALE_MMCAU
             printf("MMCAU Sha256\n");
+        #elif MODULE_GECKO_SDK
+            printf("Gecko SDK Sha256\n");
         #endif
         start = xtimer_now_usec();
-        sha256((unsigned char*)teststring, 32, sha256_result);
+        sha256((unsigned char*)teststring, teststring_size, sha256_result);
         stop = xtimer_now_usec();
         t_diff = stop - start;
         printf("Sha256 Time: %ld us\n", t_diff);
@@ -306,34 +447,7 @@ uint32_t start, stop, t_diff;
     }
 #endif
 
-static void gecko_hw_aes(void)
-{
-    uint8_t data[AES_BLOCK_SIZE];
-    memset(data, 0, AES_BLOCK_SIZE);
 
-    CRYPTO_AES_ECB128(CRYPTO, data, TEST_0_INP, 16, TEST_0_KEY, true);
-    if (!memcmp(data, TEST_0_ENC, AES_BLOCK_SIZE)) {
-        printf("Gecko AES encryption successful\n");
-    }
-    else {
-        printf("Gecko AES encryption failed\n");
-        for (int i = 0; i < 16; i++) {
-            printf("%02x ", data[i]);
-        }
-        printf("\n");
-    }
-    CRYPTO_AES_ECB128(CRYPTO, data, TEST_0_ENC, 16, TEST_0_KEY, false);
-    if (!memcmp(data, TEST_0_INP, AES_BLOCK_SIZE)) {
-        printf("Cecko AES decryption successful\n");
-    }
-    else {
-        printf("Gecko AES decryption failed\n");
-        for (int i = 0; i < 16; i++) {
-            printf("%02x ", data[i]);
-        }
-        printf("\n");
-    }
-}
 
 int main(void)
 {
@@ -345,10 +459,12 @@ int main(void)
     // Algorithms, which can be activated by setting the ENABLE_DEBUG flag
     // in the API Because of the internal printfs his makes the hashing
     // and encryption much slower, though. */
-#ifdef FREESCALE_MMCAU
+#ifdef ARM_CRYPTOCELL
+    cryptocell_sha1();
+    cryptocell_sha256();
+    cryptocell_aes();
+#elif FREESCALE_MMCAU
     mmcau_aes_test();
-#elif MODULE_GECKO_SDK
-    gecko_hw_aes();
 #elif MODULE_TINYCRYPT
     tinycrypt_sha256();
     tinycrypt_aes();
