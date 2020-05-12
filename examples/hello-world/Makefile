@@ -6,12 +6,13 @@ BOARD ?= native
 
 # USEMODULE += lib_mmcau
 # CFLAGS=-DFREESCALE_MMCAU
-
-INCLUDES += -I$(RIOTBASE)/examples/hello-world/includes-nrf
-BASELIBS += ./libnrf_cc310_0.9.12.a
-CFLAGS+=-DARM_CRYPTOCELL -DMODULE_CORTEXM_COMMON
-
 # BASELIBS += ./lib_mmcau.a
+
+# INCLUDES += -I$(RIOTBASE)/examples/hello-world/includes-nrf
+# USEMODULE += libnrf_cc310_0912
+# BASELIBS += ./libnrf_cc310_0.9.12.a
+# CFLAGS+=-DARM_CRYPTOCELL -DMODULE_CORTEXM_COMMON
+
 # USEPKG += tinycrypt
 CFLAGS += -DCRYPTO_AES -Wno-unused-function
 
