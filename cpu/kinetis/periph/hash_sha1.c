@@ -57,24 +57,6 @@ void sha1_init(sha1_context *ctx)
     ctx->byte_count = 0;
     ctx->buffer_offset = 0;
 }
-
-static void sha1_step(int count, int *i, int func, int constant, int *w)
-{
-    int index = *i;
-    for (int j = 0; j < count; j++) {
-            CAU->DIRECT[0] = MMCAU_2_CMDS((HASH+func), (ADRA+CA4));
-            CAU->ADR_CAA = constant;
-            CAU->LDR_CA[5] = w[index-16];
-            CAU->XOR_CA[5] = w[index-14];
-            CAU->XOR_CA[5] = w[index-8];
-            CAU->XOR_CA[5] = w[index-3];
-            CAU->ROTL_CA[5] = 1;
-            w[index++] = CAU->STR_CA[5];
-            CAU->DIRECT[0] = MMCAU_2_CMDS((ADRA+CA5), SHS);
-        }
-    *i = index;
-}
-
 #if ENABLE_DEBUG
 static void sha1_hash_block(sha1_context *ctx)
 {
@@ -134,9 +116,12 @@ static void sha1_hash_block(sha1_context *ctx)
     int j;
     int i = 0;
     int w[80];
-    for (j = 0; j < 5; j++) {
-        CAU->LDR_CA[j] = ctx->state[j];
-    }
+
+    CAU->LDR_CA[0] = ctx->state[0];
+    CAU->LDR_CA[1] = ctx->state[1];
+    CAU->LDR_CA[2] = ctx->state[2];
+    CAU->LDR_CA[3] = ctx->state[3];
+    CAU->LDR_CA[4] = ctx->state[4];
 
     CAU->DIRECT[0] = MMCAU_1_CMD((MVRA+CA0));
     CAU->ROTL_CAA = 5;
@@ -151,11 +136,50 @@ static void sha1_hash_block(sha1_context *ctx)
     }
 
     /* perform hash algorithm on input */
-    sha1_step(4, &i, HFC, SHA1_K0, w);
-    sha1_step(20, &i, HFP, SHA1_K20, w);
-    sha1_step(20, &i, HFM, SHA1_K40, w);
-    sha1_step(20, &i, HFP, SHA1_K60, w);
-
+    for (int j = 0; j < 4; j++) {
+        CAU->DIRECT[0] = MMCAU_2_CMDS((HASH+HFC), (ADRA+CA4));
+        CAU->ADR_CAA = SHA1_K0;
+        CAU->LDR_CA[5] = w[i-16];
+        CAU->XOR_CA[5] = w[i-14];
+        CAU->XOR_CA[5] = w[i-8];
+        CAU->XOR_CA[5] = w[i-3];
+        CAU->ROTL_CA[5] = 1;
+        w[i++] = CAU->STR_CA[5];
+        CAU->DIRECT[0] = MMCAU_2_CMDS((ADRA+CA5), SHS);
+    }
+    for (int j = 0; j < 20; j++) {
+        CAU->DIRECT[0] = MMCAU_2_CMDS((HASH+HFP), (ADRA+CA4));
+        CAU->ADR_CAA = SHA1_K20;
+        CAU->LDR_CA[5] = w[i-16];
+        CAU->XOR_CA[5] = w[i-14];
+        CAU->XOR_CA[5] = w[i-8];
+        CAU->XOR_CA[5] = w[i-3];
+        CAU->ROTL_CA[5] = 1;
+        w[i++] = CAU->STR_CA[5];
+        CAU->DIRECT[0] = MMCAU_2_CMDS((ADRA+CA5), SHS);
+    }
+    for (int j = 0; j < 20; j++) {
+        CAU->DIRECT[0] = MMCAU_2_CMDS((HASH+HFM), (ADRA+CA4));
+        CAU->ADR_CAA = SHA1_K40;
+        CAU->LDR_CA[5] = w[i-16];
+        CAU->XOR_CA[5] = w[i-14];
+        CAU->XOR_CA[5] = w[i-8];
+        CAU->XOR_CA[5] = w[i-3];
+        CAU->ROTL_CA[5] = 1;
+        w[i++] = CAU->STR_CA[5];
+        CAU->DIRECT[0] = MMCAU_2_CMDS((ADRA+CA5), SHS);
+    }
+    for (int j = 0; j < 20; j++) {
+        CAU->DIRECT[0] = MMCAU_2_CMDS((HASH+HFP), (ADRA+CA4));
+        CAU->ADR_CAA = SHA1_K60;
+        CAU->LDR_CA[5] = w[i-16];
+        CAU->XOR_CA[5] = w[i-14];
+        CAU->XOR_CA[5] = w[i-8];
+        CAU->XOR_CA[5] = w[i-3];
+        CAU->ROTL_CA[5] = 1;
+        w[i++] = CAU->STR_CA[5];
+        CAU->DIRECT[0] = MMCAU_2_CMDS((ADRA+CA5), SHS);
+    }
     for (j = 0; j < 5; j++) {
         CAU->ADR_CA[j] = ctx->state[j];
         ctx->state[j] = CAU->STR_CA[j];
