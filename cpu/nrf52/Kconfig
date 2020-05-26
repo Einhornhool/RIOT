@@ -9,6 +9,9 @@ config CPU_NRF52
     default y
     select HAS_periph_adc
     select HAS_ble_nimble_netif
+    select HAS_HW_AES
+    select HAS_HW_HASH_SHA1
+    select HAS_HW_HASH_SHA256
     select CPU_NRF5X_COMMON
 
 source "$(RIOTCPU)/nrf5x_common/Kconfig"
