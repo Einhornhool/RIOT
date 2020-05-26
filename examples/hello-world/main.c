@@ -39,8 +39,12 @@
 #endif
 
 #ifdef ARM_CRYPTOCELL
-#include "crys_hash.h"
-#include "ssi_aes.h"
+// #include "vendor/nrf52840.h"
+#include "sdk_config.h"
+#include "nrf_crypto.h"
+#include "nrf_crypto_error.h"
+#include "nrf_drv_clock.h"
+#include "mem_manager.h"
 #endif
 
 #include "hashes/sha1.h"
@@ -81,49 +85,55 @@ static uint8_t TEST_0_ENC[] = {
 uint32_t start, stop, t_diff;
 
 #ifdef ARM_CRYPTOCELL
-    static void cryptocell_sha1(void)
-    {
-        CRYS_HASHUserContext_t ctx;
-        CRYS_HASH_Result_t result;
-        start = xtimer_now_usec();
-        if (CRYS_HASH_Init(&ctx, CRYS_HASH_SHA1_mode)) {
-            printf("CC310 Sha1 Init failed\n");
-        }
-        if (CRYS_HASH_Update(&ctx, (uint8_t*)teststring, teststring_size)) {
-            printf("CC310 Sha1 Update failed\n");
-        }
-        if (CRYS_HASH_Finish(&ctx, result)) {
-            printf("CC310 Sha1 finish failed\n");
-        }
-        stop = xtimer_now_usec();
-        t_diff = stop - start;
-        printf("CC310 Sha1 Time: %ld us\n", t_diff);
+    // static void cryptocell_sha1(void)
+    // {
+    //     CRYS_HASHUserContext_t ctx;
+    //     CRYS_HASH_Result_t result;
+    //     start = xtimer_now_usec();
+    //     printf("Line: %d\n", __LINE__);
+    //     if (CRYS_HASH_Init(&ctx, CRYS_HASH_SHA1_mode)) {
+    //         printf("CC310 Sha1 Init failed\n");
+    //     }
+    //     printf("Line: %d\n", __LINE__);
+    //     if (CRYS_HASH_Update(&ctx, (uint8_t*)teststring, teststring_size)) {
+    //         printf("CC310 Sha1 Update failed\n");
+    //     }
+    //     printf("Line: %d\n", __LINE__);
+    //     if (CRYS_HASH_Finish(&ctx, result)) {
+    //         printf("CC310 Sha1 finish failed\n");
+    //     }
+    //     printf("Line: %d\n", __LINE__);
+    //     stop = xtimer_now_usec();
+    //     t_diff = stop - start;
+    //     printf("CC310 Sha1 Time: %ld us\n", t_diff);
 
-        if (memcmp((uint8_t*)result, expected_result_sha1, SHA1_DIGEST_LENGTH) != 0) {
-                printf("CC310 SHA-1 Failure\n");
+    //     if (memcmp((uint8_t*)result, expected_result_sha1, SHA1_DIGEST_LENGTH) != 0) {
+    //             printf("CC310 SHA-1 Failure\n");
 
-                for (int i = 0; i < SHA1_DIGEST_LENGTH; i++) {
-                    printf("%02x ", sha1_result[i]);
-                }
-                printf("\n");
-        }
-        else {
-            printf("CC310 SHA-1 Success\n");
-        }
-    }
+    //             for (int i = 0; i < SHA1_DIGEST_LENGTH; i++) {
+    //                 printf("%02x ", sha1_result[i]);
+    //             }
+    //             printf("\n");
+    //     }
+    //     else {
+    //         printf("CC310 SHA-1 Success\n");
+    //     }
+    // }
 
     static void cryptocell_sha256(void)
     {
-        CRYS_HASHUserContext_t ctx;
-        CRYS_HASH_Result_t result;
+        nrf_crypto_hash_context_t ctx;
+        nrf_crypto_hash_sha256_digest_t result;
+        size_t result_len = NRF_CRYPTO_HASH_SIZE_SHA256;
+
         start = xtimer_now_usec();
-        if (CRYS_HASH_Init(&ctx, CRYS_HASH_SHA256_mode)) {
+        if (nrf_crypto_hash_init(&ctx, &g_nrf_crypto_hash_sha256_info)) {
             printf("CC310 Sha256 Init failed\n");
         }
-        if (CRYS_HASH_Update(&ctx, (uint8_t*) teststring, teststring_size)) {
+        if (nrf_crypto_hash_update(&ctx, (uint8_t*) teststring, teststring_size)) {
             printf("CC310 Sha256 Update failed\n");
         }
-        if (CRYS_HASH_Finish(&ctx, result)) {
+        if (nrf_crypto_hash_finalize(&ctx, result, &result_len)) {
             printf("CC310 Sha256 finish failed\n");
         }
         stop = xtimer_now_usec();
@@ -145,19 +155,21 @@ uint32_t start, stop, t_diff;
 
     static void cryptocell_aes(void)
     {
-        SaSiAesUserContext_t enc, dec;
+        nrf_crypto_aes_context_t enc, dec;
+
         uint8_t data[AES_BLOCK_SIZE];
         size_t data_size = 16;
-        if (SaSi_AesInit(&enc, SASI_AES_ENCRYPT, SASI_AES_MODE_ECB, SASI_AES_PADDING_NONE)) {
+
+        if (nrf_crypto_aes_init(&enc, &g_nrf_crypto_aes_ecb_128_info, NRF_CRYPTO_ENCRYPT)) {
             printf("CC310 AES encrypt init failed\n");
         }
-        if (SaSi_AesInit(&enc, SASI_AES_DECRYPT, SASI_AES_MODE_ECB, SASI_AES_PADDING_NONE)) {
+        if (nrf_crypto_aes_init(&dec, &g_nrf_crypto_aes_ecb_128_info, NRF_CRYPTO_DECRYPT)) {
             printf("CC310 AES decrypt init failed\n");
         }
 
         /* Encryption */
         start = xtimer_now_usec();
-        if (SaSi_AesSetKey(&enc, SASI_AES_USER_KEY, TEST_0_KEY, AES_KEY_SIZE)) {
+        if (nrf_crypto_aes_key_set(&enc, TEST_0_KEY)) {
             printf("CC310 AES set encrypt key failed\n");
         }
         stop = xtimer_now_usec();
@@ -165,7 +177,7 @@ uint32_t start, stop, t_diff;
         printf("CC310 AES set encrypt key time: %ld us\n", t_diff);
 
         start = xtimer_now_usec();
-        if (SaSi_AesFinish(&enc, AES_BLOCK_SIZE, TEST_0_INP, AES_BLOCK_SIZE, data, &data_size)) {
+        if (nrf_crypto_aes_finalize(&enc, TEST_0_INP, sizeof(TEST_0_INP), data, &data_size)) {
             printf("CC310 AES encrypt failed\n");
         }
         stop = xtimer_now_usec();
@@ -184,7 +196,7 @@ uint32_t start, stop, t_diff;
 
         /* Decryption */
         start = xtimer_now_usec();
-        if (SaSi_AesSetKey(&dec, SASI_AES_USER_KEY, TEST_0_KEY, AES_KEY_SIZE)) {
+        if (nrf_crypto_aes_key_set(&dec, TEST_0_KEY)) {
             printf("CC310 AES set decrypt key failed\n");
         }
         stop = xtimer_now_usec();
@@ -192,7 +204,7 @@ uint32_t start, stop, t_diff;
         printf("CC310 AES set decrypt key time: %ld us\n", t_diff);
 
         start = xtimer_now_usec();
-        if (SaSi_AesFinish(&dec, AES_BLOCK_SIZE, TEST_0_ENC, AES_BLOCK_SIZE, data, &data_size)) {
+        if (nrf_crypto_aes_finalize(&dec, TEST_0_ENC, sizeof(TEST_0_ENC), data, &data_size)) {
             printf("CC310 AES decrypt failed\n");
         }
         stop = xtimer_now_usec();
@@ -460,7 +472,17 @@ int main(void)
     // in the API Because of the internal printfs his makes the hashing
     // and encryption much slower, though. */
 #ifdef ARM_CRYPTOCELL
-    cryptocell_sha1();
+    // Initialize crypto subsystem
+    if (nrf_crypto_init() != NRF_SUCCESS) {
+        printf("Error initializing nrf backend\n");
+    }
+    if (nrf_drv_clock_init() != NRF_SUCCESS) {
+        printf("Error initializing drv clock\n");
+    }
+    if (nrf_mem_init() != NRF_SUCCESS) {
+        printf("Error initializing memory\n");
+    }
+    // cryptocell_sha1();
     cryptocell_sha256();
     cryptocell_aes();
 #elif FREESCALE_MMCAU
