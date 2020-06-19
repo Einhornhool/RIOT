@@ -34,16 +34,16 @@
 
 #include "periph/hwcrypto.h"
 #ifdef MODULE_GECKO_SDK
-#include "em_device.h"
+#include "em_device.h"cd ../..
 #include "em_crypto.h"
 #endif
 
 #ifdef ARM_CRYPTOCELL
 // #include "vendor/nrf52840.h"
-#include "sdk_config.h"
+#include "sdk_common.h"
 #include "nrf_crypto.h"
 #include "nrf_crypto_error.h"
-#include "nrf_drv_clock.h"
+#include "nrf_crypto_hash.h"
 #include "mem_manager.h"
 #endif
 
@@ -80,9 +80,14 @@ static uint8_t TEST_0_ENC[] = {
     0x46, 0x22, 0x70, 0x42, 0xee, 0x24, 0x83, 0xf6
 };
 
-
+extern void CRYPTOCELL_IRQHandler(void);
 /* Timer variables */
 uint32_t start, stop, t_diff;
+
+void isr_cryptocell(void)
+{
+    CRYPTOCELL_IRQHandler();
+}
 
 #ifdef ARM_CRYPTOCELL
     // static void cryptocell_sha1(void)
@@ -210,7 +215,7 @@ uint32_t start, stop, t_diff;
         stop = xtimer_now_usec();
         t_diff = stop - start;
         printf("CC310 AES decryption time: %ld us\n", t_diff);
-        if (!memcmp(data, TEST_0_ENC, AES_BLOCK_SIZE)) {
+        if (!memcmp(data, TEST_0_INP, AES_BLOCK_SIZE)) {
             printf("CC310 AES decryption successful\n");
         }
         else {
@@ -459,28 +464,23 @@ uint32_t start, stop, t_diff;
     }
 #endif
 
-
-
 int main(void)
 {
     puts("Hello World!");
     printf("You are running RIOT on a(n) %s board.\n", RIOT_BOARD);
     printf("This board features a(n) %s MCU.\n", RIOT_MCU);
 
-    // /*There are some internal time measurements in the SHA-1 and AES
-    // Algorithms, which can be activated by setting the ENABLE_DEBUG flag
-    // in the API Because of the internal printfs his makes the hashing
-    // and encryption much slower, though. */
+    /*There are some internal time measurements in the SHA-1 and AES
+    Algorithms, which can be activated by setting the ENABLE_DEBUG flag
+    in the API Because of the internal printfs his makes the hashing
+    and encryption much slower, though. */
 #ifdef ARM_CRYPTOCELL
     // Initialize crypto subsystem
     if (nrf_crypto_init() != NRF_SUCCESS) {
         printf("Error initializing nrf backend\n");
     }
-    if (nrf_drv_clock_init() != NRF_SUCCESS) {
-        printf("Error initializing drv clock\n");
-    }
     if (nrf_mem_init() != NRF_SUCCESS) {
-        printf("Error initializing memory\n");
+        printf("Error initializing nrf memory\n");
     }
     // cryptocell_sha1();
     cryptocell_sha256();
