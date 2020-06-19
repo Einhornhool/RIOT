@@ -57,7 +57,7 @@ target_link_libraries(nrf5_section PUBLIC
 )
 
 # Atomic
-add_library(nrf5_atomic OBJECT EXCLUDE_FROM_ALL
+add_library(nrf5_atomic STATIC EXCLUDE_FROM_ALL
   "${NRF5_SDK_PATH}/components/libraries/atomic/nrf_atomic.c"
 )
 target_include_directories(nrf5_atomic PUBLIC

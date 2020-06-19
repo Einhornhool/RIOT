@@ -70,7 +70,7 @@ target_link_libraries(nrf5_crypto PUBLIC
 )
 
 # Crypto CC310 backend
-add_library(nrf5_crypto_cc310_backend OBJECT EXCLUDE_FROM_ALL
+add_library(nrf5_crypto_cc310_backend STATIC EXCLUDE_FROM_ALL
   "${NRF5_SDK_PATH}/components/libraries/crypto/backend/cc310/cc310_backend_aes.c"
   "${NRF5_SDK_PATH}/components/libraries/crypto/backend/cc310/cc310_backend_aes_aead.c"
   "${NRF5_SDK_PATH}/components/libraries/crypto/backend/cc310/cc310_backend_chacha_poly_aead.c"
@@ -95,6 +95,8 @@ target_link_libraries(nrf5_crypto_cc310_backend PUBLIC
   nrf5_mtx
   nrf5_nrfx_common
 )
+
+
 
 # Crypto CC310 BL backend
 add_library(nrf5_crypto_cc310_bl_backend OBJECT EXCLUDE_FROM_ALL

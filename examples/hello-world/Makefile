@@ -6,6 +6,8 @@ APPLICATION = hello-world
 # If no BOARD is found in the environment, use this default:
 BOARD ?= native
 
+# LINKER_SCRIPT += ./nrf_crypto_ls.ld
+
 CFLAGS+=-DARM_CRYPTOCELL -DNRF52840_XXAA -Wno-expansion-to-defined -Wno-unused-but-set-variable -Wno-unused-parameter
 
 # USEPKG += tinycrypt
@@ -15,7 +17,10 @@ CFLAGS += -DCRYPTO_AES -Wno-unused-function
 # CFLAGS=-DFREESCALE_MMCAU
 # BASELIBS += ./lib_mmcau.a
 
-BASELIBS += ./libnrf5_crypto.a
+BASELIBS += ./bin/nrf52840dk/libnrf5_crypto.a
+BASELIBS += ./bin/nrf52840dk/libnrf5_atomic.a
+BASELIBS += ./bin/nrf52840dk/libnrf5_crypto_cc310_backend.a
+BASELIBS += ./nrf-sdk/external/nrf_cc310/lib/cortex-m4/hard-float/libnrf_cc310_0.9.12.a
 
 INCLUDES += -I$(NRF_DIR)/config/nrf52840/config
 INCLUDES += -I$(NRF_COMP_DIR)/libraries/crypto
@@ -55,9 +60,7 @@ nrfsdk:
 		-DNRF5_SDK_PATH="$(RIOTBASE)/examples/hello-world/nrf-sdk" \
 		-DNRF5_BOARD="pca10056" \
 		-DNRF5_SOFTDEVICE_VARIANT="blank" \
-		-DNRF5_SDKCONFIG_PATH="$(RIOTBASE)/examples/hello-world"
-
-# BASELIBS += $(NRF_DIR)/external/nrf_cc310/lib/cortex-mm4/soft-float/  libnrf_cc310_0.9.12.a
+		-DNRF5_SDKCONFIG_PATH="$(RIOTBASE)/examples/hello-world/"
 
 # This has to be the absolute path to the RIOT base directory:
 RIOTBASE ?= $(CURDIR)/../..
