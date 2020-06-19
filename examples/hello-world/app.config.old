@@ -1,30 +1,27 @@
-CONFIG_HAS_periph_adc=y
+CONFIG_HAS_radio_nrf802154=y
+CONFIG_HAS_periph_pwm=y
+CONFIG_HAS_periph_usbdev=y
 CONFIG_HAS_periph_i2c=y
-CONFIG_HAS_periph_rtc=y
-CONFIG_HAS_periph_rtt=y
 CONFIG_HAS_periph_spi=y
-CONFIG_HAS_periph_timer=y
 CONFIG_HAS_periph_uart=y
-CONFIG_HAS_periph_uart_modecfg=y
-CONFIG_BOARD_SLSTK3402A=y
-CONFIG_COMPONENT_boards_common_silabs=y
-CONFIG_COMPONENT_silabs_aem=y
-CONFIG_COMPONENT_silabs_bc=y
-CONFIG_CPU_EFM32=y
-CONFIG_CPU_EFM32_PG12B=y
-CONFIG_COMPONENT_gecko_sdk=y
-CONFIG_COMPONENT_gecko_sdk_emlib=y
-CONFIG_COMPONENT_gecko_sdk_emlib_extra=y
-CONFIG_COMPONENT_cpu_efm32pg12b=y
+CONFIG_COMPONENT_boards_common_nrf52xxdk=y
+CONFIG_HAS_periph_rtt=y
+CONFIG_HAS_periph_timer=y
+CONFIG_CPU_NRF52=y
+CONFIG_CPU_NRF5X_COMMON=y
+CONFIG_COMPONENT_nrf5x_common_periph=y
+CONFIG_COMPONENT_cpu_common=y
 CONFIG_COMPONENT_cortexm_common=y
 CONFIG_COMPONENT_cortexm_common_periph=y
 CONFIG_CPU_CORTEXM_COMMON=y
 CONFIG_HAS_arch_32bit=y
 CONFIG_HAS_arch_arm=y
 CONFIG_HAS_arch_cortexm=y
-CONFIG_HAS_arch_efm32=y
+CONFIG_HAS_ble_nimble=y
+CONFIG_HAS_ble_nimble_netif=y
 CONFIG_HAS_cpp=y
 CONFIG_HAS_cpu_check_address=y
+CONFIG_HAS_periph_adc=y
 CONFIG_HAS_periph_cpuid=y
 CONFIG_HAS_periph_flashpage=y
 CONFIG_HAS_periph_flashpage_raw=y
@@ -32,6 +29,13 @@ CONFIG_HAS_periph_gpio=y
 CONFIG_HAS_periph_gpio_irq=y
 CONFIG_HAS_periph_hwrng=y
 CONFIG_HAS_periph_pm=y
+CONFIG_HAS_periph_temperature=y
+CONFIG_HAS_periph_uart_modecfg=y
+CONFIG_HAS_periph_wdt=y
+CONFIG_HAS_periph_wdt_cb=y
+CONFIG_HAS_puf_sram=y
+CONFIG_HAS_radio_nrfble=y
+CONFIG_HAS_radio_nrfmin=y
 CONFIG_HAS_HW_HASH_SHA1=y
 CONFIG_HAS_HW_HASH_SHA256=y
 CONFIG_HAS_HW_AES=y
@@ -253,7 +257,17 @@ CONFIG_COMPONENT_iolist=y
 #
 # Crypto and hashes
 #
-# CONFIG_COMPONENT_random is not set
+CONFIG_COMPONENT_random=y
+CONFIG_RANDOM_SEED_SOURCE_PERIPH_HWRNG=y
+# CONFIG_RANDOM_SEED_SOURCE_DEFAULT is not set
+# CONFIG_COMPONENT_prng_tinymt32 is not set
+# CONFIG_COMPONENT_prng_fortuna is not set
+# CONFIG_COMPONENT_prng_mersenne is not set
+# CONFIG_COMPONENT_prng_minstd is not set
+# CONFIG_COMPONENT_prng_musl_lcg is not set
+CONFIG_COMPONENT_prng_sha1prng=y
+# CONFIG_COMPONENT_prng_xorshift is not set
+CONFIG_COMPONENT_prng=y
 
 #
 # Hashes
