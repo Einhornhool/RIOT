@@ -8,3 +8,4 @@ DIRS = periph $(RIOTCPU)/cortexm_common
 SRC_NOLTO += vectors.c
 
 include $(RIOTBASE)/Makefile.base
+

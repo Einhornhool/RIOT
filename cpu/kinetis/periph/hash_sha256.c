@@ -267,6 +267,9 @@ void sha256_final(sha256_context_t *ctx, void *dst)
 }
 
 #ifdef FREESCALE_MMCAU
+    /* ATTENTION – The following padding function has been copy-pasted from a   Freescale coding example, which can be downloaded here: https://www.nxp.com/docs/en/application-note-software/AN4307SW.zip
+
+    It is needed, because the padding function implemented in RIOT can't be separated from the hashing function. To use the mmCAU hashing functions we need a separate padding function. */
     static void *mmcau_sha_pad(const void *data, unsigned int *len, unsigned char endianess)
     {
         unsigned char *padding_array;
@@ -330,13 +333,13 @@ void sha256_final(sha256_context_t *ctx, void *dst)
 
     static void mmcau_sha256(unsigned int *state, const void *data, void *digest, unsigned int len)
     {
-        unsigned char *sha1_padded;
-        sha1_padded = mmcau_sha_pad(data, &len, 1);
+        unsigned char *sha256_padded;
+        sha256_padded = mmcau_sha_pad(data, &len, 1);
         int blocks = len/SHA256_INTERNAL_BLOCK_SIZE;
-        cau_sha256_update(sha1_padded, blocks, state);
+        cau_sha256_update(sha256_padded, blocks, state);
         /* Write the hash */
         be32enc_vect(digest, state, 32);
-        free(sha1_padded);
+        free(sha256_padded);
     }
 #endif
 

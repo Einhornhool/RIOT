@@ -20,6 +20,10 @@ config CPU_KINETIS
     select HAS_HW_HASH_SHA256
     select HAS_HW_AES
 
+config COMPONENT_lib_mmcau
+    bool
+    default y if COMPONENT_periph_hash_sha1 || COMPONENT_periph_hash_sha256 || COMPONENT_periph_aes
+
 config COMPONENT_periph_wdog
     bool
     default y

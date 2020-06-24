@@ -29,11 +29,16 @@
 #include "crypto/aes.h"
 #include "crypto/ciphers.h"
 
+// #ifdef FREESCALE_MMCAU
+#include <stdlib.h>
+#include "cau_api.h"
+// #endif
+
 #include "vendor/MKW21D5.h"
 #include "mmcau.h"
 #include "xtimer.h"
 
-#define ENABLE_DEBUG    (1)
+#define ENABLE_DEBUG    (0)
 #include "debug.h"
 
 
@@ -49,13 +54,14 @@ static const cipher_interface_t aes_interface = {
 };
 const cipher_id_t CIPHER_AES_128 = &aes_interface;
 
-/* for 128-bit blocks, Rijndael never uses more than 10 rcon values */
-static const u32 rcon[] = {
-    0x01000000, 0x02000000, 0x04000000, 0x08000000,
-    0x10000000, 0x20000000, 0x40000000, 0x80000000,
-    0x1B000000, 0x36000000,
-};
-
+#ifndef FREESCALE_MMCAU
+    /* for 128-bit blocks, Rijndael never uses more than 10 rcon values */
+    static const u32 rcon[] = {
+        0x01000000, 0x02000000, 0x04000000, 0x08000000,
+        0x10000000, 0x20000000, 0x40000000, 0x80000000,
+        0x1B000000, 0x36000000,
+    };
+#endif
 
 int aes_init(cipher_context_t *context, const uint8_t *key, uint8_t keySize)
 {
@@ -88,6 +94,7 @@ int aes_init(cipher_context_t *context, const uint8_t *key, uint8_t keySize)
     return CIPHER_INIT_SUCCESS;
 }
 
+#ifndef FREESCALE_MMCAU
 /**
  * Expand the cipher key into the encryption key schedule.
  */
@@ -186,6 +193,7 @@ static int aes_set_key(const unsigned char *userKey, const int bits,
 
     return 0;
 }
+#endif /* FREESCALE_MMCAU*/
 
 /*
  * Encrypt a single block
@@ -194,6 +202,16 @@ static int aes_set_key(const unsigned char *userKey, const int bits,
 int aes_encrypt(const cipher_context_t *context, const uint8_t *plainBlock,
                 uint8_t *cipherBlock)
 {
+#ifdef FREESCALE_MMCAU
+    AES_KEY aeskey;
+    AES_KEY* key = &aeskey;
+    cau_aes_set_key((unsigned char *)context->context,
+                              AES_KEY_SIZE * 8, (unsigned char*)key->rd_key);
+    /* Currently only AES-128 is implemented, so the number of rounds is always 10 */
+    key->rounds = 10;
+
+    cau_aes_encrypt(plainBlock, (unsigned char*)key->rd_key, key->rounds, cipherBlock);
+#else
     /* setup AES_KEY */
     int res;
     int i,j;
@@ -238,6 +256,7 @@ int aes_encrypt(const cipher_context_t *context, const uint8_t *plainBlock,
     for (int k = 0; k < 4; k++) {
         PUTU32(cipherBlock + (4*k), CAU->STR_CA[k]);
     }
+#endif /* FREESCALE_MMCAU */
     return 1;
 }
 
@@ -248,6 +267,16 @@ int aes_encrypt(const cipher_context_t *context, const uint8_t *plainBlock,
 int aes_decrypt(const cipher_context_t *context, const uint8_t *cipherBlock,
                 uint8_t *plainBlock)
 {
+#ifdef FREESCALE_MMCAU
+    AES_KEY aeskey;
+    AES_KEY *key = &aeskey;
+    cau_aes_set_key((unsigned char *)context->context,
+                              AES_KEY_SIZE * 8, (unsigned char*)key->rd_key);
+    /* Currently only AES-128 is implemented, so the number of rounds is always 10 */
+    key->rounds = 10;
+
+    cau_aes_decrypt(cipherBlock, (unsigned char*)key->rd_key, key->rounds, plainBlock);
+#else
     /* setup AES_KEY */
     int res;
     int i;
@@ -255,20 +284,8 @@ int aes_decrypt(const cipher_context_t *context, const uint8_t *cipherBlock,
     const u32 *rk;
     AES_KEY aeskey;
     const AES_KEY *key = &aeskey;
-
-#if ENABLE_DEBUG
-    /* Timer variables */
-    uint32_t start, stop, t_diff;
-    start = xtimer_now_usec();
     res = aes_set_key((unsigned char *)context->context,
                               AES_KEY_SIZE * 8, &aeskey);
-    stop = xtimer_now_usec();
-    t_diff = stop-start;
-    printf("HW Decrypt Key: %ld us \n", t_diff);
-#else
-    res = aes_set_key((unsigned char *)context->context,
-                              AES_KEY_SIZE * 8, &aeskey);
-#endif
 
     if (res < 0) {
         return res;
@@ -306,5 +323,7 @@ int aes_decrypt(const cipher_context_t *context, const uint8_t *cipherBlock,
     for (int k = 0; k < 4; k++) {
         PUTU32(plainBlock + (4*k), CAU->STR_CA[k]);
     }
+#endif /* FREESCALE_MMCAU */
+
     return 1;
 }

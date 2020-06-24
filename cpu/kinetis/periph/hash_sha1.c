@@ -42,9 +42,6 @@
 #define SHA1_K40 0x8f1bbcdc
 #define SHA1_K60 0xca62c1d6
 
-uint32_t t_start[2], t_stop[2];
-uint32_t time[5];
-
 void sha1_init(sha1_context *ctx)
 {
     DEBUG("SHA1 init HW accelerated implementation\n");
@@ -57,60 +54,7 @@ void sha1_init(sha1_context *ctx)
     ctx->byte_count = 0;
     ctx->buffer_offset = 0;
 }
-#if ENABLE_DEBUG
-static void sha1_hash_block(sha1_context *ctx)
-{
-    int j;
-    int i = 0;
-    int w[80];
-    t_start[0] = xtimer_now_usec();
-    for (j = 0; j < 5; j++) {
-        CAU->LDR_CA[j] = ctx->state[j];
-    }
 
-    CAU->DIRECT[0] = MMCAU_1_CMD((MVRA+CA0));
-    CAU->ROTL_CAA = 5;
-
-    t_start[1] = xtimer_now_usec();
-    for (j = 0; j < 16; j++) {
-        w[i] = ctx->buffer[i];
-        CAU->DIRECT[0] = MMCAU_2_CMDS((HASH+HFC), (ADRA+CA4));
-        CAU->ADR_CAA = SHA1_K0;
-
-        CAU->ADR_CAA = w[i++];
-        CAU->DIRECT[0] = MMCAU_1_CMD(SHS);
-    }
-
-    /* perform hash algorithm on input */
-    sha1_step(4, &i, HFC, SHA1_K0, w);
-    t_stop[1] = xtimer_now_usec();
-    time[1] = t_stop[1] - t_start[1];
-
-    t_start[1] = xtimer_now_usec();
-    sha1_step(20, &i, HFP, SHA1_K20, w);
-    t_stop[1] = xtimer_now_usec();
-    time[2] = t_stop[1] - t_start[1];
-
-    t_start[1] = xtimer_now_usec();
-    sha1_step(20, &i, HFM, SHA1_K40, w);
-    t_stop[1] = xtimer_now_usec();
-    time[3] = t_stop[1] - t_start[1];
-
-    t_start[1] = xtimer_now_usec();
-    sha1_step(20, &i, HFP, SHA1_K60, w);
-    t_stop[1] = xtimer_now_usec();
-    time[4] = t_stop[1] - t_start[1];
-
-    for (j = 0; j < 5; j++) {
-        CAU->ADR_CA[j] = ctx->state[j];
-        ctx->state[j] = CAU->STR_CA[j];
-    }
-
-    t_stop[0] = xtimer_now_usec();
-    time[0] = t_stop - t_start;
-    DEBUG("Time:\nSha Step K0: %ld us\nSha Step K20: %ld us\nSha Step K40: %ld us\nSha Step K60: %ld us\nHash Block total: %ld us\n", time[1], time[2], time[3], time[4], time[0]);
-}
-#else
 static void sha1_hash_block(sha1_context *ctx)
 {
     int j;
@@ -185,7 +129,6 @@ static void sha1_hash_block(sha1_context *ctx)
         ctx->state[j] = CAU->STR_CA[j];
     }
 }
-#endif /* ENABLE_DEBUG */
 
 static void sha1_add_uncounted(sha1_context *s, uint8_t data)
 {
@@ -256,6 +199,9 @@ void sha1_final(sha1_context *ctx, void *digest)
 }
 
 #ifdef FREESCALE_MMCAU
+    /* ATTENTION – The following padding function has been copy-pasted from a Freescale coding example, which can be downloaded here: https://www.nxp.com/docs/en/application-note-software/AN4307SW.zip
+
+    It is needed, because the padding function implemented in RIOT can't be separated from the hashing function. To use the mmCAU hashing functions we need a separate padding function. */
     static void *mmcau_sha_pad(const void *data, unsigned int *len, unsigned char endianess)
     {
         unsigned char *padding_array;
@@ -352,7 +298,7 @@ void sha1(void *digest, const void *data, size_t len)
     sha1_init(&ctx);
     sha1_update(&ctx, (unsigned char *) data, len);
     sha1_final(&ctx, digest);
-#endif
+#endif /* FREESCALE_MMCAU */
 }
 
 #define HMAC_IPAD 0x36

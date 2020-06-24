@@ -45,6 +45,7 @@ PSEUDOMODULES += gnrc_sock_async
 PSEUDOMODULES += gnrc_sock_check_reuse
 PSEUDOMODULES += gnrc_txtsnd
 PSEUDOMODULES += hashes_%
+PSEUDOMODULES += lib_mmcau
 PSEUDOMODULES += heap_cmd
 PSEUDOMODULES += i2c_scan
 PSEUDOMODULES += ina3221_alerts
