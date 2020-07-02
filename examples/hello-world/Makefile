@@ -15,4 +15,8 @@ DEVELHELP ?= 1
 # Change this to 0 show compiler invocation lines by default:
 QUIET ?= 1
 
+# ---------- CryptoCell specific stuff
+INCLUDES += -I$(RIOTBASE)/examples/hello-world/nrf_cc310/include
+BASELIBS += ./nrf_cc310/lib/cortex-m4/hard-float/libnrf_cc310_0.9.12.a
+
 include $(RIOTBASE)/Makefile.include
