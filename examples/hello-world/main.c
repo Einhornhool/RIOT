@@ -23,15 +23,6 @@
 #include <stdint.h>
 #include <string.h>
 
-#ifdef FREESCALE_MMCAU
-#include "cau_api.h"
-#endif
-
-#ifdef MODULE_TINYCRYPT
-#include "tinycrypt/aes.h"
-#include "tinycrypt/sha256.h"
-#endif
-
 #include "periph/hwcrypto.h"
 #ifdef MODULE_GECKO_SDK
 #include "em_device.h"cd ../..
@@ -51,7 +42,8 @@
 #include "vendor/nrf52840.h"
 #include "nrf-sdk/external/nrf_cc310/include/sns_silib.h"
 #include "nrf-sdk/external/nrf_cc310/include/crys_hash.h"
-#include "ssi_aes.h"
+#include "nrf-sdk/external/nrf_cc310/include/ssi_aes.h"
+#include "armcc_setup.h"
 #endif
 
 #include "hashes/sha1.h"
@@ -89,188 +81,182 @@ static uint8_t TEST_0_ENC[] = {
 /* Timer variables */
 uint32_t start, stop, t_diff;
 
-// extern void CRYPTOCELL_IRQHandler(void);
-// void isr_cryptocell(void)
+#ifdef ARM_CRYPTOCELL
+// CRYS_RND_WorkBuff_t*  rndWorkBuff_ptr;
+// CRYS_RND_State_t*     rndState_ptr;
+
+// #if defined(__CC_ARM)
+// CRYS_RND_State_t   	 rndState = {0};
+// CRYS_RND_WorkBuff_t  rndWorkBuff = {0};
+// #else
+// CRYS_RND_State_t   	 rndState;
+// CRYS_RND_WorkBuff_t  rndWorkBuff;
+// #endif
+
+// static void cryptocell_setup(void)
 // {
-//     CRYPTOCELL_IRQHandler();
+//     rndState_ptr = &rndState;
+//     rndWorkBuff_ptr = &rndWorkBuff;
+
+//     NVIC_EnableIRQ(CRYPTOCELL_IRQn);
+
+//     NRF_CRYPTOCELL->ENABLE = 1;
 // }
 
-#ifdef ARM_CRYPTOCELL
-CRYS_RND_WorkBuff_t*  rndWorkBuff_ptr;
-CRYS_RND_State_t*     rndState_ptr;
+// static void cryptocell_sha1(void)
+// {
+//     uint32_t ret = 0;
+//     uint32_t digest[SHA1_DIGEST_LENGTH];
+//     CRYS_HASHUserContext_t ctx;
 
-#if defined(__CC_ARM)
-CRYS_RND_State_t   	 rndState = {0};
-CRYS_RND_WorkBuff_t  rndWorkBuff = {0};
-#else
-CRYS_RND_State_t   	 rndState;
-CRYS_RND_WorkBuff_t  rndWorkBuff;
-#endif
+//     start = xtimer_now_usec();
+//     ret = CRYS_HASH_Init(&ctx, CRYS_HASH_SHA1_mode);
+//     if (ret != SA_SILIB_RET_OK) {
+//         printf("SHA1: CRYS_HASH_Init failed: 0x%lx\n", ret);
+//     }
 
-static void cryptocell_setup(void)
-{
-    rndState_ptr = &rndState;
-    rndWorkBuff_ptr = &rndWorkBuff;
+//     ret = CRYS_HASH_Update(&ctx, (uint8_t*)teststring, teststring_size);
+//     if (ret != SA_SILIB_RET_OK) {
+//         printf("SHA1: CRYS_HASH_Update failed: 0x%lx\n", ret);
+//     }
 
-    NVIC_EnableIRQ(CRYPTOCELL_IRQn);
+//     ret = CRYS_HASH_Finish(&ctx, digest);
+//     if (ret != SA_SILIB_RET_OK) {
+//         printf("SHA1: CRYS_HASH_Finish failed: 0x%lx\n", ret);
+//     }
+//     stop = xtimer_now_usec();
+//     t_diff = stop - start;
+//     printf("Cryptocell Sha256 Time: %ld us\n", t_diff);
 
-    NRF_CRYPTOCELL->ENABLE = 1;
-}
+//     if (memcmp((uint8_t*)digest, expected_result_sha1, SHA1_DIGEST_LENGTH) != 0) {
+//         printf("CRYS_HASH SHA1 Failure\n");
 
-static void cryptocell_sha1(void)
-{
-    uint32_t ret = 0;
-    uint32_t digest[SHA1_DIGEST_LENGTH];
-    CRYS_HASHUserContext_t ctx;
+//         for (int i = 0; i < SHA1_DIGEST_LENGTH; i++) {
+//             printf("%02lx ", digest[i]);
+//         }
+//         printf("\n");
+//     }
+//     else {
+//         printf("CRYS_HASH SHA1 Success\n");
+//     }
+// }
 
-    start = xtimer_now_usec();
-    ret = CRYS_HASH_Init(&ctx, CRYS_HASH_SHA1_mode);
-    if (ret != SA_SILIB_RET_OK) {
-        printf("SHA1: CRYS_HASH_Init failed: 0x%lx\n", ret);
-    }
+// static void cryptocell_sha256(void)
+// {
+//     uint32_t ret = 0;
+//     uint32_t digest[SHA256_DIGEST_LENGTH];
+//     CRYS_HASHUserContext_t ctx;
 
-    ret = CRYS_HASH_Update(&ctx, (uint8_t*)teststring, teststring_size);
-    if (ret != SA_SILIB_RET_OK) {
-        printf("SHA1: CRYS_HASH_Update failed: 0x%lx\n", ret);
-    }
+//     start = xtimer_now_usec();
+//     ret = CRYS_HASH_Init(&ctx, CRYS_HASH_SHA256_mode);
+//     if (ret != SA_SILIB_RET_OK) {
+//         printf("SHA256: CRYS_HASH_Init failed: 0x%lx\n", ret);
+//     }
 
-    ret = CRYS_HASH_Finish(&ctx, digest);
-    if (ret != SA_SILIB_RET_OK) {
-        printf("SHA1: CRYS_HASH_Finish failed: 0x%lx\n", ret);
-    }
-    stop = xtimer_now_usec();
-    t_diff = stop - start;
-    printf("Cryptocell Sha256 Time: %ld us\n", t_diff);
+//     ret = CRYS_HASH_Update(&ctx, (uint8_t*)teststring, teststring_size);
+//     if (ret != SA_SILIB_RET_OK) {
+//         printf("SHA256: CRYS_HASH_Update failed: 0x%lx\n", ret);
+//     }
 
-    if (memcmp((uint8_t*)digest, expected_result_sha1, SHA1_DIGEST_LENGTH) != 0) {
-        printf("CRYS_HASH SHA1 Failure\n");
+//     ret = CRYS_HASH_Finish(&ctx, digest);
+//     if (ret != SA_SILIB_RET_OK) {
+//         printf("SHA256: CRYS_HASH_Finish failed: 0x%lx\n", ret);
+//     }
+//     stop = xtimer_now_usec();
+//     t_diff = stop - start;
+//     printf("Cryptocell Sha256 Time: %ld us\n", t_diff);
 
-        for (int i = 0; i < SHA1_DIGEST_LENGTH; i++) {
-            printf("%02lx ", digest[i]);
-        }
-        printf("\n");
-    }
-    else {
-        printf("CRYS_HASH SHA1 Success\n");
-    }
-}
+//     if (memcmp((uint8_t*)digest, expected_result_sha256, SHA256_DIGEST_LENGTH) != 0) {
+//         printf("CRYS_HASH SHA256 Failure\n");
 
-static void cryptocell_sha256(void)
-{
-    uint32_t ret = 0;
-    uint32_t digest[SHA256_DIGEST_LENGTH];
-    CRYS_HASHUserContext_t ctx;
+//         for (int i = 0; i < SHA256_DIGEST_LENGTH; i++) {
+//             printf("%02lx ", digest[i]);
+//         }
+//         printf("\n");
+//     }
+//     else {
+//         printf("CRYS_HASH SHA256 Success\n");
+//     }
+// }
 
-    start = xtimer_now_usec();
-    ret = CRYS_HASH_Init(&ctx, CRYS_HASH_SHA256_mode);
-    if (ret != SA_SILIB_RET_OK) {
-        printf("SHA256: CRYS_HASH_Init failed: 0x%lx\n", ret);
-    }
+// static void cryptocell_aes(void)
+// {
+//     SaSiAesUserContext_t enc, dec;
+//     SaSiAesUserKeyData_t key;
+//     uint8_t data[AES_BLOCK_SIZE];
+//     size_t data_size = 16;
+//     int ret = 0;
 
-    ret = CRYS_HASH_Update(&ctx, (uint8_t*)teststring, teststring_size);
-    if (ret != SA_SILIB_RET_OK) {
-        printf("SHA256: CRYS_HASH_Update failed: 0x%lx\n", ret);
-    }
+//     // memcpy(&key.pKey, TEST_0_KEY, AES_KEY_SIZE);
+//     key.pKey = TEST_0_KEY;
+//     key.keySize = AES_KEY_SIZE;
 
-    ret = CRYS_HASH_Finish(&ctx, digest);
-    if (ret != SA_SILIB_RET_OK) {
-        printf("SHA256: CRYS_HASH_Finish failed: 0x%lx\n", ret);
-    }
-    stop = xtimer_now_usec();
-    t_diff = stop - start;
-    printf("Cryptocell Sha256 Time: %ld us\n", t_diff);
+//     ret = SaSi_AesInit(&enc, SASI_AES_ENCRYPT, SASI_AES_MODE_ECB,SASI_AES_PADDING_NONE);
+//     if (ret != SA_SILIB_RET_OK) {
+//         printf("AES: SaSi_AesInit enc failed: 0x%x\n", ret);
+//     }
 
-    if (memcmp((uint8_t*)digest, expected_result_sha256, SHA256_DIGEST_LENGTH) != 0) {
-        printf("CRYS_HASH SHA256 Failure\n");
+//     ret = SaSi_AesInit(&dec, SASI_AES_DECRYPT, SASI_AES_MODE_ECB,SASI_AES_PADDING_NONE);
+//     if (ret != SA_SILIB_RET_OK) {
+//         printf("AES: SaSi_AesInit dec failed: 0x%x\n", ret);
+//     }
 
-        for (int i = 0; i < SHA256_DIGEST_LENGTH; i++) {
-            printf("%02lx ", digest[i]);
-        }
-        printf("\n");
-    }
-    else {
-        printf("CRYS_HASH SHA256 Success\n");
-    }
-}
+//     start = xtimer_now_usec();
+//     ret = SaSi_AesSetKey(&enc, SASI_AES_USER_KEY, &key, sizeof(key));
+//     if (ret != SA_SILIB_RET_OK) {
+//         printf("AES: SaSi_AesSetKey enc failed: 0x%x\n", ret);
+//     }
+//     stop = xtimer_now_usec();
+//     t_diff = stop - start;
+//     printf("Cryptocell AES Set Encrypt Key Time: %ld us\n", t_diff);
 
-static void cryptocell_aes(void)
-{
-    SaSiAesUserContext_t enc, dec;
-    SaSiAesUserKeyData_t key;
-    uint8_t data[AES_BLOCK_SIZE];
-    size_t data_size = 16;
-    int ret = 0;
+//     start = xtimer_now_usec();
+//     ret = SaSi_AesSetKey(&dec, SASI_AES_USER_KEY, &key, sizeof(key));
+//     if (ret != SA_SILIB_RET_OK) {
+//         printf("AES: SaSi_AesSetKey dec failed: 0x%x\n", ret);
+//     }
+//     stop = xtimer_now_usec();
+//     t_diff = stop - start;
+//     printf("Cryptocell AES Set Decrypt Key Time: %ld us\n", t_diff);
 
-    // memcpy(&key.pKey, TEST_0_KEY, AES_KEY_SIZE);
-    key.pKey = TEST_0_KEY;
-    key.keySize = AES_KEY_SIZE;
+//     start = xtimer_now_usec();
+//     ret = SaSi_AesFinish(&enc, data_size, TEST_0_INP, data_size, data, &data_size);
+//     stop = xtimer_now_usec();
+//     t_diff = stop - start;
+//     printf("Cryptocell AES Encryption Time: %ld us\n", t_diff);
+//     if (ret != SA_SILIB_RET_OK) {
+//         printf("AES: SaSi_AesFinish enc failed: 0x%x\n", ret);
+//     }
+//     if (!memcmp(data, TEST_0_ENC, AES_BLOCK_SIZE)) {
+//         printf("CC310 AES encryption successful\n");
+//     }
+//     else {
+//         printf("CC310 AES encryption failed\n");
+//         for (int i = 0; i < 16; i++) {
+//             printf("%02x ", data[i]);
+//         }
+//         printf("\n");
+//     }
 
-    ret = SaSi_AesInit(&enc, SASI_AES_ENCRYPT, SASI_AES_MODE_ECB,SASI_AES_PADDING_NONE);
-    if (ret != SA_SILIB_RET_OK) {
-        printf("AES: SaSi_AesInit enc failed: 0x%x\n", ret);
-    }
-
-    ret = SaSi_AesInit(&dec, SASI_AES_DECRYPT, SASI_AES_MODE_ECB,SASI_AES_PADDING_NONE);
-    if (ret != SA_SILIB_RET_OK) {
-        printf("AES: SaSi_AesInit dec failed: 0x%x\n", ret);
-    }
-
-    start = xtimer_now_usec();
-    ret = SaSi_AesSetKey(&enc, SASI_AES_USER_KEY, &key, sizeof(key));
-    if (ret != SA_SILIB_RET_OK) {
-        printf("AES: SaSi_AesSetKey enc failed: 0x%x\n", ret);
-    }
-    stop = xtimer_now_usec();
-    t_diff = stop - start;
-    printf("Cryptocell AES Set Encrypt Key Time: %ld us\n", t_diff);
-
-    start = xtimer_now_usec();
-    ret = SaSi_AesSetKey(&dec, SASI_AES_USER_KEY, &key, sizeof(key));
-    if (ret != SA_SILIB_RET_OK) {
-        printf("AES: SaSi_AesSetKey dec failed: 0x%x\n", ret);
-    }
-    stop = xtimer_now_usec();
-    t_diff = stop - start;
-    printf("Cryptocell AES Set Decrypt Key Time: %ld us\n", t_diff);
-
-    start = xtimer_now_usec();
-    ret = SaSi_AesFinish(&enc, data_size, TEST_0_INP, data_size, data, &data_size);
-    stop = xtimer_now_usec();
-    t_diff = stop - start;
-    printf("Cryptocell AES Encryption Time: %ld us\n", t_diff);
-    if (ret != SA_SILIB_RET_OK) {
-        printf("AES: SaSi_AesFinish enc failed: 0x%x\n", ret);
-    }
-    if (!memcmp(data, TEST_0_ENC, AES_BLOCK_SIZE)) {
-        printf("CC310 AES encryption successful\n");
-    }
-    else {
-        printf("CC310 AES encryption failed\n");
-        for (int i = 0; i < 16; i++) {
-            printf("%02x ", data[i]);
-        }
-        printf("\n");
-    }
-
-    start = xtimer_now_usec();
-    ret = SaSi_AesFinish(&dec, data_size, TEST_0_ENC, data_size, data, &data_size);
-    stop = xtimer_now_usec();
-    t_diff = stop - start;
-    printf("Cryptocell AES Decryption Time: %ld us\n", t_diff);
-    if (ret != SA_SILIB_RET_OK) {
-        printf("AES: SaSi_AesFinish dec failed: 0x%x\n", ret);
-    }
-    if (!memcmp(data, TEST_0_INP, AES_BLOCK_SIZE)) {
-        printf("CC310 AES decryption successful\n");
-    }
-    else {
-        printf("CC310 AES decryption failed\n");
-        for (int i = 0; i < 16; i++) {
-            printf("%02x ", data[i]);
-        }
-        printf("\n");
-    }
-}
+//     start = xtimer_now_usec();
+//     ret = SaSi_AesFinish(&dec, data_size, TEST_0_ENC, data_size, data, &data_size);
+//     stop = xtimer_now_usec();
+//     t_diff = stop - start;
+//     printf("Cryptocell AES Decryption Time: %ld us\n", t_diff);
+//     if (ret != SA_SILIB_RET_OK) {
+//         printf("AES: SaSi_AesFinish dec failed: 0x%x\n", ret);
+//     }
+//     if (!memcmp(data, TEST_0_INP, AES_BLOCK_SIZE)) {
+//         printf("CC310 AES decryption successful\n");
+//     }
+//     else {
+//         printf("CC310 AES decryption failed\n");
+//         for (int i = 0; i < 16; i++) {
+//             printf("%02x ", data[i]);
+//         }
+//         printf("\n");
+//     }
+// }
 #endif
 
 #ifdef NRF52840_XXAA
@@ -377,240 +363,113 @@ static void cryptocell_aes(void)
     }
 #endif
 
-#ifdef MODULE_TINYCRYPT
-/* Tinycrypt functions */
-    static void tinycrypt_aes(void)
-    {
-        printf("Tinycrypt AES\n");
-        struct tc_aes_key_sched_struct s;
+// static void sha1_test(void)
+// {
+//     #ifdef FREESCALE_MMCAU
+//         printf("MMCAU Sha1\n");
+//     #elif MODULE_GECKO_SDK
+//         printf("Gecko SDK Sha1\n");
+//     #endif
+//     start = xtimer_now_usec();
+//     sha1(sha1_result, (unsigned char*)teststring, teststring_size);
+//     stop = xtimer_now_usec();
+//     t_diff = stop - start;
+//     printf("Sha1 Time: %ld us\n", t_diff);
 
-        /* some memory to store the encrypted data (add '\0` termination)*/
-        uint8_t cipher[TC_AES_BLOCK_SIZE + 1];
-        uint8_t result[TC_AES_BLOCK_SIZE + 1];
-        memset(cipher, 0, TC_AES_BLOCK_SIZE + 1);
-        memset(result, 0, TC_AES_BLOCK_SIZE + 1);
+//     gpio_clear(GPIO_PIN(2,5));
+//     if (memcmp(sha1_result, expected_result_sha1, SHA1_DIGEST_LENGTH) != 0) {
+//         printf("SHA-1 Failure\n");
 
-        /* Initialize Key */
-        start = xtimer_now_usec();
-        tc_aes128_set_encrypt_key(&s, TEST_0_KEY);
-        stop = xtimer_now_usec();
-        t_diff = stop - start;
-        printf("TC set encrypt key: %ld us\n", t_diff);
-
-        /* encrypt data */
-        start = xtimer_now_usec();
-        tc_aes_encrypt(cipher, TEST_0_INP, &s);
-        stop = xtimer_now_usec();
-        t_diff = stop - start;
-        printf("TC encrypt: %ld us\n", t_diff);
-        if (memcmp(cipher, TEST_0_ENC, AES_BLOCK_SIZE) != 0) {
-            printf("FAILED\n");
-        }
-
-        /* decrypt data again */
-        start = xtimer_now_usec();
-        tc_aes128_set_decrypt_key(&s, TEST_0_KEY);
-        stop = xtimer_now_usec();
-        t_diff = stop - start;
-        printf("TC set decrypt key: %ld us\n", t_diff);
-
-        start = xtimer_now_usec();
-        tc_aes_decrypt(result, cipher, &s);
-        stop = xtimer_now_usec();
-        t_diff = stop - start;
-        printf("TC decrypt: %ld us\n", t_diff);
-        if (memcmp(result, TEST_0_INP, AES_BLOCK_SIZE) != 0) {
-            printf("FAILED\n");
-        }
-        printf("\n");
-    }
-
-    static void tinycrypt_sha256(void) {
-        struct tc_sha256_state_struct s;
-
-        tc_sha256_init(&s);
-
-        start = xtimer_now_usec();
-        tc_sha256_update(&s, (uint8_t*) teststring, teststring_size);
-        stop = xtimer_now_usec();
-        t_diff = stop - start;
-        printf("Tinycrypt Sha256 Update: %ld us\n", t_diff);
-
-        start = xtimer_now_usec();
-        tc_sha256_final(sha256_result, &s);
-        stop = xtimer_now_usec();
-        t_diff = stop - start;
-        printf("Tinycrypt Sha256 Final: %ld us\n", t_diff);
-
-        gpio_clear(GPIO_PIN(2,5));
-        if (memcmp(sha256_result, expected_result_sha256, SHA256_DIGEST_LENGTH) != 0) {
-            printf("SHA-256 Failure\n");
-
-            for (int i = 0; i < SHA256_DIGEST_LENGTH; i++) {
-                printf("%02x ", sha256_result[i]);
-            }
-            printf("\n");
-        }
-        else {
-            printf("Tinycrypt SHA-256 Success\n");
-        }
-    }
-#else
-    static void sha1_test(void)
-    {
-        #ifdef FREESCALE_MMCAU
-            printf("MMCAU Sha1\n");
-        #elif MODULE_GECKO_SDK
-            printf("Gecko SDK Sha1\n");
-        #endif
-        start = xtimer_now_usec();
-        sha1(sha1_result, (unsigned char*)teststring, teststring_size);
-        stop = xtimer_now_usec();
-        t_diff = stop - start;
-        printf("Sha1 Time: %ld us\n", t_diff);
-
-        gpio_clear(GPIO_PIN(2,5));
-        if (memcmp(sha1_result, expected_result_sha1, SHA1_DIGEST_LENGTH) != 0) {
-            printf("SHA-1 Failure\n");
-
-            for (int i = 0; i < SHA1_DIGEST_LENGTH; i++) {
-                printf("%02x ", sha1_result[i]);
-            }
-            printf("\n");
-        }
-        else {
-            printf("SHA-1 Success\n");
-        }
-    }
-
-    static void sha256_test(void)
-    {
-        #ifdef FREESCALE_MMCAU
-            printf("MMCAU Sha256\n");
-        #elif MODULE_GECKO_SDK
-            printf("Gecko SDK Sha256\n");
-        #endif
-        start = xtimer_now_usec();
-        sha256((unsigned char*)teststring, teststring_size, sha256_result);
-        stop = xtimer_now_usec();
-        t_diff = stop - start;
-        printf("Sha256 Time: %ld us\n", t_diff);
-
-        gpio_clear(GPIO_PIN(2,5));
-        if (memcmp(sha256_result, expected_result_sha256, SHA256_DIGEST_LENGTH) != 0) {
-            printf("SHA-256 Failure\n");
-
-            for (int i = 0; i < SHA256_DIGEST_LENGTH; i++) {
-                printf("%02x ", sha256_result[i]);
-            }
-            printf("\n");
-        }
-        else {
-            printf("SHA-256 Success\n");
-        }
-    }
-#endif
-
-// #ifdef FREESCALE_MMCAU
-//     static void mmcau_aes_test(void)
-//     {
-//         uint8_t data[AES_BLOCK_SIZE];
-//         unsigned char key_sch[352];
-//         memset(data, 0, AES_BLOCK_SIZE);
-
-//         start = xtimer_now_usec();
-//         cau_aes_set_key(TEST_0_KEY, 128, key_sch);
-//         stop = xtimer_now_usec();
-//         t_diff = stop - start;
-//         printf("MMCAU AES Set Encrypt key: %ld us\n", t_diff);
-
-//         start = xtimer_now_usec();
-//         cau_aes_encrypt(TEST_0_INP, key_sch, 10, data);
-//         stop = xtimer_now_usec();
-//         t_diff = stop - start;
-//         printf("MMCAU AES Encrypt: %ld us\n", t_diff);
-//         if (!memcmp(data, TEST_0_ENC, AES_BLOCK_SIZE)) {
-//             printf("MMCAU AES encryption successful\n");
+//         for (int i = 0; i < SHA1_DIGEST_LENGTH; i++) {
+//             printf("%02x ", sha1_result[i]);
 //         }
-//         else {
-//             printf("MMCAU AES encryption failed\n");
-//             for (int i = 0; i < 16; i++) {
-//                 printf("%02x ", data[i]);
-//             }
-//             printf("\n");
-//         }
-//         memset(data, 0, AES_BLOCK_SIZE);
-//         start = xtimer_now_usec();
-//         cau_aes_decrypt(TEST_0_ENC, key_sch, 10, data);
-//         stop = xtimer_now_usec();
-//         t_diff = stop - start;
-//         printf("MMCAU AES Decrypt: %ld us\n", t_diff);
-//         if (!memcmp(data, TEST_0_INP, AES_BLOCK_SIZE)) {
-//             printf("AES decryption successful\n");
-//         }
-//         else
-//         {
-//             printf("AES decryption failed\n");
-//             for (int i = 0; i < 16; i++) {
-//                 printf("%02x ", data[i]);
-//             }
-//             printf("\n");
-//         }
+//         printf("\n");
 //     }
-// #else
-    static void aes_test(void)
-    {
-        int err;
-        cipher_context_t c_ctx;
-        uint8_t data[AES_BLOCK_SIZE];
-        memset(data, 0, AES_BLOCK_SIZE);
+//     else {
+//         printf("SHA-1 Success\n");
+//     }
+// }
 
-        err = aes_init(&c_ctx, TEST_0_KEY, AES_KEY_SIZE);
-        if (err == 1) {
-            printf("AES Init successful\n");
+// static void sha256_test(void)
+// {
+//     #ifdef FREESCALE_MMCAU
+//         printf("MMCAU Sha256\n");
+//     #elif MODULE_GECKO_SDK
+//         printf("Gecko SDK Sha256\n");
+//     #endif
+//     start = xtimer_now_usec();
+//     sha256((unsigned char*)teststring, teststring_size, sha256_result);
+//     stop = xtimer_now_usec();
+//     t_diff = stop - start;
+//     printf("Sha256 Time: %ld us\n", t_diff);
+
+//     gpio_clear(GPIO_PIN(2,5));
+//     if (memcmp(sha256_result, expected_result_sha256, SHA256_DIGEST_LENGTH) != 0) {
+//         printf("SHA-256 Failure\n");
+
+//         for (int i = 0; i < SHA256_DIGEST_LENGTH; i++) {
+//             printf("%02x ", sha256_result[i]);
+//         }
+//         printf("\n");
+//     }
+//     else {
+//         printf("SHA-256 Success\n");
+//     }
+// }
+
+static void aes_test(void)
+{
+    int err;
+    cipher_context_t c_ctx;
+    uint8_t data[AES_BLOCK_SIZE];
+    memset(data, 0, AES_BLOCK_SIZE);
+
+    err = aes_init(&c_ctx, TEST_0_KEY, AES_KEY_SIZE);
+    if (err == 1) {
+        printf("AES Init successful\n");
+    }
+    else
+    {
+        printf("AES Init failed: %d\n", err);
+        // Had to define CRYPTO_AES as CFLAG –> how do I make it work with Kconfig?
+    }
+
+    start = xtimer_now_usec();
+    if (aes_encrypt(&c_ctx, TEST_0_INP, data)) {
+        stop = xtimer_now_usec();
+        t_diff = stop - start;
+        printf("AES Encrypt time: %ld us\n", t_diff);
+        if (!memcmp(data, TEST_0_ENC, AES_BLOCK_SIZE)) {
+            printf("AES encryption successful\n");
         }
         else
         {
-            printf("AES Init failed: %d\n", err);
-            // Had to define CRYPTO_AES as CFLAG –> how do I make it work with Kconfig?
-        }
-
-        start = xtimer_now_usec();
-        if (aes_encrypt(&c_ctx, TEST_0_INP, data)) {
-            stop = xtimer_now_usec();
-            t_diff = stop - start;
-            printf("AES Encrypt time: %ld us\n", t_diff);
-            if (!memcmp(data, TEST_0_ENC, AES_BLOCK_SIZE)) {
-                printf("AES encryption successful\n");
+            printf("AES encryption failed\n");
+            for (int i = 0; i < 16; i++) {
+                printf("%02x ", data[i]);
             }
-            else
-            {
-                printf("AES encryption failed\n");
-                for (int i = 0; i < 16; i++) {
-                    printf("%02x ", data[i]);
-                }
-                printf("\n");
-            }
-        }
-        memset(data, 0, AES_BLOCK_SIZE);
-        start = xtimer_now_usec();
-        if (aes_decrypt(&c_ctx, TEST_0_ENC, data)) {
-            stop = xtimer_now_usec();
-            t_diff = stop - start;
-            printf("AES Decrypt time: %ld us\n", t_diff);
-            if (!memcmp(data, TEST_0_INP, AES_BLOCK_SIZE)) {
-                printf("AES decryption successful\n");
-            }
-            else
-            {
-                printf("AES decryption failed\n");
-                for (int i = 0; i < 16; i++) {
-                    printf("%02x ", data[i]);
-                }
-                printf("\n");
-            }
+            printf("\n");
         }
     }
+    memset(data, 0, AES_BLOCK_SIZE);
+    start = xtimer_now_usec();
+    if (aes_decrypt(&c_ctx, TEST_0_ENC, data)) {
+        stop = xtimer_now_usec();
+        t_diff = stop - start;
+        printf("AES Decrypt time: %ld us\n", t_diff);
+        if (!memcmp(data, TEST_0_INP, AES_BLOCK_SIZE)) {
+            printf("AES decryption successful\n");
+        }
+        else
+        {
+            printf("AES decryption failed\n");
+            for (int i = 0; i < 16; i++) {
+                printf("%02x ", data[i]);
+            }
+            printf("\n");
+        }
+    }
+}
 // #endif
 
 int main(void)
@@ -624,22 +483,22 @@ int main(void)
     in the API Because of the internal printfs his makes the hashing
     and encryption much slower, though. */
 #ifdef ARM_CRYPTOCELL
-    int ret;
+    // int ret;
     cryptocell_setup();
 
-    ret = SaSi_LibInit();
-    if (ret != SA_SILIB_RET_OK) {
-        printf("SaSi_LibInit failed: 0x%x\n", ret);
-    }
+    // ret = SaSi_LibInit();
+    // if (ret != SA_SILIB_RET_OK) {
+    //     printf("SaSi_LibInit failed: 0x%x\n", ret);
+    // }
 
-    ret = CRYS_RndInit(rndState_ptr, rndWorkBuff_ptr);
-    if (ret != SA_SILIB_RET_OK) {
-        printf("CRYS_RndInit failed: 0x%x\n", ret);
-    }
+    // ret = CRYS_RndInit(rndState_ptr, rndWorkBuff_ptr);
+    // if (ret != SA_SILIB_RET_OK) {
+    //     printf("CRYS_RndInit failed: 0x%x\n", ret);
+    // }
 
-    cryptocell_sha1();
-    cryptocell_sha256();
-    cryptocell_aes();
+    // cryptocell_sha1();
+    // cryptocell_sha256();
+    aes_test();
 #elif NRF52840_XXAA
     // Initialize crypto subsystem
     if (nrf_crypto_init() != NRF_SUCCESS) {
@@ -654,8 +513,8 @@ int main(void)
     tinycrypt_sha256();
     tinycrypt_aes();
 #else
-    sha1_test();
-    sha256_test();
+    // sha1_test();
+    // sha256_test();
     aes_test();
 #endif
     return 0;

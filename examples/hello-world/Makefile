@@ -14,14 +14,14 @@ BOARD ?= native
 # USEMODULE += cipher_modes
 
 # Enable these to use the mmCAU library for Kinetis Boards
-CFLAGS += -DCRYPTO_AES -Wno-unused-function
-USEMODULE += lib_mmcau
-CFLAGS+=-DFREESCALE_MMCAU
+# CFLAGS += -DCRYPTO_AES -Wno-unused-function
+# USEMODULE += lib_mmcau
+# CFLAGS+=-DFREESCALE_MMCAU
 
 # For Arm Cryptocell
-# CFLAGS += -DARM_CRYPTOCELL
-# INCLUDES += -I$(NRF_DIR)/external/nrf_cc310/include
-# BASELIBS += ./nrf-sdk/external/nrf_cc310/lib/cortex-m4/hard-float/libnrf_cc310_0.9.12.a
+CFLAGS += -DCRYPTO_AES
+USEMODULE += lib_cryptocell
+CFLAGS += -DARM_CRYPTOCELL
 
 # ------------------------------------------------------------------
 # For NRF-SDK

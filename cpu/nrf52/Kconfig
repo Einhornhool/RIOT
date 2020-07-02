@@ -14,4 +14,8 @@ config CPU_NRF52
     select HAS_HW_HASH_SHA256
     select CPU_NRF5X_COMMON
 
+config COMPONENT_lib_cryptocell
+    bool
+    default y if COMPONENT_periph_hash_sha1 || COMPONENT_periph_hash_sha256 || COMPONENT_periph_crypto_aes
+
 source "$(RIOTCPU)/nrf5x_common/Kconfig"
