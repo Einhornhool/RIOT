@@ -311,6 +311,7 @@ int main(void)
     sha1_test();
     sha256_test();
     aes_test();
+    cryptocell_finish();
 #endif
     return 0;
 }

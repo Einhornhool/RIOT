@@ -28,15 +28,13 @@
 CRYS_RND_WorkBuff_t*  rndWorkBuff_ptr;
 CRYS_RND_State_t*     rndState_ptr;
 
-#if defined(__CC_ARM)
 CRYS_RND_State_t   	 rndState = {0};
 CRYS_RND_WorkBuff_t  rndWorkBuff = {0};
-#else
-CRYS_RND_State_t   	 rndState;
-CRYS_RND_WorkBuff_t  rndWorkBuff;
-#endif
 
+/* Defined by the CryptoCell Library */
 extern void CRYPTOCELL_IRQHandler(void);
+
+/* This function must be defined to use the CryptoCell module on the NRF52840 board */
 void isr_cryptocell(void)
 {
     CRYPTOCELL_IRQHandler();

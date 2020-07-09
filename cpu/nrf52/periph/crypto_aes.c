@@ -37,7 +37,6 @@
 #define ENABLE_DEBUG    (0)
 #include "debug.h"
 
-
 /**
  * Interface to the aes cipher
  */

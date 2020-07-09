@@ -19,9 +19,8 @@ BOARD ?= native
 # CFLAGS+=-DFREESCALE_MMCAU
 
 # For Arm Cryptocell
-CFLAGS += -DCRYPTO_AES
+CFLAGS += -DCRYPTO_AES -DARM_CRYPTOCELL
 USEMODULE += lib_cryptocell
-CFLAGS += -DARM_CRYPTOCELL
 
 # ------------------------------------------------------------------
 # For NRF-SDK
