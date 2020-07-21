@@ -2,11 +2,9 @@
 #include <string.h>
 
 #include "hashes/sha1.h"
-#include "em_cmu.h"
-#include "em_crypto.h"
-#include "em_device.h"
+#include "sha1_ctx.h"
 
-#include "periph/hwcrypto.h"
+#include "hwcrypto.h"
 
 #include "periph_conf.h"
 
@@ -28,22 +26,23 @@ void sha1_init(sha1_context *ctx)
 
 void sha1_update(sha1_context *ctx, const void *data, size_t len)
 {
-    (void) ctx;
-    (void) data;
-    (void) len;
+    hwcrypto_acquire(sha1_dev);
+    CRYPTO_SHA_1(hwcrypto_config[sha1_dev].dev, (uint8_t*)data, (uint64_t) len, ctx->digest);
+    hwcrypto_release(sha1_dev);
 }
 
 void sha1_final(sha1_context *ctx, void *digest)
 {
-   (void) ctx;
-   (void) digest;
+    /* Copy the content of the hash (20 characters) */
+    memcpy(digest, ctx->digest, 20);
 }
 
 void sha1(void *digest, const void *data, size_t len)
 {
-    hwcrypto_acquire(sha1_dev);
-    CRYPTO_SHA_1(hwcrypto_config[sha1_dev].dev, (uint8_t*)data, (uint64_t) len, digest);
-    hwcrypto_release(sha1_dev);
+    sha1_context ctx;
+    sha1_init(&ctx);
+    sha1_update(&ctx, data, len);
+    sha1_final(&ctx, digest);
 }
 
 #define HMAC_IPAD 0x36

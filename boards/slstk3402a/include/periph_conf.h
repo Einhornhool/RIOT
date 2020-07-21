@@ -60,7 +60,7 @@ static const hwcrypto_conf_t hwcrypto_config[] = {
     }
 };
 
-#define HWCRYPTO_NUMOF      (1)
+#define HWCRYPTO_NUMOF      ARRAY_SIZE(hwcrypto_config)
 /** @} */
 
 /**

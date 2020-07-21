@@ -29,7 +29,7 @@
 #include "crypto/aes.h"
 #include "crypto/ciphers.h"
 
-#include "periph/hwcrypto.h"
+#include "hwcrypto.h"
 
 #include "mutex.h"
 #include "assert.h"
@@ -57,31 +57,6 @@ static const cipher_interface_t aes_interface = {
     aes_decrypt
 };
 const cipher_id_t CIPHER_AES_128 = &aes_interface;
-
-static mutex_t hwcrypto_lock[HWCRYPTO_NUMOF];
-
-void hwcrypto_init(hwcrypto_t dev)
-{
-    assert(dev < HWCRYPTO_NUMOF);
-
-    /* initialize lock */
-    mutex_init(&hwcrypto_lock[dev]);
-}
-
-void hwcrypto_acquire(hwcrypto_t dev)
-{
-    mutex_lock(&hwcrypto_lock[dev]);
-
-    CMU_ClockEnable(cmuClock_HFPER, true);
-    CMU_ClockEnable(hwcrypto_config[dev].cmu, true);
-}
-
-void hwcrypto_release(hwcrypto_t dev)
-{
-    CMU_ClockEnable(hwcrypto_config[dev].cmu, false);
-
-    mutex_unlock(&hwcrypto_lock[dev]);
-}
 
 int aes_init(cipher_context_t *context, const uint8_t *key, uint8_t keySize)
 {

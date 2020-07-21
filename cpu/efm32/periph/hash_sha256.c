@@ -43,19 +43,15 @@
 
 #include <string.h>
 #include <assert.h>
-#include "em_cmu.h"
-#include "em_crypto.h"
-#include "em_device.h"
 
 #include "periph/hwcrypto.h"
-
 #include "hashes/sha256.h"
+#include "sha256_ctx.h"
 
 #include "periph_conf.h"
 
 #define ENABLE_DEBUG    (0)
 #include "debug.h"
-
 
 hwcrypto_t sha256_dev = HWCRYPTO_DEV(0);
 
@@ -69,9 +65,9 @@ void sha256_init(sha256_context_t *ctx)
 /* Add bytes into the hash */
 void sha256_update(sha256_context_t *ctx, const void *data, size_t len)
 {
-    (void) ctx;
-    (void) data;
-    (void) len;
+    hwcrypto_acquire(sha256_dev);
+    CRYPTO_SHA_256(hwcrypto_config[sha256_dev].dev, data, len, ctx->digest);
+    hwcrypto_release(sha256_dev);
 }
 
 /*
@@ -80,15 +76,14 @@ void sha256_update(sha256_context_t *ctx, const void *data, size_t len)
  */
 void sha256_final(sha256_context_t *ctx, void *dst)
 {
-    (void) ctx;
-    (void) dst;
+    memcpy(dst, ctx->digest, SHA256_DIGEST_LENGTH);
 }
 
 void *sha256(const void *data, size_t len, void *digest)
 {
-    hwcrypto_acquire(sha256_dev);
-    CRYPTO_SHA_256(hwcrypto_config[sha256_dev].dev, data, len, digest);
-    hwcrypto_release(sha256_dev);
+    sha256_context_t ctx;
+    sha256_update(&ctx, data, len);
+    sha256_final(&ctx, digest);
     return digest;
 }
 
