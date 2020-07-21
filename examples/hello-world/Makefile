@@ -6,12 +6,9 @@ APPLICATION = hello-world
 # If no BOARD is found in the environment, use this default:
 BOARD ?= native
 
-# USEPKG += tinycrypt
+# Must be set to define correct context size for AES in cipher module
+CFLAGS += -DCRYPTO_AES
 # CFLAGS += -DAES_TIME
-# USEMODULE += hashes
-# USEMODULE += crypto
-# USEMODULE += crypto_aes
-# USEMODULE += cipher_modes
 
 # Enable these to use the mmCAU library for Kinetis Boards
 # CFLAGS += -DCRYPTO_AES -Wno-unused-function
@@ -19,7 +16,7 @@ BOARD ?= native
 # CFLAGS+=-DFREESCALE_MMCAU
 
 # For Arm Cryptocell
-CFLAGS += -DCRYPTO_AES -DARM_CRYPTOCELL
+CFLAGS += -DARM_CRYPTOCELL
 USEMODULE += lib_cryptocell
 
 # ------------------------------------------------------------------

@@ -25,7 +25,7 @@
 
 #include "periph/hwcrypto.h"
 #ifdef MODULE_GECKO_SDK
-#include "em_device.h"cd ../..
+#include "em_device.h"
 #include "em_crypto.h"
 #endif
 
@@ -48,6 +48,7 @@
 #include "crypto/ciphers.h"
 #include "xtimer.h"
 #include "periph_conf.h"
+
 /* SHA Tests */
 uint8_t sha1_result[SHA1_DIGEST_LENGTH];
 uint8_t sha256_result[SHA256_DIGEST_LENGTH];
@@ -207,11 +208,6 @@ static void sha1_test(void)
 
 static void sha256_test(void)
 {
-    #ifdef FREESCALE_MMCAU
-        printf("MMCAU Sha256\n");
-    #elif MODULE_GECKO_SDK
-        printf("Gecko SDK Sha256\n");
-    #endif
     start = xtimer_now_usec();
     sha256((unsigned char*)teststring, teststring_size, sha256_result);
     stop = xtimer_now_usec();
@@ -239,13 +235,8 @@ static void aes_test(void)
     memset(data, 0, AES_BLOCK_SIZE);
 
     err = aes_init(&c_ctx, TEST_0_KEY, AES_KEY_SIZE);
-    if (err == 1) {
-        printf("AES Init successful\n");
-    }
-    else
-    {
+    if (err < 1) {
         printf("AES Init failed: %d\n", err);
-        // Had to define CRYPTO_AES as CFLAG –> how do I make it work with Kconfig?
     }
 
     start = xtimer_now_usec();
@@ -306,12 +297,16 @@ int main(void)
     }
     nrf_sdk_sha256();
     nrf_sdk_aes();
-#else
+#elif ARM_CRYPTOCELL
     cryptocell_setup();
     sha1_test();
     sha256_test();
     aes_test();
     cryptocell_finish();
+#else
+    sha1_test();
+    sha256_test();
+    aes_test();
 #endif
     return 0;
 }
