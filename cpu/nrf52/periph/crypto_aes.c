@@ -26,8 +26,10 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "aes_ctx.h"
 #include "crypto/aes.h"
 #include "crypto/ciphers.h"
+#include "aes_ctx.h"
 #include "xtimer.h"
 
 #include "vendor/nrf52840.h"
@@ -52,7 +54,6 @@ const cipher_id_t CIPHER_AES_128 = &aes_interface;
 int aes_init(cipher_context_t *context, const uint8_t *key, uint8_t keySize)
 {
     DEBUG("AES init HW accelerated implementation\n");
-    uint8_t i;
     /* This implementation only supports a single key size (defined in AES_KEY_SIZE) */
     if (keySize != AES_KEY_SIZE) {
         return CIPHER_ERR_INVALID_KEY_SIZE;
@@ -64,18 +65,10 @@ int aes_init(cipher_context_t *context, const uint8_t *key, uint8_t keySize)
         return CIPHER_ERR_BAD_CONTEXT_SIZE;
     }
 
-    /* key must be at least CIPHERS_MAX_KEY_SIZE Bytes long */
-    if (keySize < CIPHERS_MAX_KEY_SIZE) {
-        /* fill up by concatenating key to as long as needed */
-        for (i = 0; i < CIPHERS_MAX_KEY_SIZE; i++) {
-            context->context[i] = key[(i % keySize)];
-        }
+    for (unsigned int i = 0; i < SASI_AES_KEY_MAX_SIZE_IN_BYTES; i++) {
+        context->cc310_key[i] = key[(i %keySize)];
     }
-    else {
-        for (i = 0; i < CIPHERS_MAX_KEY_SIZE; i++) {
-            context->context[i] = key[i];
-        }
-    }
+    context->cc310_key_size = (size_t)keySize;
 
     return CIPHER_INIT_SUCCESS;
 }
@@ -88,26 +81,25 @@ int aes_encrypt(const cipher_context_t *context, const uint8_t *plainBlock,
                 uint8_t *cipherBlock)
 {
     int ret;
-    size_t datain_size = sizeof(plainBlock);
-    size_t dataout_size = sizeof(cipherBlock);
+    size_t datain_size =  SASI_AES_BLOCK_SIZE_IN_BYTES;
+    size_t dataout_size = SASI_AES_BLOCK_SIZE_IN_BYTES;
 
-    SaSiAesUserContext_t enc;
+    SaSiAesUserContext_t *ctx = (SaSiAesUserContext_t *) &context->cc310_ctx;
     SaSiAesUserKeyData_t key;
+    key.keySize = context->cc310_key_size;
+    key.pKey = (uint8_t*) context->cc310_key;
 
-    key.pKey = (uint8_t*) context->context;
-    key.keySize = sizeof(context->context);
-
-    ret = SaSi_AesInit(&enc, SASI_AES_ENCRYPT, SASI_AES_MODE_ECB,SASI_AES_PADDING_NONE);
+    ret = SaSi_AesInit(ctx, SASI_AES_ENCRYPT, SASI_AES_MODE_ECB,SASI_AES_PADDING_NONE);
     if (ret != SA_SILIB_RET_OK) {
         printf("AES Encryption: SaSi_AesInit failed: 0x%x\n", ret);
     }
 
-    ret = SaSi_AesSetKey(&enc, SASI_AES_USER_KEY, &key, sizeof(key));
+    ret = SaSi_AesSetKey(ctx, SASI_AES_USER_KEY, &key, sizeof(key));
     if (ret != SA_SILIB_RET_OK) {
         printf("AES Encryption: SaSi_AesSetKey failed: 0x%x\n", ret);
     }
 
-    ret = SaSi_AesFinish(&enc, datain_size, (uint8_t*) plainBlock, datain_size, cipherBlock, &dataout_size);
+    ret = SaSi_AesFinish(ctx, datain_size, (uint8_t*) plainBlock, datain_size, cipherBlock, &dataout_size);
     if (ret != SA_SILIB_RET_OK) {
         printf("AES Encryption: SaSi_AesFinish failed: 0x%x\n", ret);
     }
@@ -122,26 +114,25 @@ int aes_decrypt(const cipher_context_t *context, const uint8_t *cipherBlock,
                 uint8_t *plainBlock)
 {
     int ret;
-    size_t datain_size = sizeof(cipherBlock);
-    size_t dataout_size = sizeof(plainBlock);
+    size_t datain_size =  SASI_AES_BLOCK_SIZE_IN_BYTES;
+    size_t dataout_size = SASI_AES_BLOCK_SIZE_IN_BYTES;
 
-    SaSiAesUserContext_t dec;
+    SaSiAesUserContext_t *ctx = (SaSiAesUserContext_t *) &context->cc310_ctx;
     SaSiAesUserKeyData_t key;
+    key.keySize = context->cc310_key_size;
+    key.pKey = (uint8_t*)context->cc310_key;
 
-    key.pKey = (uint8_t*) context->context;
-    key.keySize = sizeof(context->context);
-
-    ret = SaSi_AesInit(&dec, SASI_AES_DECRYPT, SASI_AES_MODE_ECB,SASI_AES_PADDING_NONE);
+    ret = SaSi_AesInit(ctx, SASI_AES_DECRYPT, SASI_AES_MODE_ECB,SASI_AES_PADDING_NONE);
     if (ret != SA_SILIB_RET_OK) {
         printf("AES Decryption: SaSi_AesInit failed: 0x%x\n", ret);
     }
 
-    ret = SaSi_AesSetKey(&dec, SASI_AES_USER_KEY, &key, sizeof(key));
+    ret = SaSi_AesSetKey(ctx, SASI_AES_USER_KEY, &key, sizeof(key));
     if (ret != SA_SILIB_RET_OK) {
         printf("AES Decryption: SaSi_AesSetKey failed: 0x%x\n", ret);
     }
 
-    ret = SaSi_AesFinish(&dec, datain_size, (uint8_t*) cipherBlock, datain_size, plainBlock, &dataout_size);
+    ret = SaSi_AesFinish(ctx, datain_size, (uint8_t*) cipherBlock, datain_size, plainBlock, &dataout_size);
     if (ret != SA_SILIB_RET_OK) {
         printf("AES Decryption: SaSi_AesFinish failed: 0x%x\n", ret);
     }

@@ -25,6 +25,7 @@
 #include <string.h>
 
 #include "hashes/sha1.h"
+#include "sha1_ctx.h"
 #include "xtimer.h"
 
 #include "cryptocell_incl/sns_silib.h"
@@ -35,42 +36,38 @@
 
 void sha1_init(sha1_context *ctx)
 {
-    (void) ctx;
     DEBUG("SHA1 init HW accelerated implementation\n");
+    int ret = 0;
+    ret = CRYS_HASH_Init(&(ctx->cc310_ctx), CRYS_HASH_SHA1_mode);
+    if (ret != SA_SILIB_RET_OK) {
+        printf("SHA1: CRYS_HASH_Init failed: 0x%x\n", ret);
+    }
 }
 
 void sha1_update(sha1_context *ctx, const void *data, size_t len)
 {
-    (void) ctx;
-    (void) data;
-    (void) len;
+    int ret = 0;
+    ret = CRYS_HASH_Update(&(ctx->cc310_ctx), (uint8_t*)data, len);
+    if (ret != SA_SILIB_RET_OK) {
+        printf("SHA1: CRYS_HASH_Update failed: 0x%x\n", ret);
+    }
 }
 
 void sha1_final(sha1_context *ctx, void *digest)
 {
-    (void) ctx;
-    (void) digest;
+    int ret = 0;
+    ret = CRYS_HASH_Finish(&(ctx->cc310_ctx), digest);
+    if (ret != SA_SILIB_RET_OK) {
+        printf("SHA1: CRYS_HASH_Finish failed: 0x%x\n", ret);
+    }
 }
 
 void sha1(void *digest, const void *data, size_t len)
 {
-    int ret = 0;
-    CRYS_HASHUserContext_t ctx;
-
-    ret = CRYS_HASH_Init(&ctx, CRYS_HASH_SHA1_mode);
-    if (ret != SA_SILIB_RET_OK) {
-        printf("SHA1: CRYS_HASH_Init failed: 0x%x\n", ret);
-    }
-
-    ret = CRYS_HASH_Update(&ctx, (uint8_t*)data, len);
-    if (ret != SA_SILIB_RET_OK) {
-        printf("SHA1: CRYS_HASH_Update failed: 0x%x\n", ret);
-    }
-
-    ret = CRYS_HASH_Finish(&ctx, digest);
-    if (ret != SA_SILIB_RET_OK) {
-        printf("SHA1: CRYS_HASH_Finish failed: 0x%x\n", ret);
-    }
+    sha1_context ctx;
+    sha1_init(&ctx);
+    sha1_update(&ctx, data, len);
+    sha1_final(&ctx, digest);
 }
 
 void sha1_init_hmac(sha1_context *ctx, const void *key, size_t key_length)

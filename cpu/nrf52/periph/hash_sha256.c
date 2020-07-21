@@ -45,6 +45,7 @@
 #include <assert.h>
 
 #include "hashes/sha256.h"
+#include "sha256_ctx.h"
 #include "cryptocell_incl/crys_hash.h"
 #include "cryptocell_incl/sns_silib.h"
 
@@ -54,16 +55,22 @@
 /* SHA-256 initialization.  Begins a SHA-256 operation. */
 void sha256_init(sha256_context_t *ctx)
 {
-    (void) ctx;
     DEBUG("SHA256 init HW accelerated implementation\n");
+    int ret = 0;
+    ret = CRYS_HASH_Init(&ctx->cc310_ctx, CRYS_HASH_SHA256_mode);
+    if (ret != SA_SILIB_RET_OK) {
+        printf("SHA256: CRYS_HASH_Init failed: 0x%x\n", ret);
+    }
 }
 
 /* Add bytes into the hash */
 void sha256_update(sha256_context_t *ctx, const void *data, size_t len)
 {
-    (void) ctx;
-    (void) data;
-    (void) len;
+    int ret = 0;
+    ret = CRYS_HASH_Update(&ctx->cc310_ctx, (uint8_t*)data, len);
+    if (ret != SA_SILIB_RET_OK) {
+        printf("SHA256: CRYS_HASH_Update failed: 0x%x\n", ret);
+    }
 }
 
 /*
@@ -72,29 +79,19 @@ void sha256_update(sha256_context_t *ctx, const void *data, size_t len)
  */
 void sha256_final(sha256_context_t *ctx, void *dst)
 {
-    (void) ctx;
-    (void) dst;
+    int ret = 0;
+    ret = CRYS_HASH_Finish(&(ctx->cc310_ctx), dst);
+    if (ret != SA_SILIB_RET_OK) {
+        printf("SHA256: CRYS_HASH_Finish failed: 0x%x\n", ret);
+    }
 }
 
 void *sha256(const void *data, size_t len, void *digest)
 {
-    int ret = 0;
-    CRYS_HASHUserContext_t ctx;
-
-    ret = CRYS_HASH_Init(&ctx, CRYS_HASH_SHA256_mode);
-    if (ret != SA_SILIB_RET_OK) {
-        printf("SHA256: CRYS_HASH_Init failed: 0x%x\n", ret);
-    }
-
-    ret = CRYS_HASH_Update(&ctx, (uint8_t*)data, len);
-    if (ret != SA_SILIB_RET_OK) {
-        printf("SHA256: CRYS_HASH_Update failed: 0x%x\n", ret);
-    }
-
-    ret = CRYS_HASH_Finish(&ctx, digest);
-    if (ret != SA_SILIB_RET_OK) {
-        printf("SHA256: CRYS_HASH_Finish failed: 0x%x\n", ret);
-    }
+    sha256_context_t ctx;
+    sha256_init(&ctx);
+    sha256_update(&ctx, data, len);
+    sha256_final(&ctx, digest);
     return digest;
 }
 
