@@ -23,12 +23,6 @@
 #include <stdint.h>
 #include <string.h>
 
-#include "periph/hwcrypto.h"
-#ifdef MODULE_GECKO_SDK
-#include "em_device.h"
-#include "em_crypto.h"
-#endif
-
 #ifdef NRF52840_XXAA
 // #include "vendor/nrf52840.h"
 #include "sdk_common.h"
@@ -182,11 +176,6 @@ uint32_t start, stop, t_diff;
 
 static void sha1_test(void)
 {
-    #ifdef FREESCALE_MMCAU
-        printf("MMCAU Sha1\n");
-    #elif MODULE_GECKO_SDK
-        printf("Gecko SDK Sha1\n");
-    #endif
     start = xtimer_now_usec();
     sha1(sha1_result, (unsigned char*)teststring, teststring_size);
     stop = xtimer_now_usec();
@@ -275,7 +264,6 @@ static void aes_test(void)
         }
     }
 }
-// #endif
 
 int main(void)
 {
@@ -283,10 +271,6 @@ int main(void)
     printf("You are running RIOT on a(n) %s board.\n", RIOT_BOARD);
     printf("This board features a(n) %s MCU.\n", RIOT_MCU);
 
-    /*There are some internal time measurements in the SHA-1 and AES
-    Algorithms, which can be activated by setting the ENABLE_DEBUG flag
-    in the API Because of the internal printfs his makes the hashing
-    and encryption much slower, though. */
 #ifdef NRF52840_XXAA
     // Initialize crypto subsystem
     if (nrf_crypto_init() != NRF_SUCCESS) {
@@ -302,7 +286,7 @@ int main(void)
     sha1_test();
     sha256_test();
     aes_test();
-    cryptocell_finish();
+    cryptocell_terminate();
 #else
     sha1_test();
     sha256_test();

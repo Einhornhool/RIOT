@@ -28,11 +28,8 @@
 #include <stdint.h>
 #include "crypto/aes.h"
 #include "crypto/ciphers.h"
-
-// #ifdef FREESCALE_MMCAU
-#include <stdlib.h>
+#include "aes_hwctx.h"
 #include "cau_api.h"
-// #endif
 
 #include "vendor/MKW21D5.h"
 #include "mmcau.h"
@@ -53,15 +50,6 @@ static const cipher_interface_t aes_interface = {
     aes_decrypt
 };
 const cipher_id_t CIPHER_AES_128 = &aes_interface;
-
-#ifndef FREESCALE_MMCAU
-    /* for 128-bit blocks, Rijndael never uses more than 10 rcon values */
-    static const u32 rcon[] = {
-        0x01000000, 0x02000000, 0x04000000, 0x08000000,
-        0x10000000, 0x20000000, 0x40000000, 0x80000000,
-        0x1B000000, 0x36000000,
-    };
-#endif
 
 int aes_init(cipher_context_t *context, const uint8_t *key, uint8_t keySize)
 {
@@ -94,107 +82,6 @@ int aes_init(cipher_context_t *context, const uint8_t *key, uint8_t keySize)
     return CIPHER_INIT_SUCCESS;
 }
 
-#ifndef FREESCALE_MMCAU
-/**
- * Expand the cipher key into the encryption key schedule.
- */
-static int aes_set_key(const unsigned char *userKey, const int bits,
-                               AES_KEY *key)
-{
-    int i;
-    int j;
-    u32 *rk;
-    rk = key->rd_key;
-
-    if (!userKey || !key) {
-        return -1;
-    }
-
-    if (bits != 128 && bits != 192 && bits != 256) {
-        return -2;
-    }
-
-    if (bits == 256) {
-        key->rounds = 14;
-        for (i = 0; i < 8; i++) {
-            rk[i] = GETU32(userKey + (i*4));
-        }
-
-        CAU->ADR_CAA = rk[i-1];
-
-        for (j = 0; j < 6; j++) {
-            CAU->ROTL_CAA = 8;
-            CAU->DIRECT[0] = MMCAU_1_CMD((AESS+CAA));
-            CAU->XOR_CAA = rcon[j];
-
-            for (int k = 0; k < 8; k++) {
-                CAU->XOR_CAA = rk[i-8];
-                rk[i++] = CAU->STR_CAA;
-            }
-        }
-
-        CAU->ROTL_CAA = 8;
-        CAU->DIRECT[0] = MMCAU_1_CMD((AESS+CAA));
-        CAU->XOR_CAA = rcon[j];
-
-        for (int k = 0; k < 4; k++) {
-            CAU->XOR_CAA = rk[i-8];
-            rk[i++] = CAU->STR_CAA;
-        }
-    }
-
-    if (bits == 192) {
-        key->rounds = 12;
-        for (i = 0; i < 6; i++) {
-            rk[i] = GETU32(userKey + (i*4));;
-        }
-
-        CAU->LDR_CAA = rk[i-1];
-
-        for (j = 0; j < 7; j++) {
-            CAU->ROTL_CAA = 8;
-            CAU->DIRECT[0] = MMCAU_1_CMD((AESS+CAA));
-            CAU->XOR_CAA = rcon[j];
-
-            for (int k = 0; k < 6; k++) {
-                CAU->XOR_CAA = rk[i-6];
-                rk[i++] = CAU->STR_CAA;
-            }
-        }
-
-        CAU->ROTL_CAA = 8;
-        CAU->DIRECT[0] = MMCAU_1_CMD((AESS+CAA));
-        CAU->XOR_CAA = rcon[j];
-
-        for (int k = 0; k < 4; k++) {
-            CAU->XOR_CAA = rk[i-6];
-            rk[i++] = CAU->STR_CAA;
-        }
-    }
-
-    if (bits == 128) {
-        key->rounds = 10;
-        for (i = 0; i < 4; i++) {
-            rk[i] = GETU32(userKey + (i*4));
-        }
-        CAU->LDR_CAA = rk[i-1];
-
-        for (j = 0; j < 10; j++) {
-            CAU->ROTL_CAA = 8;
-            CAU->DIRECT[0] = MMCAU_1_CMD((AESS+CAA));
-            CAU->XOR_CAA = rcon[j];
-
-            for (int k = 0; k < 4; k++) {
-                CAU->XOR_CAA = rk[i-4];
-                rk[i++] = CAU->STR_CAA;
-            }
-        }
-    }
-
-    return 0;
-}
-#endif /* FREESCALE_MMCAU*/
-
 /*
  * Encrypt a single block
  * in and out can overlap
@@ -202,7 +89,6 @@ static int aes_set_key(const unsigned char *userKey, const int bits,
 int aes_encrypt(const cipher_context_t *context, const uint8_t *plainBlock,
                 uint8_t *cipherBlock)
 {
-#ifdef FREESCALE_MMCAU
     AES_KEY aeskey;
     AES_KEY* key = &aeskey;
     cau_aes_set_key((unsigned char *)context->context,
@@ -211,52 +97,6 @@ int aes_encrypt(const cipher_context_t *context, const uint8_t *plainBlock,
     key->rounds = 10;
 
     cau_aes_encrypt(plainBlock, (unsigned char*)key->rd_key, key->rounds, cipherBlock);
-#else
-    /* setup AES_KEY */
-    int res;
-    int i,j;
-    int rounds;
-    const u32 *rk;
-    AES_KEY aeskey;
-    const AES_KEY *key = &aeskey;
-
-    res = aes_set_key((unsigned char *)context->context,
-                              AES_KEY_SIZE * 8, &aeskey);
-
-    if (res < 0) {
-        return res;
-    }
-
-    rk = key->rd_key;
-    rounds = key->rounds;
-    /* Load plaintext into CA-Registers and XOR with first 4 keys*/
-    for (int k = 0; k < 4; k++) {
-        CAU->LDR_CA[k] = GETU32(plainBlock +(k*4));;
-        CAU->XOR_CA[k] = rk[k];
-    }
-
-    /* Perform encryption */
-    for (i = 0, j = 4; i < (rounds-1); i++, j += 4) {
-        CAU->DIRECT[0] = MMCAU_3_CMDS((AESS+CA0), (AESS+CA1), (AESS+CA2));
-        CAU->DIRECT[0] = MMCAU_2_CMDS((AESS+CA3), AESR);
-        CAU->AESC_CA[0] = rk[j];
-        CAU->AESC_CA[1] = rk[j+1];
-        CAU->AESC_CA[2] = rk[j+2];
-        CAU->AESC_CA[3] = rk[j+3];
-    }
-
-    CAU->DIRECT[0] = MMCAU_3_CMDS((AESS+CA0), (AESS+CA1), (AESS+CA2));
-    CAU->DIRECT[0] = MMCAU_2_CMDS((AESS+CA3), AESR);
-    CAU->XOR_CA[0] = rk[j];
-    CAU->XOR_CA[1] = rk[j+1];
-    CAU->XOR_CA[2] = rk[j+2];
-    CAU->XOR_CA[3] = rk[j+3];
-
-    /* Store cipher into cipherBlock */
-    for (int k = 0; k < 4; k++) {
-        PUTU32(cipherBlock + (4*k), CAU->STR_CA[k]);
-    }
-#endif /* FREESCALE_MMCAU */
     return 1;
 }
 
@@ -267,7 +107,6 @@ int aes_encrypt(const cipher_context_t *context, const uint8_t *plainBlock,
 int aes_decrypt(const cipher_context_t *context, const uint8_t *cipherBlock,
                 uint8_t *plainBlock)
 {
-#ifdef FREESCALE_MMCAU
     AES_KEY aeskey;
     AES_KEY *key = &aeskey;
     cau_aes_set_key((unsigned char *)context->context,
@@ -276,54 +115,6 @@ int aes_decrypt(const cipher_context_t *context, const uint8_t *cipherBlock,
     key->rounds = 10;
 
     cau_aes_decrypt(cipherBlock, (unsigned char*)key->rd_key, key->rounds, plainBlock);
-#else
-    /* setup AES_KEY */
-    int res;
-    int i;
-    int rounds;
-    const u32 *rk;
-    AES_KEY aeskey;
-    const AES_KEY *key = &aeskey;
-    res = aes_set_key((unsigned char *)context->context,
-                              AES_KEY_SIZE * 8, &aeskey);
-
-    if (res < 0) {
-        return res;
-    }
-
-    rk = key->rd_key;
-    rounds = key->rounds;
-    i = 4 * (rounds + 1);
-
-    for (int k = 0; k < 4; k++) {
-        CAU->LDR_CA[k] = GETU32(cipherBlock + (4*k));
-    }
-    for (int k = 3; k >= 0; k--) {
-        CAU->XOR_CA[k] = rk[--i];
-    }
-
-    /* Perform decryption */
-    while (i > 4) {
-        CAU->DIRECT[0] = MMCAU_3_CMDS(AESIR, (AESIS+CA3), (AESIS+CA2));
-        CAU->DIRECT[0] = MMCAU_2_CMDS((AESIS+CA1), (AESIS+CA0));
-        CAU->AESIC_CA[3] = rk[--i];
-        CAU->AESIC_CA[2] = rk[--i];
-        CAU->AESIC_CA[1] = rk[--i];
-        CAU->AESIC_CA[0] = rk[--i];
-    }
-
-    CAU->DIRECT[0] = MMCAU_3_CMDS(AESIR, (AESIS+CA3), (AESIS+CA2));
-    CAU->DIRECT[0] = MMCAU_2_CMDS((AESIS+CA1), (AESIS+CA0));
-    CAU->XOR_CA[3] = rk[--i];
-    CAU->XOR_CA[2] = rk[--i];
-    CAU->XOR_CA[1] = rk[--i];
-    CAU->XOR_CA[0] = rk[--i];
-
-    /* Store plaintext */
-    for (int k = 0; k < 4; k++) {
-        PUTU32(plainBlock + (4*k), CAU->STR_CA[k]);
-    }
-#endif /* FREESCALE_MMCAU */
 
     return 1;
 }
