@@ -2,11 +2,9 @@
 #include <string.h>
 
 #include "hashes/sha1.h"
-#include "sha1_ctx.h"
+#include "sha1_hwctx.h"
 
-#include "hwcrypto.h"
-
-#include "periph_conf.h"
+#include "crypto_util.h"
 
 #include "xtimer.h"
 
@@ -16,8 +14,6 @@
 uint32_t t_start[2], t_stop[2];
 uint32_t time[5];
 
-hwcrypto_t sha1_dev = HWCRYPTO_DEV(0);
-
 void sha1_init(sha1_context *ctx)
 {
     (void) ctx;
@@ -26,9 +22,9 @@ void sha1_init(sha1_context *ctx)
 
 void sha1_update(sha1_context *ctx, const void *data, size_t len)
 {
-    hwcrypto_acquire(sha1_dev);
-    CRYPTO_SHA_1(hwcrypto_config[sha1_dev].dev, (uint8_t*)data, (uint64_t) len, ctx->digest);
-    hwcrypto_release(sha1_dev);
+    CRYPTO_TypeDef* dev = crypto_acquire();
+    CRYPTO_SHA_1(dev, (uint8_t*)data, (uint64_t) len, ctx->digest);
+    crypto_release(dev);
 }
 
 void sha1_final(sha1_context *ctx, void *digest)

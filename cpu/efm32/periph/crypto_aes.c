@@ -28,23 +28,12 @@
 #include <stdint.h>
 #include "crypto/aes.h"
 #include "crypto/ciphers.h"
-
-#include "hwcrypto.h"
-
-#include "mutex.h"
-#include "assert.h"
-
-#include "periph_conf.h"
-#include "em_cmu.h"
-#include "em_crypto.h"
-#include "em_device.h"
+#include "crypto_util.h"
 
 #include "xtimer.h"
 
 #define ENABLE_DEBUG    (0)
 #include "debug.h"
-
-hwcrypto_t aes_dev = HWCRYPTO_DEV(0);
 
 /**
  * Interface to the aes cipher
@@ -62,6 +51,7 @@ int aes_init(cipher_context_t *context, const uint8_t *key, uint8_t keySize)
 {
     DEBUG("AES init HW accelerated implementation\n");
     uint8_t i;
+
     /* This implementation only supports a single key size (defined in AES_KEY_SIZE) */
     if (keySize != AES_KEY_SIZE) {
         return CIPHER_ERR_INVALID_KEY_SIZE;
@@ -95,9 +85,11 @@ int aes_init(cipher_context_t *context, const uint8_t *key, uint8_t keySize)
 int aes_encrypt(const cipher_context_t *context, const uint8_t *plainBlock,
                 uint8_t *cipherBlock)
 {
-    hwcrypto_acquire(aes_dev);
-    CRYPTO_AES_ECB128(hwcrypto_config[aes_dev].dev, cipherBlock, plainBlock, AES_BLOCK_SIZE, context->context, true);
-    hwcrypto_release(aes_dev);
+    CRYPTO_TypeDef* dev = crypto_acquire();
+
+    CRYPTO_AES_ECB128(dev, cipherBlock, plainBlock, AES_BLOCK_SIZE, context->context, true);
+
+    crypto_release(dev);
     return 1;
 }
 
@@ -109,14 +101,18 @@ int aes_decrypt(const cipher_context_t *context, const uint8_t *cipherBlock,
                 uint8_t *plainBlock)
 {
     uint32_t sta, sto, dif;
-    hwcrypto_acquire(aes_dev);
     uint8_t decrypt_key[AES_KEY_SIZE];
+
+    CRYPTO_TypeDef* dev = crypto_acquire();
+
     sta = xtimer_now_usec();
-    CRYPTO_AES_DecryptKey128(hwcrypto_config[aes_dev].dev, decrypt_key, context->context);
+    CRYPTO_AES_DecryptKey128(dev, decrypt_key, context->context);
     sto = xtimer_now_usec();
     dif = sto - sta;
     DEBUG("AES Set decrypt key: %ld\n", dif);
-    CRYPTO_AES_ECB128(hwcrypto_config[aes_dev].dev, plainBlock, cipherBlock, AES_BLOCK_SIZE, decrypt_key, false);
-    hwcrypto_release(aes_dev);
+
+    CRYPTO_AES_ECB128(dev, plainBlock, cipherBlock, AES_BLOCK_SIZE, decrypt_key, false);
+
+    crypto_release(dev);
     return 1;
 }

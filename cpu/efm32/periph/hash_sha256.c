@@ -44,16 +44,12 @@
 #include <string.h>
 #include <assert.h>
 
-#include "periph/hwcrypto.h"
+#include "crypto_util.h"
 #include "hashes/sha256.h"
-#include "sha256_ctx.h"
-
-#include "periph_conf.h"
+#include "sha256_hwctx.h"
 
 #define ENABLE_DEBUG    (0)
 #include "debug.h"
-
-hwcrypto_t sha256_dev = HWCRYPTO_DEV(0);
 
 /* SHA-256 initialization.  Begins a SHA-256 operation. */
 void sha256_init(sha256_context_t *ctx)
@@ -65,9 +61,9 @@ void sha256_init(sha256_context_t *ctx)
 /* Add bytes into the hash */
 void sha256_update(sha256_context_t *ctx, const void *data, size_t len)
 {
-    hwcrypto_acquire(sha256_dev);
-    CRYPTO_SHA_256(hwcrypto_config[sha256_dev].dev, data, len, ctx->digest);
-    hwcrypto_release(sha256_dev);
+    CRYPTO_TypeDef* dev = crypto_acquire();
+    CRYPTO_SHA_256(dev, data, len, ctx->digest);
+    crypto_release(dev);
 }
 
 /*

@@ -1,5 +1,5 @@
-#ifndef SHA256_CTX_H
-#define SHA256_CTX_H
+#ifndef SHA256_HWCTX_H
+#define SHA256_HWCTX_H
 
 #include "em_cmu.h"
 #include "em_crypto.h"
@@ -13,4 +13,4 @@ typedef struct {
 } sha256_context_t;
 
 #endif /* MODULE_PERIPH_HASH_SHA256 */
-#endif /* SHA256_CTX_H */
+#endif /* SHA256_HWCTX_H */

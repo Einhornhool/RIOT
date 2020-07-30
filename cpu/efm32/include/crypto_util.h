@@ -1,5 +1,5 @@
-#ifndef HWCRYPTO_H
-#define HWCRYPTO_H
+#ifndef CRYPTO_UTIL_H
+#define CRYPTO_UTIL_H
 
 #include "em_cmu.h"
 #include "em_crypto.h"
@@ -36,5 +36,5 @@ void crypto_release(CRYPTO_TypeDef*);
 }
 #endif
 
-#endif /* HWCRYPTO_H */
+#endif /* CRYPTO_UTIL_H */
 /** @} */
