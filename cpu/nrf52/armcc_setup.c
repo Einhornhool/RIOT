@@ -61,7 +61,7 @@ void cryptocell_setup(void)
     }
 }
 
-void cryptocell_finish(void)
+void cryptocell_terminate(void)
 {
     int ret = 0;
     SaSi_LibFini();

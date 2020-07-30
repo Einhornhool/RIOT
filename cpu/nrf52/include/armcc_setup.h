@@ -11,6 +11,6 @@ void cryptocell_setup(void);
  * Finishes the use of the CryptoCell library.
  * Should be called after using the CryptoCell lib.
  */
-void cryptocell_finish(void);
+void cryptocell_terminate(void);
 
 #endif /*ARMCC_SETUP_H*/

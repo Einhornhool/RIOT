@@ -25,7 +25,7 @@
 #include <string.h>
 
 #include "hashes/sha1.h"
-#include "sha1_ctx.h"
+#include "sha1_hwctx.h"
 #include "xtimer.h"
 
 #include "cryptocell_incl/sns_silib.h"

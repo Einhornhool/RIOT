@@ -26,10 +26,9 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "aes_ctx.h"
 #include "crypto/aes.h"
 #include "crypto/ciphers.h"
-#include "aes_ctx.h"
+#include "aes_hwctx.h"
 #include "xtimer.h"
 
 #include "vendor/nrf52840.h"

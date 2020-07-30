@@ -1,5 +1,5 @@
-#ifndef SHA256_CTX_H
-#define SHA256_CTX_H
+#ifndef SHA256_HWCTX_H
+#define SHA256_HWCTX_H
 
 #include "cryptocell_incl/crys_hash.h"
 #include "kernel_defines.h"
@@ -11,4 +11,4 @@ typedef struct {
 } sha256_context_t;
 
 #endif /* MODULE_PERIPH_HASH_SHA256 */
-#endif /* SHA256_CTX_H */
+#endif /* SHA256_HWCTX_H */

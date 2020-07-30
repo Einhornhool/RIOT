@@ -45,7 +45,7 @@
 #include <assert.h>
 
 #include "hashes/sha256.h"
-#include "sha256_ctx.h"
+#include "sha256_hwctx.h"
 #include "cryptocell_incl/crys_hash.h"
 #include "cryptocell_incl/sns_silib.h"
 

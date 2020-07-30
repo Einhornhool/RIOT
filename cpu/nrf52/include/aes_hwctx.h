@@ -1,5 +1,5 @@
-#ifndef AES_CTX_H
-#define AES_CTX_H
+#ifndef AES_HWCTX_H
+#define AES_HWCTX_H
 
 #include "cryptocell_incl/ssi_aes.h"
 #include "kernel_defines.h"
@@ -13,4 +13,4 @@ typedef struct {
 } cipher_context_t;
 
 #endif /* MODULE_PERIPH_HASH_AES */
-#endif /* AES_CTX_H */
+#endif /* AES_HWCTX_H */
