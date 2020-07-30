@@ -53,7 +53,7 @@
 
 #include "kernel_defines.h"
 #if (IS_ACTIVE(MODULE_PERIPH_HASH_SHA256))
-#include "sha256_ctx.h"
+#include "sha256_hwctx.h"
 #endif
 
 #ifdef __cplusplus

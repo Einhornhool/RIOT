@@ -26,7 +26,7 @@
 
 #include "kernel_defines.h"
 #if (IS_ACTIVE(MODULE_PERIPH_CRYPTO_AES) && !IS_ACTIVE(MODULE_GECKO_SDK))
-#include "aes_ctx.h"
+#include "aes_hwctx.h"
 #endif
 
 #ifdef __cplusplus
