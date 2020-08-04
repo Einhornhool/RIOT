@@ -1,3 +1,4 @@
+# NRF SDK is too big to push it to git repository. Please download the SDK from the Nordic Website and add the local path below
 NRF_DIR = /home/einhornhool/work/repos/nrf-sdk
 NRF_COMP_DIR = $(NRF_DIR)/components
 # name of your application
@@ -16,6 +17,7 @@ CFLAGS+= -DNRF52840_XXAA -Wno-expansion-to-defined -Wno-unused-but-set-variable 
 BASELIBS += ./bin/nrf52840dk/libnrf5_crypto.a
 BASELIBS += ./bin/nrf52840dk/libnrf5_atomic.a
 BASELIBS += ./bin/nrf52840dk/libnrf5_crypto_cc310_backend.a
+# Add path to cc-310 lib in local sdk
 BASELIBS += /home/einhornhool/work/repos/nrf-sdk/external/nrf_cc310/lib/cortex-m4/hard-float/libnrf_cc310_0.9.12.a
 
 INCLUDES += -I$(NRF_DIR)/config/nrf52840/config
@@ -46,6 +48,7 @@ INCLUDES += -I$(NRF_DIR)/external/nrf_cc310/include
 INCLUDES += -I$(NRF_DIR)/integration/nrfx
 INCLUDES += -I$(NRF_DIR)/integration/nrfx/legacy
 
+# Add paths to gcc-arm toolchain, local nrf-sdk and sdkconfig.h file below.
 nrfsdk:
 	cmake \
 		-S . \

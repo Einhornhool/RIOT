@@ -66,7 +66,15 @@ uint32_t start, stop, t_diff;
 
 /*  ATTENTION: The following things have been changed in RIOT to make NRF-SDK work:
     - changed the name of cpu/nrf5x_common/include/nrf_check.h to .../nrf_clock_riot.h to avoid naming collision
-    - added .cryptodata so SECTIONS in linker script cortexm_base.ld */
+    - added .cryptodata so SECTIONS in linker script cortexm_base.ld
+
+    How to build:
+    1. "make nrf-sdk BOARD=nrf52840dk"
+    2. "cd bin/nrf52840dk"
+    3. "cmake --build ."
+    4. "cd ../.."
+    5. "make BOARD=nrf52840dk flash term"
+    */
 
 /* Defined by the CryptoCell Library */
 extern void CRYPTOCELL_IRQHandler(void);
