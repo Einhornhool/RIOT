@@ -64,6 +64,19 @@ static uint8_t TEST_0_ENC[] = {
 /* Timer variables */
 uint32_t start, stop, t_diff;
 
+/*  ATTENTION: The following things have been changed in RIOT to make NRF-SDK work:
+    - changed the name of cpu/nrf5x_common/include/nrf_check.h to .../nrf_clock_riot.h to avoid naming collision
+    - added .cryptodata so SECTIONS in linker script cortexm_base.ld */
+
+/* Defined by the CryptoCell Library */
+extern void CRYPTOCELL_IRQHandler(void);
+
+/* This function must be defined to use the CryptoCell module on the NRF52840 board */
+void isr_cryptocell(void)
+{
+    CRYPTOCELL_IRQHandler();
+}
+
 static void nrf_sdk_sha256(void)
 {
     nrf_crypto_hash_context_t ctx;

@@ -11,12 +11,12 @@ CFLAGS += -DCRYPTO_AES
 
 # ------------------------------------------------------------------
 # For NRF-SDK
-CFLAGS+= -Wno-expansion-to-defined -Wno-unused-but-set-variable -Wno-unused-parameter
+CFLAGS+= -DNRF52840_XXAA -Wno-expansion-to-defined -Wno-unused-but-set-variable -Wno-unused-parameter
 
 BASELIBS += ./bin/nrf52840dk/libnrf5_crypto.a
 BASELIBS += ./bin/nrf52840dk/libnrf5_atomic.a
 BASELIBS += ./bin/nrf52840dk/libnrf5_crypto_cc310_backend.a
-BASELIBS += ./nrf-sdk/external/nrf_cc310/lib/cortex-m4/hard-float/libnrf_cc310_0.9.12.a
+BASELIBS += /home/einhornhool/work/repos/nrf-sdk/external/nrf_cc310/lib/cortex-m4/hard-float/libnrf_cc310_0.9.12.a
 
 INCLUDES += -I$(NRF_DIR)/config/nrf52840/config
 INCLUDES += -I$(NRF_COMP_DIR)/libraries/crypto
