@@ -19,57 +19,6 @@ CFLAGS += -DCRYPTO_AES
 CFLAGS += -DARM_CRYPTOCELL
 USEMODULE += lib_cryptocell
 
-# ------------------------------------------------------------------
-# For NRF-SDK
-# CFLAGS+= -DNRF52840_XXAA -Wno-expansion-to-defined -Wno-unused-but-set-variable -Wno-unused-parameter
-
-# BASELIBS += ./bin/nrf52840dk/libnrf5_crypto.a
-# BASELIBS += ./bin/nrf52840dk/libnrf5_atomic.a
-# BASELIBS += ./bin/nrf52840dk/libnrf5_crypto_cc310_backend.a
-# BASELIBS += ./nrf-sdk/external/nrf_cc310/lib/cortex-m4/hard-float/libnrf_cc310_0.9.12.a
-
-# INCLUDES += -I$(NRF_DIR)/config/nrf52840/config
-# INCLUDES += -I$(NRF_COMP_DIR)/libraries/crypto
-# INCLUDES += -I$(NRF_COMP_DIR)/libraries/crypto/backend/cc310
-# INCLUDES += -I$(NRF_COMP_DIR)/libraries/crypto/backend/cc310_bl
-# INCLUDES += -I$(NRF_COMP_DIR)/libraries/crypto/backend/mbedtls
-# INCLUDES += -I$(NRF_COMP_DIR)/libraries/crypto/backend/oberon
-# INCLUDES += -I$(NRF_COMP_DIR)/libraries/crypto/backend/micro_ecc
-# INCLUDES += -I$(NRF_COMP_DIR)/libraries/crypto/backend/optiga
-# INCLUDES += -I$(NRF_COMP_DIR)/libraries/crypto/backend/cifra
-# INCLUDES += -I$(NRF_COMP_DIR)/libraries/crypto/backend/nrf_hw
-# INCLUDES += -I$(NRF_COMP_DIR)/libraries/crypto/backend/nrf_sw
-# INCLUDES += -I$(NRF_COMP_DIR)/libraries/experimental_section_vars
-# INCLUDES += -I$(NRF_COMP_DIR)/libraries/log
-# INCLUDES += -I$(NRF_COMP_DIR)/libraries/log/src
-# INCLUDES += -I$(NRF_COMP_DIR)/libraries/util
-# INCLUDES += -I$(NRF_COMP_DIR)/libraries/mem_manager
-# INCLUDES += -I$(NRF_COMP_DIR)/softdevice/s140/headers
-# INCLUDES += -I$(NRF_DIR)/modules/nrfx
-# INCLUDES += -I$(NRF_DIR)/modules/nrfx/hal
-# INCLUDES += -I$(NRF_DIR)/modules/nrfx/drivers/include
-# INCLUDES += -I$(NRF_DIR)/modules/nrfx/drivers
-# INCLUDES += -I$(NRF_DIR)/modules/nrfx/drivers/src
-# INCLUDES += -I$(NRF_DIR)/modules/nrfx/mdk
-# INCLUDES += -I$(NRF_DIR)/modules/nrfx/templates/nRF52840
-# INCLUDES += -I$(NRF_DIR)/external/nrf_cc310/include
-# INCLUDES += -I$(NRF_DIR)/integration/nrfx
-# INCLUDES += -I$(NRF_DIR)/integration/nrfx/legacy
-
-# nrfsdk:
-# 	cmake \
-# 		-S . \
-# 		-B$(BINDIR) \
-# 		-DCMAKE_C_COMPILER="/home/einhornhool/Downloads/gcc-arm-none-eabi-9-2019-q4-major/bin/arm-none-eabi-gcc" \
-# 		-DCMAKE_TOOLCHAIN_FILE="./cmake/arm-none-eabi.cmake" \
-# 		-DTOOLCHAIN_PREFIX="/home/einhornhool/Downloads/gcc-arm-none-eabi-9-2019-q4-major" \
-# 		-DNRF5_SDK_PATH="$(RIOTBASE)/examples/hello-world/nrf-sdk" \
-# 		-DNRF5_BOARD="pca10056" \
-# 		-DNRF5_SOFTDEVICE_VARIANT="blank" \
-# 		-DNRF5_SDKCONFIG_PATH="$(RIOTBASE)/examples/hello-world/"
-
-# ------------------------------------------------------------------
-
 # This has to be the absolute path to the RIOT base directory:
 RIOTBASE ?= $(CURDIR)/../..
 

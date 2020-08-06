@@ -23,15 +23,6 @@
 #include <stdint.h>
 #include <string.h>
 
-#ifdef NRF52840_XXAA
-// #include "vendor/nrf52840.h"
-#include "sdk_common.h"
-#include "nrf_crypto.h"
-#include "nrf_crypto_error.h"
-#include "nrf_crypto_hash.h"
-#include "mem_manager.h"
-#endif
-
 #ifdef ARM_CRYPTOCELL
 #include "armcc_setup.h"
 #endif
@@ -69,110 +60,6 @@ static uint8_t TEST_0_ENC[] = {
 
 /* Timer variables */
 uint32_t start, stop, t_diff;
-
-#ifdef NRF52840_XXAA
-    static void nrf_sdk_sha256(void)
-    {
-        nrf_crypto_hash_context_t ctx;
-        nrf_crypto_hash_sha256_digest_t result;
-        size_t result_len = NRF_CRYPTO_HASH_SIZE_SHA256;
-
-        start = xtimer_now_usec();
-        if (nrf_crypto_hash_init(&ctx, &g_nrf_crypto_hash_sha256_info)) {
-            printf("CC310 Sha256 Init failed\n");
-        }
-        if (nrf_crypto_hash_update(&ctx, (uint8_t*) teststring, teststring_size)) {
-            printf("CC310 Sha256 Update failed\n");
-        }
-        if (nrf_crypto_hash_finalize(&ctx, result, &result_len)) {
-            printf("CC310 Sha256 finish failed\n");
-        }
-        stop = xtimer_now_usec();
-        t_diff = stop - start;
-        printf("CC310 Sha256 Time: %ld us\n", t_diff);
-
-        if (memcmp((uint8_t*)result, expected_result_sha256, SHA256_DIGEST_LENGTH) != 0) {
-                printf("CC310 SHA-256 Failure\n");
-
-                for (int i = 0; i < SHA256_DIGEST_LENGTH; i++) {
-                    printf("%02x ", sha256_result[i]);
-                }
-                printf("\n");
-        }
-        else {
-            printf("CC310 SHA-256 Success\n");
-        }
-    }
-
-    static void nrf_sdk_aes(void)
-    {
-        nrf_crypto_aes_context_t enc, dec;
-
-        uint8_t data[AES_BLOCK_SIZE];
-        size_t data_size = 16;
-
-        if (nrf_crypto_aes_init(&enc, &g_nrf_crypto_aes_ecb_128_info, NRF_CRYPTO_ENCRYPT)) {
-            printf("CC310 AES encrypt init failed\n");
-        }
-        if (nrf_crypto_aes_init(&dec, &g_nrf_crypto_aes_ecb_128_info, NRF_CRYPTO_DECRYPT)) {
-            printf("CC310 AES decrypt init failed\n");
-        }
-
-        /* Encryption */
-        start = xtimer_now_usec();
-        if (nrf_crypto_aes_key_set(&enc, TEST_0_KEY)) {
-            printf("CC310 AES set encrypt key failed\n");
-        }
-        stop = xtimer_now_usec();
-        t_diff = stop - start;
-        printf("CC310 AES set encrypt key time: %ld us\n", t_diff);
-
-        start = xtimer_now_usec();
-        if (nrf_crypto_aes_finalize(&enc, TEST_0_INP, sizeof(TEST_0_INP), data, &data_size)) {
-            printf("CC310 AES encrypt failed\n");
-        }
-        stop = xtimer_now_usec();
-        t_diff = stop - start;
-        printf("CC310 AES encryption time: %ld us\n", t_diff);
-        if (!memcmp(data, TEST_0_ENC, AES_BLOCK_SIZE)) {
-            printf("CC310 AES encryption successful\n");
-        }
-        else {
-            printf("CC310 AES encryption failed\n");
-            for (int i = 0; i < 16; i++) {
-                printf("%02x ", data[i]);
-            }
-            printf("\n");
-        }
-
-        /* Decryption */
-        start = xtimer_now_usec();
-        if (nrf_crypto_aes_key_set(&dec, TEST_0_KEY)) {
-            printf("CC310 AES set decrypt key failed\n");
-        }
-        stop = xtimer_now_usec();
-        t_diff = stop - start;
-        printf("CC310 AES set decrypt key time: %ld us\n", t_diff);
-
-        start = xtimer_now_usec();
-        if (nrf_crypto_aes_finalize(&dec, TEST_0_ENC, sizeof(TEST_0_ENC), data, &data_size)) {
-            printf("CC310 AES decrypt failed\n");
-        }
-        stop = xtimer_now_usec();
-        t_diff = stop - start;
-        printf("CC310 AES decryption time: %ld us\n", t_diff);
-        if (!memcmp(data, TEST_0_INP, AES_BLOCK_SIZE)) {
-            printf("CC310 AES decryption successful\n");
-        }
-        else {
-            printf("CC310 AES decryption failed\n");
-            for (int i = 0; i < 16; i++) {
-                printf("%02x ", data[i]);
-            }
-            printf("\n");
-        }
-    }
-#endif
 
 static void sha1_test(void)
 {
