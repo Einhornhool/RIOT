@@ -202,19 +202,6 @@ typedef enum {
 } gpio_flank_t;
 /** @} */
 #endif /* ndef DOXYGEN */
-
-/**
- * @brief   Override hardware crypto supported methods.
- * @{
- */
-#define HAVE_HWCRYPTO_AES128
-#ifdef AES_CTRL_AES256
-#define HAVE_HWCRYPTO_AES256
-#endif
-#ifdef _SILICON_LABS_32B_SERIES_1
-#define HAVE_HWCRYPTO_SHA1
-#define HAVE_HWCRYPTO_SHA256
-#endif
 /** @} */
 
 #ifndef DOXYGEN
