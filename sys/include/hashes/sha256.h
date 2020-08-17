@@ -51,6 +51,11 @@
 #include <inttypes.h>
 #include <stddef.h>
 
+#include "kernel_defines.h"
+#if (IS_ACTIVE(MODULE_PERIPH_HASH_SHA256))
+#include "sha256_hwctx.h"
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -65,6 +70,7 @@ extern "C" {
  */
 #define SHA256_INTERNAL_BLOCK_SIZE (64)
 
+#ifndef MODULE_PERIPH_HASH_SHA256
 /**
  * @brief Context for cipher operations based on sha256
  */
@@ -76,6 +82,7 @@ typedef struct {
     /** data buffer */
     unsigned char buf[64];
 } sha256_context_t;
+#endif /* MODULE_PERIPH_HASH_SHA256 */
 
 /**
  * @brief Context for HMAC operations based on sha256
