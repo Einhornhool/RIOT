@@ -32,6 +32,10 @@
 #include "atca_execution.h"
 #include "periph/gpio.h"
 
+#include "xtimer.h"
+
+uint32_t start, stop, diff;
+
 ATCA_STATUS status;
 uint8_t SharedSecret1[ECDH_KEY_SIZE];
 uint8_t SharedSecret2[ECDH_KEY_SIZE];
@@ -48,7 +52,11 @@ void _gen_keypair(void)
     status = atcab_genkey(key_id_1, UserPubKey1);
     atecc_idle();
 #else
+    start = xtimer_now_usec();
     status = atcab_genkey(key_id_1, UserPubKey1);
+    stop = xtimer_now_usec();
+    diff = stop - start;
+    printf("ATCA ECDH GenKey1: %ld\n", diff);
 #endif
     if (status != ATCA_SUCCESS){
         printf(" atcab_genkey for PubKey1 failed with 0x%x \n",status);
@@ -60,7 +68,11 @@ void _gen_keypair(void)
     status = atcab_genkey(key_id_2, UserPubKey2);
     atecc_idle();
 #else
+    start = xtimer_now_usec();
     status = atcab_genkey(key_id_2, UserPubKey2);
+    stop = xtimer_now_usec();
+    diff = stop - start;
+    printf("ATCA ECDH GenKey2: %ld\n", diff);
 #endif
     if (status != ATCA_SUCCESS){
         printf(" atcab_genkey for PubKey2 failed with 0x%x \n",status);
@@ -75,7 +87,11 @@ void _derive_shared_secret(void)
     status = atcab_ecdh(key_id_1, UserPubKey2, SharedSecret1);
     atecc_idle();
 #else
+    start = xtimer_now_usec();
     status = atcab_ecdh(key_id_1, UserPubKey2, SharedSecret1);
+    stop = xtimer_now_usec();
+    diff = stop - start;
+    printf("ATCA ECDH Derive Key 1: %ld\n", diff);
 #endif
     if (status != ATCA_SUCCESS){
         printf(" atcab_ecdh for secret 2 failed with 0x%x \n",status);
@@ -87,7 +103,11 @@ void _derive_shared_secret(void)
     status = atcab_ecdh(key_id_2, UserPubKey1, SharedSecret2);
     atecc_sleep();
 #else
+    start = xtimer_now_usec();
     status = atcab_ecdh(key_id_2, UserPubKey1, SharedSecret2);
+    stop = xtimer_now_usec();
+    diff = stop - start;
+    printf("ATCA ECDH Derive Key 2: %ld\n", diff);
 #endif
     if (status != ATCA_SUCCESS){
         printf(" atcab_ecdh for secret 2 failed with 0x%x \n",status);

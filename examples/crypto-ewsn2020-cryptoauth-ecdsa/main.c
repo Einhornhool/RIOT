@@ -28,6 +28,9 @@
 #include "host/atca_host.h"
 #include "basic/atca_basic.h"
 #include "atca_execution.h"
+#include "xtimer.h"
+
+uint32_t start, stop, diff;
 
 ATCA_STATUS status;
 uint8_t UserPubKey[ATCA_PUB_KEY_SIZE];
@@ -40,7 +43,11 @@ void _gen_keypair(void)
     status = atcab_genkey(key_id, UserPubKey);
     atecc_sleep();
 #else
+    start = xtimer_now_usec();
     status = atcab_genkey(key_id, UserPubKey);
+    stop = xtimer_now_usec();
+    diff = stop - start;
+    printf("ATCA ECDSA GenKey: %ld\n", diff);
 #endif
     if (status != ATCA_SUCCESS){
         printf(" atcab_genkey for PubKey1 failed with 0x%x \n",status);
@@ -61,7 +68,11 @@ void _sign_verify(void)
     status = atcab_sign(key_id, msg, signature);
     atecc_sleep();
 #else
+    start = xtimer_now_usec();
     status = atcab_sign(key_id, msg, signature);
+    stop = xtimer_now_usec();
+    diff = stop - start;
+    printf("ATCA ECDSA Sign: %ld\n", diff);
 #endif
     if (status != ATCA_SUCCESS){
         printf(" Signing failed with 0x%x \n",status);
@@ -73,7 +84,11 @@ void _sign_verify(void)
     status = atcab_verify_extern(msg, signature, UserPubKey, &is_verified);
     atecc_sleep();
 #else
+    start = xtimer_now_usec();
     status = atcab_verify_extern(msg, signature, UserPubKey, &is_verified);
+    stop = xtimer_now_usec();
+    diff = stop - start;
+    printf("ATCA ECDSA Verify: %ld\n", diff);
 #endif
     if (status != ATCA_SUCCESS){
         printf(" Verifying failed with 0x%x \n",status);

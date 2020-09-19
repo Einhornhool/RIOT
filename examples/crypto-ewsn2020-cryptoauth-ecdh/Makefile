@@ -5,5 +5,6 @@ RIOTBASE ?= $(CURDIR)/../..
 APPLICATION = crypto-ewsn2020_cryptoauth_ecdh
 
 USEPKG += cryptoauthlib
+USEMODULE += xtimer
 
 include $(RIOTBASE)/Makefile.include
