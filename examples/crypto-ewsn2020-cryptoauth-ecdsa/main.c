@@ -28,9 +28,9 @@
 #include "host/atca_host.h"
 #include "basic/atca_basic.h"
 #include "atca_execution.h"
-#include "xtimer.h"
+#include "periph/gpio.h"
 
-uint32_t start, stop, diff;
+gpio_t active_gpio = GPIO_PIN(1,7);
 
 ATCA_STATUS status;
 uint8_t UserPubKey[ATCA_PUB_KEY_SIZE];
@@ -40,14 +40,14 @@ void _gen_keypair(void)
 {
 #ifdef ATCA_MANUAL_ONOFF
     atecc_wake();
+    gpio_set(active_gpio);
     status = atcab_genkey(key_id, UserPubKey);
+    gpio_clear(active_gpio);
     atecc_sleep();
 #else
-    start = xtimer_now_usec();
+    gpio_set(active_gpio);
     status = atcab_genkey(key_id, UserPubKey);
-    stop = xtimer_now_usec();
-    diff = stop - start;
-    printf("ATCA ECDSA GenKey: %ld\n", diff);
+    gpio_clear(active_gpio);
 #endif
     if (status != ATCA_SUCCESS){
         printf(" atcab_genkey for PubKey1 failed with 0x%x \n",status);
@@ -65,14 +65,14 @@ void _sign_verify(void)
 
 #ifdef ATCA_MANUAL_ONOFF
     atecc_wake();
+    gpio_set(active_gpio);
     status = atcab_sign(key_id, msg, signature);
+    gpio_clear(active_gpio);
     atecc_sleep();
 #else
-    start = xtimer_now_usec();
+    gpio_set(active_gpio);
     status = atcab_sign(key_id, msg, signature);
-    stop = xtimer_now_usec();
-    diff = stop - start;
-    printf("ATCA ECDSA Sign: %ld\n", diff);
+    gpio_clear(active_gpio);
 #endif
     if (status != ATCA_SUCCESS){
         printf(" Signing failed with 0x%x \n",status);
@@ -81,14 +81,14 @@ void _sign_verify(void)
 
 #ifdef ATCA_MANUAL_ONOFF
     atecc_wake();
+    gpio_set(active_gpio);
     status = atcab_verify_extern(msg, signature, UserPubKey, &is_verified);
+    gpio_clear(active_gpio);
     atecc_sleep();
 #else
-    start = xtimer_now_usec();
+    gpio_set(active_gpio);
     status = atcab_verify_extern(msg, signature, UserPubKey, &is_verified);
-    stop = xtimer_now_usec();
-    diff = stop - start;
-    printf("ATCA ECDSA Verify: %ld\n", diff);
+    gpio_clear(active_gpio);
 #endif
     if (status != ATCA_SUCCESS){
         printf(" Verifying failed with 0x%x \n",status);
@@ -106,7 +106,8 @@ void _sign_verify(void)
 int main(void)
 {
     puts("'crypto-ewsn2020_ecdsa'");
-
+    gpio_init(active_gpio, GPIO_OUT);
+    gpio_clear(active_gpio);
     // generate two instances of keypairs
     _gen_keypair();
 
