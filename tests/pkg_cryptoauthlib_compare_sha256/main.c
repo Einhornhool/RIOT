@@ -256,113 +256,113 @@ static void ata_without_ctx_save(void)
 // }
 
 
-/**
- * Function to call CryptoAuth hardware implementation of SHA-256
- */
-static int test_atca_sha(uint8_t *teststring, uint16_t len, uint8_t *expected,
-                         uint8_t *result)
-{
-    atecc_wake();
-    atcab_sha_start();
-    atcab_sha_end(result, len, teststring);
-    atecc_sleep();
-    return memcmp(expected, result, SHA256_HASH_SIZE);
-}
+// /**
+//  * Function to call CryptoAuth hardware implementation of SHA-256
+//  */
+// static int test_atca_sha(uint8_t *teststring, uint16_t len, uint8_t *expected,
+//                          uint8_t *result)
+// {
+//     atecc_wake();
+//     atcab_sha_start();
+//     atcab_sha_end(result, len, teststring);
+//     atecc_sleep();
+//     return memcmp(expected, result, SHA256_HASH_SIZE);
+// }
 
-static int ata_sha_init(int argc, char **argv)
-{
-    (void) argc;
-    (void) argv;
+// static int ata_sha_init(int argc, char **argv)
+// {
+//     (void) argc;
+//     (void) argv;
 
-    start = xtimer_now_usec();
-    atcab_hw_sha2_256_init(&ctx);
-    printf("atcab_hw_sha2_256_init: %"PRIu32"\n", xtimer_now_usec()-start);
-    return 0;
-}
+//     start = xtimer_now_usec();
+//     atcab_hw_sha2_256_init(&ctx);
+//     printf("atcab_hw_sha2_256_init: %"PRIu32"\n", xtimer_now_usec()-start);
+//     return 0;
+// }
 
 
-static int ata_sha_update(int argc, char **argv)
-{
-    (void) argc;
-    (void) argv;
+// static int ata_sha_update(int argc, char **argv)
+// {
+//     (void) argc;
+//     (void) argv;
 
-    start = xtimer_now_usec();
-    atcab_hw_sha2_256_update(&ctx, teststring, test_string_size);
-    printf("atcab_hw_sha2_256_update: %"PRIu32"\n", xtimer_now_usec()-start);
-    return 0;
-}
+//     start = xtimer_now_usec();
+//     atcab_hw_sha2_256_update(&ctx, teststring, test_string_size);
+//     printf("atcab_hw_sha2_256_update: %"PRIu32"\n", xtimer_now_usec()-start);
+//     return 0;
+// }
 
-static int ata_sha_finish(int argc, char **argv)
-{
-    (void) argc;
-    (void) argv;
+// static int ata_sha_finish(int argc, char **argv)
+// {
+//     (void) argc;
+//     (void) argv;
 
-    start = xtimer_now_usec();
-    atcab_hw_sha2_256_finish(&ctx, result);
-    printf("atcab_hw_sha2_256_finish: %"PRIu32"\n", xtimer_now_usec()-start);
-    return 0;
-}
+//     start = xtimer_now_usec();
+//     atcab_hw_sha2_256_finish(&ctx, result);
+//     printf("atcab_hw_sha2_256_finish: %"PRIu32"\n", xtimer_now_usec()-start);
+//     return 0;
+// }
 
-static int ata_wake(int argc, char **argv)
-{
-    (void) argc;
-    (void) argv;
-    start = xtimer_now_usec();
-    atecc_wake();
-    printf("atecc_wake: %"PRIu32";\n", xtimer_now_usec()-start);
-    return 0;
-}
+// static int ata_wake(int argc, char **argv)
+// {
+//     (void) argc;
+//     (void) argv;
+//     start = xtimer_now_usec();
+//     atecc_wake();
+//     printf("atecc_wake: %"PRIu32";\n", xtimer_now_usec()-start);
+//     return 0;
+// }
 
-static int ata_serial(int argc, char **argv)
-{
-    (void) argc;
-    (void) argv;
+// static int ata_serial(int argc, char **argv)
+// {
+//     (void) argc;
+//     (void) argv;
 
-    uint8_t sn[ATCA_SERIAL_NUM_SIZE];
-    ATCA_STATUS status;
+//     uint8_t sn[ATCA_SERIAL_NUM_SIZE];
+//     ATCA_STATUS status;
 
-    if ((status = atcab_read_serial_number(sn)) != ATCA_SUCCESS)
-    {
-        puts("error reading SN");
-        return -1;
-    }
-    printf("SERIAl NO: ");
-    for (unsigned i=0;i<sizeof(sn);i++) {
-        printf("0x%x ", sn[i]);
-    }
-    printf("\n");
-    return 0;
-}
+//     if ((status = atcab_read_serial_number(sn)) != ATCA_SUCCESS)
+//     {
+//         puts("error reading SN");
+//         return -1;
+//     }
+//     printf("SERIAl NO: ");
+//     for (unsigned i=0;i<sizeof(sn);i++) {
+//         printf("0x%x ", sn[i]);
+//     }
+//     printf("\n");
+//     return 0;
+// }
 
-static int ata_idle(int argc, char **argv)
-{
-    (void) argc;
-    (void) argv;
-    start = xtimer_now_usec();
-    atecc_idle();
-    printf("atecc_idle: %"PRIu32";\n", xtimer_now_usec()-start);
-    return 0;
-}
-static int ata_sleep(int argc, char **argv)
-{
-    (void) argc;
-    (void) argv;
-    start = xtimer_now_usec();
-    atecc_sleep();
-    printf("atecc_sleep: %"PRIu32";\n", xtimer_now_usec()-start);
+// static int ata_idle(int argc, char **argv)
+// {
+//     (void) argc;
+//     (void) argv;
+//     start = xtimer_now_usec();
+//     atecc_idle();
+//     printf("atecc_idle: %"PRIu32";\n", xtimer_now_usec()-start);
+//     return 0;
+// }
+// static int ata_sleep(int argc, char **argv)
+// {
+//     (void) argc;
+//     (void) argv;
+//     start = xtimer_now_usec();
+//     atecc_sleep();
+//     printf("atecc_sleep: %"PRIu32";\n", xtimer_now_usec()-start);
 
-    return 0;
-}
-static const shell_command_t shell_commands[] = {
-    { "asi", "ata sha init", ata_sha_init },
-    { "asu", "ata sha update", ata_sha_update },
-    { "asf", "ata sha finish", ata_sha_finish },
-    { "awake", "ata wake up", ata_wake },
-    { "aidle", "ata idle", ata_idle },
-    { "asleep", "ata sleep", ata_sleep },
-    { "aserial", "ata serial", ata_serial },
-    { NULL, NULL, NULL }
-};
+//     return 0;
+// }
+// static const shell_command_t shell_commands[] = {
+//     { "asi", "ata sha init", ata_sha_init },
+//     { "asu", "ata sha update", ata_sha_update },
+//     { "asf", "ata sha finish", ata_sha_finish },
+//     { "awake", "ata wake up", ata_wake },
+//     { "aidle", "ata idle", ata_idle },
+//     { "asleep", "ata sleep", ata_sleep },
+//     { "aserial", "ata serial", ata_serial },
+//     { NULL, NULL, NULL }
+// };
 
 int main(void)
 {
@@ -397,15 +397,19 @@ int main(void)
     puts("ATCA_MANUAL_OFF");
 #endif
 
-    if (test_atca_sha(teststring, test_string_size, expected, result) == 0) {
-        printf("ATCA SHA256: Success\n");
-    }
-    else {
-        printf("ATCA SHA256: Failure.\n");
-    }
+    // if (test_atca_sha(teststring, test_string_size, expected, result) == 0) {
+    //     printf("ATCA SHA256: Success\n");
+    // }
+    // else {
+    //     printf("ATCA SHA256: Failure.\n");
+    // }
+#if ATCA_SAVE_CTX
+    puts("SAVE CTX");
     ata_with_ctx_save();
+#else
+    puts("NO SAVE CTX");
     ata_without_ctx_save();
-
+#endif
     // test_2_contexts();
 
 

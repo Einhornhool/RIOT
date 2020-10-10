@@ -24,4 +24,8 @@ ifneq (, $(ATCA_MANUAL_ONOFF))
 	CFLAGS+=-DATCA_MANUAL_ONOFF=1
 endif
 
+ifneq (, $(ATCA_SAVE_CTX))
+	CFLAGS+=-DATCA_SAVE_CTX=1
+endif
+
 include $(RIOTBASE)/Makefile.include
