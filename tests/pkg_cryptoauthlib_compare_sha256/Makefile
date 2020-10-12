@@ -8,10 +8,17 @@ BOARD_BLACKLIST := stk3600 stk3700
 USEPKG += cryptoauthlib
 USEMODULE += hashes
 USEMODULE += xtimer
-USEMODULE += shell
+# USEMODULE += shell
+
+FEATURES_REQUIRED+=periph_gpio
 
 # FEATURES_REQUIRED += periph_rtt
 CFLAGS=-DTHREAD_STACKSIZE_MAIN=2048
+
+ifneq (, $(TEST_ENERGY))
+	CFLAGS+=-DTEST_ENERGY=1
+endif
+
 
 ifneq (, $(NO_I2C_RECONF))
 	CFLAGS+=-DNO_I2C_RECONF=1

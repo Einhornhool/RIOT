@@ -58,8 +58,58 @@ uint8_t expected[] =
 
 uint8_t result[SHA256_HASH_SIZE];                       /* +3 to fit 1 byte length and 2 bytes checksum */
 
+#include "periph/gpio.h"
+
+gpio_t active_gpio = GPIO_PIN(1, 7);
+gpio_t gpio_aes_key = GPIO_PIN(1, 8);
+gpio_t gpio_sync_pin = GPIO_PIN(1, 6);
+
+static inline void _init_trigger(void)
+{
+#if TEST_ENERGY
+    gpio_init(active_gpio, GPIO_OUT);
+    gpio_init(gpio_aes_key, GPIO_OUT);
+    gpio_init(gpio_sync_pin, GPIO_IN);
+
+    gpio_set(active_gpio);
+    gpio_clear(gpio_aes_key);
+#else
+    gpio_init(active_gpio, GPIO_OUT);
+    gpio_clear(active_gpio);
+#endif
+}
+
+static inline void _start_trigger(void)
+{
+#if TEST_ENERGY
+    while(gpio_read(gpio_sync_pin)) {};
+    while(!gpio_read(gpio_sync_pin)) {};
+    // this is crap and it should be fixed! for the fast i2x, manual powering, no save 
+    // context mode, the device was not responsible when doing the synchronization // patter for energy measurements. enabling the device manually helped :/
+#if defined(ATCA_MANUAL_ONOFF) && !defined(NO_I2C_RECONF)
+    atecc_wake();
+#endif
+    gpio_clear(active_gpio);
+#else
+    gpio_set(active_gpio);
+#endif
+}
+
+static inline void _stop_trigger(void)
+{
+#if TEST_ENERGY
+    gpio_set(gpio_aes_key);
+
+    gpio_set(active_gpio);
+    gpio_clear(gpio_aes_key);
+#else
+    gpio_clear(active_gpio);
+#endif
+}
+
 atca_sha256_ctx_t ctx;
 
+#if ATCA_SAVE_CTX
 static void ata_with_ctx_save(void)
 {
 
@@ -78,6 +128,7 @@ static void ata_with_ctx_save(void)
 
     for (int i = 0; i < NUM_ITER; i++) {
         // printf("LOOP #%i\n", i);
+        _start_trigger();
         if (atcab_hw_sha2_256_init(&ctx) != ATCA_SUCCESS) {
             puts("atcab_hw_sha2_256_initERROR");
         }
@@ -86,21 +137,22 @@ static void ata_with_ctx_save(void)
         }
 
         if (atcab_sha_write_context(context, context_size) != ATCA_SUCCESS) {
-        puts("atcab_sha_write_contextERROR");
+            puts("atcab_sha_write_contextERROR");
         }
         if (atcab_hw_sha2_256_update(&ctx, teststring, sizeof(teststring)-1) != ATCA_SUCCESS) {
-        puts("atcab_hw_sha2_256_updateERROR");
+            puts("atcab_hw_sha2_256_updateERROR");
         }
         if (atcab_sha_read_context(context, &context_size) != ATCA_SUCCESS) {
-        puts("2atcab_sha_read_contextERROR");
+            puts("2atcab_sha_read_contextERROR");
         }
 
         if (atcab_sha_write_context(context, context_size) != ATCA_SUCCESS) {
-        puts("atcab_sha_write_contextERROR");
-    }
+            puts("atcab_sha_write_contextERROR");
+        }
         if (atcab_hw_sha2_256_finish(&ctx, res) != ATCA_SUCCESS) {
-        puts("atcab_hw_sha2_256_finishERROR");
-    }
+            puts("atcab_hw_sha2_256_finishERROR");
+        }
+        _stop_trigger();
     //     if (atcab_sha_read_context(context, &context_size) != ATCA_SUCCESS) {
     //     puts("3atcab_sha_read_contextERROR");
     // }
@@ -119,7 +171,9 @@ static void ata_with_ctx_save(void)
     //     puts("ata_without_ctx_save alrido");
     // }
 }
+#endif
 
+#ifndef ATCA_SAVE_CTX
 static void ata_without_ctx_save(void)
 {
     atca_sha256_ctx_t ctx;
@@ -130,28 +184,34 @@ static void ata_without_ctx_save(void)
     atecc_wake();
 #endif
 
-
+    ATCA_STATUS status;
+    // _start_trigger();
     for (int i = 0; i < NUM_ITER; i++) {
-        // printf("LOOP #%i\n", i);
-        if (atcab_hw_sha2_256_init(&ctx) != ATCA_SUCCESS) {
-            puts("atcab_hw_sha2_256_initERROR");
+        _start_trigger();// should actually be here :/
+        status=atcab_hw_sha2_256_init(&ctx);
+        if (status != ATCA_SUCCESS) {
+            printf("atcab_hw_sha2_256_init ERROR: %x, %i\n", status,i);
         }
-        if (atcab_hw_sha2_256_update(&ctx, teststring, sizeof(teststring)-1) != ATCA_SUCCESS) {
-        puts("atcab_hw_sha2_256_updateERROR");
+        status=atcab_hw_sha2_256_update(&ctx, teststring, sizeof(teststring)-1);
+        if (status != ATCA_SUCCESS) {
+            printf("atcab_hw_sha2_256_update ERROR: %x, %i\n", status,i);
         }
-        if (atcab_hw_sha2_256_finish(&ctx, res) != ATCA_SUCCESS) {
-        puts("atcab_hw_sha2_256_finishERROR");
+        status=atcab_hw_sha2_256_finish(&ctx, res);
+        if (status != ATCA_SUCCESS) {
+            printf("atcab_hw_sha2_256_finish ERROR: %x, %i\n", status,i);
         }
+        _stop_trigger();// should actually be here :/
     }
+    // _stop_trigger();
 
 #ifdef ATCA_MANUAL_ONOFF
     atecc_sleep();
 #endif
-
     stop = xtimer_now_usec();
+
     printf("ata_without_ctx_save: %i Bytes int %"PRIu32 " us\n", (NUM_ITER*SHA256_HASH_SIZE), (stop-start));
 }
-
+#endif
 
 /**
  * Function to call RIOT software implementation of SHA-256
@@ -369,6 +429,8 @@ int main(void)
 
     memset(result, 0, SHA256_HASH_SIZE);                    /* alles in result auf 0 setzen */
 
+    _init_trigger();
+
 #ifdef NO_I2C_RECONF
     puts("SLOW I2C");
 #else
@@ -412,12 +474,11 @@ int main(void)
 #endif
     // test_2_contexts();
 
+    //  /* define buffer to be used by the shell */
+    // char line_buf[SHELL_DEFAULT_BUFSIZE];
 
-     /* define buffer to be used by the shell */
-    char line_buf[SHELL_DEFAULT_BUFSIZE];
-
-    /* define own shell commands */
-    shell_run(shell_commands, line_buf, SHELL_DEFAULT_BUFSIZE);
+    // /* define own shell commands */
+    // shell_run(shell_commands, line_buf, SHELL_DEFAULT_BUFSIZE);
 
     return 0;
 }
