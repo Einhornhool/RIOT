@@ -31,6 +31,8 @@
 #include "em_cmu.h"
 #include "em_crypto.h"
 
+#define AES_128_KEY_SIZE    (16)
+
 /**
  * @brief   Type definition of the hardware crypto device state.
  */
@@ -140,6 +142,12 @@ static int hwcrypto_cipher_encrypt_decrypt(hwcrypto_t dev, const uint8_t *plain_
 
     if ((block_size % 16) != 0) {
         return HWCRYPTO_INVALID;
+    }
+    if (encrypt == false && ((state[dev].cipher.mode == HWCRYPTO_MODE_ECB) || (state[dev].cipher.mode == HWCRYPTO_MODE_CBC))) {
+        uint8_t decrypt_key[AES_128_KEY_SIZE];
+        CRYPTO_AES_DecryptKey128(hwcrypto_config[dev].dev, decrypt_key, state[dev].cipher.key);
+
+        hwcrypto_cipher_set(dev, HWCRYPTO_OPT_KEY, decrypt_key, AES_128_KEY_SIZE);
     }
 
     switch (state[dev].cipher.cipher) {
