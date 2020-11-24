@@ -348,6 +348,8 @@ int hwcrypto_hash_update(hwcrypto_t dev,
                          const uint8_t* block,
                          uint32_t block_size);
 
+void hwcrypto_return_state(uint32_t* ext_state);
+
 /**
  * @brief   Finalize the hash and copy the result to result buffer.
  *
