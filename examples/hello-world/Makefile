@@ -9,6 +9,13 @@ RIOTBASE ?= $(CURDIR)/../..
 
 FEATURES_REQUIRED += periph_hwcrypto
 
+
+ifeq (pba-d-01-kw2x, $(BOARD))
+	USEMODULE += crypto_aes
+	USEMODULE += hashes
+	USEMODULE += lib_mmcau
+endif
+
 ifeq (1, $(TEST_MEM))
 	CFLAGS += -DTEST_MEM=1
 endif

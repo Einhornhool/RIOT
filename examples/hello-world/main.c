@@ -23,11 +23,23 @@
 #include "periph/hwcrypto.h"
 
 #if AES
+#ifdef BOARD_PBA_D_01_KW2X
+#include "crypto/ciphers.h"
+#include "crypto/modes/cbc.h"
+#include "crypto/modes/ecb.h"
+#else
 #include "em_crypto.h"
+#endif
 #endif
 
 #if TEST_STACK
 #include "ps.h"
+#endif
+
+#if SHA256
+#ifdef BOARD_PBA_D_01_KW2X
+#include "hashes/sha256.h"
+#endif
 #endif
 
 #if !defined(TEST_STACK) && !defined(TEST_MEM)
@@ -49,7 +61,9 @@ uint32_t start;
 
 #endif /* TEST_STACK */
 
+#ifdef BOARD_SLSTK3402A
 hwcrypto_t dev = HWCRYPTO_DEV(0);
+#endif
 
 #if SHA256
 #define SHA256_DIGEST_SIZE  (32)
@@ -77,6 +91,58 @@ hwcrypto_t dev = HWCRYPTO_DEV(0);
     };
 #endif /* TEST_STACK */
 #endif /* INPUT_512 */
+
+#ifdef BOARD_PBA_D_01_KW2X
+
+static void sha256_test(void)
+{
+    uint8_t sha256_result[SHA256_DIGEST_SIZE];
+    sha256_context_t ctx;
+#if !defined(TEST_STACK) && !defined(TEST_MEM)
+    #if USE_TIMER
+        start = xtimer_now_usec();
+        sha256_init(&ctx);
+        printf("Sha256 Init: %ld us\n", xtimer_now_usec()-start);
+
+        start = xtimer_now_usec();
+        sha256_update(&ctx, SHA_TESTSTRING, SHA_TESTSTR_SIZE);
+        printf("Sha256 Update: %ld us\n", xtimer_now_usec()-start);
+
+        start = xtimer_now_usec();
+        sha256_final(&ctx, sha256_result);
+        printf("Sha256 Final: %ld us\n", xtimer_now_usec()-start);
+    #else
+        gpio_toggle(active_gpio);
+        sha256_init(&ctx);
+        gpio_toggle(active_gpio);
+
+        gpio_toggle(active_gpio);
+        sha256_update(&ctx, SHA_TESTSTRING, SHA_TESTSTR_SIZE);
+        gpio_toggle(active_gpio);
+
+        gpio_toggle(active_gpio);
+        sha256_final(&ctx, sha256_result);
+        gpio_toggle(active_gpio);
+    #endif /* USE_TIMER */
+    if (memcmp(sha256_result, EXPECTED_RESULT_SHA256, SHA256_DIGEST_SIZE)) {
+        printf("SHA-256 Failure\n");
+
+        for (int i = 0; i < SHA256_DIGEST_SIZE; i++) {
+            printf("%02x ", sha256_result[i]);
+        }
+        printf("\n");
+    }
+    else {
+        printf("SHA-256 Success\n");
+    }
+#else
+    sha256_init(&ctx);
+    sha256_update(&ctx, SHA_TESTSTRING, SHA_TESTSTR_SIZE);
+    sha256_final(&ctx, sha256_result);
+#endif /* TEST_STACK */
+}
+
+#else
 
 static void sha256_test(void)
 {
@@ -127,6 +193,7 @@ static void sha256_test(void)
 #endif /* TEST_STACK */
     hwcrypto_release(dev);
 }
+#endif /* BOARD_PBA_D_01_KW2X */
 #endif /* SHA256 */
 
 #if AES
@@ -229,12 +296,65 @@ static uint8_t AES_KEY_SIZE = 16;
     #define ECB_CIPHER_LEN 512
 #endif /* INPUT_512 */
 
+#ifdef BOARD_PBA_D_01_KW2X
+void aes_test_ecb(void)
+{
+    cipher_t ciph;
+    uint8_t data[ECB_PLAIN_LEN];
+    memset(data, 0, ECB_PLAIN_LEN);
+
+#if !defined(TEST_STACK) && !defined(TEST_MEM)
+    #if USE_TIMER
+        start = xtimer_now_usec();
+        cipher_init(&ciph, CIPHER_AES_128, AES_KEY, AES_KEY_SIZE);
+        printf("AES ECB Init: %ld\n", xtimer_now_usec()-start);
+
+        start = xtimer_now_usec();
+        cipher_encrypt_ecb(&ciph, ECB_PLAIN, ECB_PLAIN_LEN, data);
+        printf("AES ECB Set Key: %ld\n", xtimer_now_usec()-start);
+    #else
+        gpio_toggle(active_gpio);
+        cipher_init(&ciph, CIPHER_AES_128, AES_KEY, AES_KEY_SIZE);
+        gpio_toggle(active_gpio);
+
+        gpio_toggle(active_gpio);
+        cipher_encrypt_ecb(&ciph, ECB_PLAIN, ECB_PLAIN_LEN, data);
+        gpio_toggle(active_gpio);
+
+        if (memcmp(data, ECB_CIPHER, ECB_CIPHER_LEN)) {
+            printf("AES ECB encryption wrong cipher\n");
+        }
+
+    #endif /* USE_TIMER */
+#else
+    cipher_init(&ciph, CIPHER_AES_128, AES_KEY, AES_KEY_SIZE);
+    cipher_encrypt_ecb(&ciph, ECB_PLAIN, ECB_PLAIN_LEN, data);
+#endif /* TES_STACK */
+
+#if !defined(TEST_STACK) && !defined(TEST_MEM)
+    #if USE_TIMER
+        start = xtimer_now_usec();
+        cipher_decrypt_ecb(&ciph, ECB_CIPHER, ECB_CIPHER_LEN, data);
+        printf("AES ECB Decrypt: %ld\n", xtimer_now_usec()-start);
+    #else
+        gpio_toggle(active_gpio);
+        cipher_decrypt_ecb(&ciph, ECB_CIPHER, ECB_CIPHER_LEN, data);
+        gpio_toggle(active_gpio);
+    #endif /* USE_TIMER */
+
+    if (memcmp(data, ECB_PLAIN, ECB_PLAIN_LEN)) {
+        printf("AES ECB decryption wrong plain\n");
+    }
+#else
+    cipher_decrypt_ecb(&ciph, ECB_CIPHER, ECB_CIPHER_LEN, data);
+#endif /* TEST_STACK */
+}
+#else
+
 void aes_test_ecb(void)
 {
     uint8_t data[ECB_CIPHER_LEN];
-    gpio_toggle(acq_rel_gpio);
     hwcrypto_acquire(dev);
-    gpio_toggle(acq_rel_gpio);
 
 #if !defined(TEST_STACK) && !defined(TEST_MEM)
     #if USE_TIMER
@@ -292,6 +412,7 @@ void aes_test_ecb(void)
 #endif /* TEST_STACK */
     hwcrypto_release(dev);
 }
+#endif /* BOARD_PBA_D_01_KW2X */
 #endif /* AES_ECB */
 
 #if AES_CBC
@@ -389,6 +510,61 @@ void aes_test_ecb(void)
     #define CBC_CIPHER_LEN 512
 #endif /* INPUT_512 */
 
+#ifdef BOARD_PBA_D_01_KW2X
+void aes_test_cbc(void)
+{
+    cipher_t ciph;
+    uint8_t data[CBC_PLAIN_LEN];
+    memset(data, 0, CBC_PLAIN_LEN);
+
+#if !defined(TEST_STACK) && !defined(TEST_MEM)
+    #if USE_TIMER
+        start = xtimer_now_usec();
+        cipher_init(&ciph, CIPHER_AES_128, AES_KEY, AES_KEY_SIZE);
+        printf("AES CBC Init: %ld\n", xtimer_now_usec()-start);
+
+        start = xtimer_now_usec();
+        cipher_encrypt_cbc(&ciph, CBC_IV, CBC_PLAIN, CBC_PLAIN_LEN, data);
+        printf("AES CBC Set Key: %ld\n", xtimer_now_usec()-start);
+    #else
+        gpio_toggle(active_gpio);
+        cipher_init(&ciph, CIPHER_AES_128, AES_KEY, AES_KEY_SIZE);
+        gpio_toggle(active_gpio);
+
+        gpio_toggle(active_gpio);
+        cipher_encrypt_cbc(&ciph, CBC_IV, CBC_PLAIN, CBC_PLAIN_LEN, data);
+        gpio_toggle(active_gpio);
+
+        if (memcmp(data, CBC_CIPHER, CBC_CIPHER_LEN)) {
+            printf("AES CBC encryption wrong cipher\n");
+        }
+
+    #endif /* USE_TIMER */
+#else
+    cipher_init(&ciph, CIPHER_AES_128, AES_KEY, AES_KEY_SIZE);
+    cipher_encrypt_cbc(&ciph, CBC_IV, CBC_PLAIN, CBC_PLAIN_LEN, data);
+#endif /* TES_STACK */
+
+#if !defined(TEST_STACK) && !defined(TEST_MEM)
+    #if USE_TIMER
+        start = xtimer_now_usec();
+        cipher_decrypt_cbc(&ciph, CBC_IV, CBC_CIPHER, CBC_CIPHER_LEN, data);
+        printf("AES CBC Decrypt: %ld\n", xtimer_now_usec()-start);
+    #else
+        gpio_toggle(active_gpio);
+        cipher_decrypt_cbc(&ciph, CBC_IV, CBC_CIPHER, CBC_CIPHER_LEN, data);
+        gpio_toggle(active_gpio);
+    #endif /* USE_TIMER */
+
+    if (memcmp(data, CBC_PLAIN, CBC_PLAIN_LEN)) {
+        printf("AES CBC decryption wrong plain\n");
+    }
+#else
+    cipher_decrypt_cbc(&ciph, CBC_IV, CBC_CIPHER, CBC_CIPHER_LEN, data);
+#endif /* TEST_STACK */
+}
+#else
+
 void aes_test_cbc(void)
 {
     uint8_t data[CBC_CIPHER_LEN];
@@ -458,6 +634,7 @@ void aes_test_cbc(void)
 #endif /* TEST_STACK */
     hwcrypto_release(dev);
 }
+#endif /* BOARD_PBA_XXX */
 #endif /* AES_CBC */
 
 int main(void)
@@ -470,8 +647,9 @@ int main(void)
     gpio_clear(acq_rel_gpio);
 #endif
 
+#ifdef BOARD_SLSTK3402A
     hwcrypto_init(dev);
-
+#endif
 #if SHA256
     puts("HWCRYPTO PR SHA256 Start");
     sha256_test();
