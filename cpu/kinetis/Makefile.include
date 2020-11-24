@@ -37,4 +37,6 @@ CFLAGS += \
   -DKINETIS_ROMSIZE=$(KINETIS_ROMSIZE) \
   #
 
+BASELIBS += $(if $(filter lib_mmcau, $(USEMODULE)), $(RIOTBASE)/cpu/kinetis/mmcau_lib/lib_mmcau.a)
+
 include $(RIOTMAKE)/arch/cortexm.inc.mk

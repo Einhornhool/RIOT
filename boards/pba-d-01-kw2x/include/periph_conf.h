@@ -29,6 +29,8 @@ extern "C"
 {
 #endif
 
+#define HWCRYPTO_NUMOF      (1)
+
 /**
  * @name Clock system configuration
  * @{

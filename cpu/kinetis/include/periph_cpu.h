@@ -50,6 +50,11 @@ extern "C" {
 #  define KINETIS_HAVE_LPTMR
 #endif
 
+#define HAVE_HWCRYPTO_AES128
+#define HAVE_HWCRYPTO_AES256
+#define HAVE_HWCRYPTO_SHA1
+#define HAVE_HWCRYPTO_SHA256
+
 /**
  * @name    CPU specific gpio_t type definition
  * @{
