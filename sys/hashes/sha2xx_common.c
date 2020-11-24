@@ -51,6 +51,9 @@
 
 #include "hashes/sha2xx_common.h"
 
+#if defined(MODULE_PERIPH_HWCRYPTO)
+#include "periph/hwcrypto.h"
+#endif
 
 #ifdef __BIG_ENDIAN__
 /* Copy a vector of big-endian uint32_t into a vector of bytes */
@@ -97,6 +100,7 @@ static void be32enc_vect(void *dst_, const void *src_, size_t len)
 
 #endif /* __BYTE_ORDER__ != __ORDER_BIG_ENDIAN__ */
 
+#if !defined(MODULE_PERIPH_HWCRYPTO)
 /*
  * SHA256 block compression function.  The 256-bit state is transformed via
  * the 512-bit input block to produce a new state.
@@ -134,7 +138,7 @@ static void sha2xx_transform(uint32_t *state, const unsigned char block[64])
         state[i] += S[i];
     }
 }
-
+#endif
 static unsigned char PAD[64] = {
     0x80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -191,13 +195,25 @@ void sha2xx_update(sha2xx_context_t *ctx, const void *data, size_t len)
     const unsigned char *src = data;
 
     memcpy(&ctx->buf[r], src, 64 - r);
-    sha2xx_transform(ctx->state, ctx->buf);
+
+    #if defined(MODULE_PERIPH_HWCRYPTO)
+        hwcrypto_hash_update(0, ctx->buf, 64);
+        hwcrypto_return_state(ctx->state);
+    #else
+        sha2xx_transform(ctx->state, ctx->buf);
+    #endif
+
     src += 64 - r;
     len -= 64 - r;
 
     /* Perform complete blocks */
     while (len >= 64) {
-        sha2xx_transform(ctx->state, src);
+        #if defined(MODULE_PERIPH_HWCRYPTO)
+            hwcrypto_hash_update(0, src, 64);
+            hwcrypto_return_state(ctx->state);
+        #else
+            sha2xx_transform(ctx->state, src);
+        #endif
         src += 64;
         len -= 64;
     }

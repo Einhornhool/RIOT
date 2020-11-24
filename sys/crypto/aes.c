@@ -40,6 +40,10 @@
 #include "crypto/aes.h"
 #include "crypto/ciphers.h"
 
+#if defined(MODULE_PERIPH_HWCRYPTO)
+#include "periph/hwcrypto.h"
+#endif
+
 /**
  * Interface to the aes cipher
  */
@@ -52,6 +56,7 @@ static const cipher_interface_t aes_interface = {
 };
 const cipher_id_t CIPHER_AES_128 = &aes_interface;
 
+#if !defined(MODULE_PERIPH_HWCRYPTO)
 static const u32 Te0[256] = {
     0xc66363a5U, 0xf87c7c84U, 0xee777799U, 0xf67b7b8dU,
     0xfff2f20dU, 0xd66b6bbdU, 0xde6f6fb1U, 0x91c5c554U,
@@ -794,7 +799,7 @@ static const u32 rcon[] = {
     0x10000000, 0x20000000, 0x40000000, 0x80000000,
     0x1B000000, 0x36000000,
 };
-
+#endif
 
 int aes_init(cipher_context_t *context, const uint8_t *key, uint8_t keySize)
 {
@@ -824,9 +829,15 @@ int aes_init(cipher_context_t *context, const uint8_t *key, uint8_t keySize)
         }
     }
 
+#if defined(MODULE_PERIPH_HWCRYPTO)
+    hwcrypto_cipher_init(0, HWCRYPTO_AES128, HWCRYPTO_MODE_NONE);
+    hwcrypto_cipher_set(0, HWCRYPTO_OPT_KEY, key, keySize);
+#endif
+
     return CIPHER_INIT_SUCCESS;
 }
 
+#if !defined(MODULE_PERIPH_HWCRYPTO)
 /**
  * Expand the cipher key into the encryption key schedule.
  */
@@ -1022,7 +1033,7 @@ static int aes_set_decrypt_key(const unsigned char *userKey, const int bits,
 
     return 0;
 }
-
+#endif
 #ifndef AES_ASM
 /*
  * Encrypt a single block
@@ -1031,6 +1042,10 @@ static int aes_set_decrypt_key(const unsigned char *userKey, const int bits,
 int aes_encrypt(const cipher_context_t *context, const uint8_t *plainBlock,
                 uint8_t *cipherBlock)
 {
+#if defined(MODULE_PERIPH_HWCRYPTO)
+    (void) context;
+    hwcrypto_cipher_encrypt(0, plainBlock, cipherBlock, AES_BLOCK_SIZE);
+#else
     /* setup AES_KEY */
     int res;
     AES_KEY aeskey;
@@ -1289,6 +1304,7 @@ int aes_encrypt(const cipher_context_t *context, const uint8_t *plainBlock,
         (Te4((t2) & 0xff)       & 0x000000ff) ^
         rk[3];
     PUTU32(cipherBlock + 12, s3);
+#endif
     return 1;
 }
 
@@ -1299,6 +1315,10 @@ int aes_encrypt(const cipher_context_t *context, const uint8_t *plainBlock,
 int aes_decrypt(const cipher_context_t *context, const uint8_t *cipherBlock,
                 uint8_t *plainBlock)
 {
+#if defined(MODULE_PERIPH_HWCRYPTO)
+    (void) context;
+    hwcrypto_cipher_decrypt(0, cipherBlock, plainBlock, AES_BLOCK_SIZE);
+#else
     /* setup AES_KEY */
     int res;
     AES_KEY aeskey;
@@ -1550,6 +1570,8 @@ int aes_decrypt(const cipher_context_t *context, const uint8_t *cipherBlock,
         (Td4((t0) & 0xff)       & 0x000000ff) ^
         rk[3];
     PUTU32(plainBlock + 12, s3);
+
+#endif
     return 1;
 }
 

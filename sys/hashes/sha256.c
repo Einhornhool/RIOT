@@ -48,6 +48,10 @@
 #include <string.h>
 #include <assert.h>
 
+#if defined(MODULE_PERIPH_HWCRYPTO)
+#include "periph/hwcrypto.h"
+#endif
+
 #include "hashes/sha256.h"
 #include "hashes/sha2xx_common.h"
 
@@ -67,6 +71,11 @@ void sha256_init(sha256_context_t *ctx)
     ctx->state[5] = 0x9B05688C;
     ctx->state[6] = 0x1F83D9AB;
     ctx->state[7] = 0x5BE0CD19;
+
+#if defined(MODULE_PERIPH_HWCRYPTO)
+    hwcrypto_hash_init(0, HWCRYPTO_SHA256);
+    hwcrypto_return_state(ctx->state);
+#endif
 }
 
 void *sha256(const void *data, size_t len, void *digest)
