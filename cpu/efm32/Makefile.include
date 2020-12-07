@@ -19,6 +19,8 @@ CFLAGS += -D$(call uppercase_and_underscore,$(CPU_MODEL))
 # include EFM32 specific driver headers
 INCLUDES += -I$(RIOTCPU)/efm32/include/drivers
 
+INCLUDES += -I$(RIOTCPU)/efm32/include/sha256_incl
+
 # include cortexm_common
 LINKER_SCRIPT = cortexm.ld
 

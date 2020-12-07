@@ -14,6 +14,7 @@ ifneq (,$(filter cpu_efm32pg1b,$(USEMODULE)))
   DIRS += families/efm32pg1b
 endif
 ifneq (,$(filter cpu_efm32pg12b,$(USEMODULE)))
+  CFLAGS += -DHAVE_OWN_SHA256_CTX
   DIRS += families/efm32pg12b
 endif
 ifneq (,$(filter cpu_efm32zg,$(USEMODULE)))
