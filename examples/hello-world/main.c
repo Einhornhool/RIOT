@@ -20,13 +20,38 @@
  */
 
 #include <stdio.h>
+#include "hashes/sha256.h"
+
+static const unsigned char SHA_TESTSTRING[] = "This is a teststring fore sha256";
+static size_t SHA_TESTSTR_SIZE = 32;
+
+static uint8_t EXPECTED_RESULT_SHA256[] = {
+    0x65, 0x0C, 0x3A, 0xC7, 0xF9, 0x33, 0x17, 0xD3,
+    0x96, 0x31, 0xD3, 0xF5, 0xC5, 0x5B, 0x0A, 0x1E,
+    0x96, 0x68, 0x04, 0xE2, 0x73, 0xC3, 0x8F, 0x93,
+    0x9C, 0xB1, 0x45, 0x4D, 0xC2, 0x69, 0x7D, 0x20
+};
+
+void sha256_test(void)
+{
+    uint8_t sha256_result[SHA256_DIGEST_LENGTH];
+    sha256_context_t ctx;
+
+    sha256_init(&ctx);
+    sha256_update(&ctx, SHA_TESTSTRING, SHA_TESTSTR_SIZE);
+    sha256_final(&ctx, sha256_result);
+
+    if (memcmp(sha256_result, EXPECTED_RESULT_SHA256, SHA256_DIGEST_LENGTH) != 0) {
+        printf("SHA-256 Failure\n");
+    }
+    else {
+        printf("SHA-256 Success\n");
+    }
+}
 
 int main(void)
 {
-    puts("Hello World!");
-
-    printf("You are running RIOT on a(n) %s board.\n", RIOT_BOARD);
-    printf("This board features a(n) %s MCU.\n", RIOT_MCU);
+    sha256_test();
 
     return 0;
 }
