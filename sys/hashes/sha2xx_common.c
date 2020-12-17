@@ -51,6 +51,9 @@
 
 #include "hashes/sha2xx_common.h"
 
+#if defined(MODULE_PERIPH_HASH_SHA256) && defined(BOARD_SLSTK3402A)
+void sha2xx_transform(uint32_t* state, const unsigned char* block);
+#endif
 
 #ifdef __BIG_ENDIAN__
 /* Copy a vector of big-endian uint32_t into a vector of bytes */
@@ -97,6 +100,7 @@ static void be32enc_vect(void *dst_, const void *src_, size_t len)
 
 #endif /* __BYTE_ORDER__ != __ORDER_BIG_ENDIAN__ */
 
+#if !defined(MODULE_PERIPH_HASH_SHA256)
 /*
  * SHA256 block compression function.  The 256-bit state is transformed via
  * the 512-bit input block to produce a new state.
@@ -134,6 +138,7 @@ static void sha2xx_transform(uint32_t *state, const unsigned char block[64])
         state[i] += S[i];
     }
 }
+#endif /* MODULE_HASH_SW_SHA256 */
 
 static unsigned char PAD[64] = {
     0x80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,

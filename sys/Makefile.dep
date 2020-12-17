@@ -28,6 +28,7 @@ ifneq (,$(filter hash_sha256,$(USEMODULE)))
     ifeq (,$(filter hash_sw_sha256,$(USEMODULE)))
       ifeq (,$(filter periph_hash_sha256,$(FEATURES_USED)))
         USEMODULE += hash_sw_sha256
+        USEMODULE += hash_sw_sha2xx_common
       endif
     endif
   endif

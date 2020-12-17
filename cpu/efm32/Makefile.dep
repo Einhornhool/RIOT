@@ -10,6 +10,12 @@ ifneq (,$(filter periph_wdt,$(USEMODULE)))
   USEMODULE += periph_wdt_series$(EFM32_SERIES)
 endif
 
+ifneq (,$(filter hash_sha256,$(USEMODULE)))
+    USEMODULE += hashes
+    USEMODULE += hash_sw_sha256
+    USEMODULE += hash_sw_sha2xx_common
+endif
+
 # include Gecko SDK package
 USEPKG += gecko_sdk
 

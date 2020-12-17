@@ -114,14 +114,14 @@ void sha256_init(sha256_context_t *ctx);
  * @param[in] data Input data
  * @param[in] len  Length of @p data
  */
-#if defined(MODULE_HASHES_SHA256)
+#if defined(MODULE_HASH_SW_SHA256) || defined(BOARD_SLSTK3402A)
 static inline void sha256_update(sha256_context_t *ctx, const void *data, size_t len)
 {
     sha2xx_update(ctx, data, len);
 }
 #else
 void sha256_update(sha256_context_t *ctx, const void *data, size_t len);
-#endif /* MODULE_HASHES_SHA256 */
+#endif /* MODULE_HASH_SW_SHA256 */
 
 /**
  * @brief SHA-256 finalization.  Pads the input data, exports the hash value,
@@ -130,14 +130,14 @@ void sha256_update(sha256_context_t *ctx, const void *data, size_t len);
  * @param ctx    sha256_context_t handle to use
  * @param digest resulting digest, this is the hash of all the bytes
  */
-#if defined(MODULE_HASHES_SHA256)
+#if defined(MODULE_HASH_SW_SHA256) || defined(BOARD_SLSTK3402A)
 static inline void sha256_final(sha256_context_t *ctx, void *digest)
 {
     sha2xx_final(ctx, digest, SHA256_DIGEST_LENGTH);
 }
 #else
 void sha256_final(sha256_context_t *ctx, void *digest);
-#endif /* MODULE_HASHES_SHA256 */
+#endif /* MODULE_HASH_SW_SHA256 */
 
 /**
  * @brief A wrapper function to simplify the generation of a hash, this is

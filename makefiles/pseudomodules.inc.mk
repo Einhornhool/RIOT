@@ -63,6 +63,7 @@ PSEUDOMODULES += gnrc_sock_check_reuse
 PSEUDOMODULES += gnrc_txtsnd
 PSEUDOMODULES += hash_sha256
 PSEUDOMODULES += hash_sw_sha256
+PSEUDOMODULES += hash_sw_sha2xx_common
 PSEUDOMODULES += heap_cmd
 PSEUDOMODULES += i2c_scan
 PSEUDOMODULES += ieee802154_radio_hal
