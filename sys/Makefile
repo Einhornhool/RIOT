@@ -9,7 +9,7 @@ ifneq (,$(filter bluetil_%,$(USEMODULE)))
   DIRS += net/ble/bluetil
 endif
 ifneq (,$(filter cipher_modes,$(USEMODULE)))
-  DIRS += crypto/modes
+  DIRS += crypto/cipher_modes
 endif
 ifneq (,$(filter constfs,$(USEMODULE)))
   DIRS += fs/constfs
@@ -199,6 +199,9 @@ ifneq (,$(filter usbus usbus_%,$(USEMODULE)))
 endif
 ifneq (,$(filter ztimer_core,$(USEMODULE)))
     DIRS += ztimer
+endif
+ifneq (,$(filter psa_crypto,$(USEMODULE)))
+    DIRS += psa_crypto
 endif
 ifneq (,$(filter ztimer_xtimer_compat,$(USEMODULE)))
   FILTER += xtimer

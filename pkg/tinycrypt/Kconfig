@@ -9,3 +9,5 @@ config PACKAGE_TINYCRYPT
     bool "TinyCrypt crypto library package"
     depends on TEST_KCONFIG
     depends on HAS_ARCH_32BIT
+
+rsource "psa_tinycrypt/Kconfig"

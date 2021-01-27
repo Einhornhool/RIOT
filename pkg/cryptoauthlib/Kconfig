@@ -1,0 +1,25 @@
+# Copyright (c) 2020 HAW Hamburg
+#
+# This file is subject to the terms and conditions of the GNU Lesser
+# General Public License v2.1. See the file LICENSE in the top level
+# directory for more details.
+#
+
+config PACKAGE_CRYPTOAUTHLIB
+    bool "Microchip CryptoAuth library"
+    select MODULE_CRYPTOAUTHLIB_CONTRIB
+    depends on HAS_PERIPH_I2C
+    select MODULE_PERIPH_I2C
+    select MODULE_XTIMER
+    imply MODULE_PERIPH_I2C_RECONFIGURE
+
+config MODULE_CRYPTOAUTHLIB_HASHES
+    bool "Microchip CryptoAuth library"
+    depends on PACKAGE_CRYPTOAUTHLIB
+
+config MODULE_PSA_SE_DRIVER
+    bool
+    depends on PACKAGE_CRYPTOAUTHLIB
+
+rsource "contrib/Kconfig"
+rsource "psa_se_driver/Kconfig"
