@@ -1,0 +1,38 @@
+# Copyright (c) 2021 HAW Hamburg
+#
+# This file is subject to the terms and conditions of the GNU Lesser
+# General Public License v2.1. See the file LICENSE in the top level
+# directory for more details.
+#
+menu "Hashes"
+    depends on TEST_KCONFIG
+
+config MODULE_HASHES_MD5
+    bool "MD5 hashing support"
+    select MODULE_HASHES
+
+config MODULE_HASHES_SHA1
+    bool "SHA-1 hashing support"
+    select MODULE_HASHES
+
+config MODULE_HASHES_SHA224
+    bool "SHA-224 hashing support"
+    select MODULE_HASHES
+    select MODULE_HASHES_SHA2XX_COMMON
+
+config MODULE_HASHES_SHA256
+    bool "SHA-256 hashing support"
+    select MODULE_HASHES
+    select MODULE_HASHES_SHA2XX_COMMON
+
+config MODULE_HASHES
+    bool
+    help
+        Base module for software implemented hashes.
+
+config MODULE_HASHES_SHA2XX_COMMON
+    bool
+    help
+        Base module for sha2xx implementations.
+
+endmenu # Hashes
