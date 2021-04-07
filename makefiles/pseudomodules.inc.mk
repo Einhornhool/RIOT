@@ -73,7 +73,6 @@ PSEUDOMODULES += ieee802154_submac
 PSEUDOMODULES += ina3221_alerts
 PSEUDOMODULES += l2filter_blacklist
 PSEUDOMODULES += l2filter_whitelist
-PSEUDOMODULES += lib_cryptocell
 PSEUDOMODULES += lis2dh12_i2c
 PSEUDOMODULES += lis2dh12_int
 PSEUDOMODULES += lis2dh12_spi
