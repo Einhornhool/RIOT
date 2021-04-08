@@ -22,6 +22,4 @@ FEATURES_PROVIDED += cortexm_mpu
 
 FEATURES_PROVIDED += periph_i2c_reconfigure
 
-#FEATURES_PROVIDED += periph_psa_crypto_driver_wrapper
-
 include $(RIOTCPU)/nrf5x_common/Makefile.features
