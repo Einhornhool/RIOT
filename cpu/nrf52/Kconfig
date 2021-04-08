@@ -105,5 +105,6 @@ config MOD_PERIPH_HASH_SHA256
     depends on HAS_CPU_NRF52
     
 rsource "cryptocell_lib/Kconfig"
+rsource "vectors/Kconfig"
 
 source "$(RIOTCPU)/nrf5x_common/Kconfig"
