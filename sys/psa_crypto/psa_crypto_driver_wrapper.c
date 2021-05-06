@@ -39,10 +39,6 @@
 psa_status_t psa_driver_wrapper_hash_setup(psa_hash_operation_t * operation,
                                            psa_algorithm_t alg)
 {
-    if (operation->alg != 0) {
-        return PSA_ERROR_BAD_STATE;
-    }
-
     psa_status_t status = PSA_ERROR_NOT_SUPPORTED;
 
     switch(alg) {
@@ -51,7 +47,6 @@ psa_status_t psa_driver_wrapper_hash_setup(psa_hash_operation_t * operation,
             status = psa_hashes_sha1_setup(&operation->ctx.sha1, alg);
             if (status == PSA_SUCCESS) {
                 operation->driver_id = PSA_CRYPTO_TRANSPARENT_DRIVER_ID;
-                operation->alg = alg;
             }
             if (status != PSA_ERROR_NOT_SUPPORTED) {
                 return status;
@@ -63,7 +58,6 @@ psa_status_t psa_driver_wrapper_hash_setup(psa_hash_operation_t * operation,
             status = psa_hashes_sha256_setup(&operation->ctx.sha256, alg);
             if (status == PSA_SUCCESS) {
                 operation->driver_id = PSA_CRYPTO_TRANSPARENT_DRIVER_ID;
-                operation->alg = alg;
             }
             if (status != PSA_ERROR_NOT_SUPPORTED) {
                 return status;
@@ -92,10 +86,6 @@ psa_status_t psa_driver_wrapper_hash_update(psa_hash_operation_t * operation,
                              const uint8_t * input,
                              size_t input_length)
 {
-    if (operation->alg == 0) {
-        return PSA_ERROR_BAD_STATE;
-    }
-
     if (operation->driver_id == PSA_CRYPTO_TRANSPARENT_DRIVER_ID) {
         switch(operation->alg) {
         #if IS_ACTIVE(CONFIG_HASHES_SHA1)
@@ -125,35 +115,16 @@ psa_status_t psa_driver_wrapper_hash_finish(psa_hash_operation_t * operation,
                              size_t hash_size,
                              size_t * hash_length)
 {
-    if (operation->alg == 0) {
-        return PSA_ERROR_BAD_STATE;
-    }
-
-    uint8_t actual_hash_length = PSA_HASH_LENGTH(operation->alg);
-    if (hash_size < actual_hash_length) {
-        return PSA_ERROR_BUFFER_TOO_SMALL;
-    }
-
-    psa_status_t status = PSA_ERROR_BAD_STATE;
-
     if (operation->driver_id == PSA_CRYPTO_TRANSPARENT_DRIVER_ID) {
         switch(operation->alg) {
             #if IS_ACTIVE(CONFIG_HASHES_SHA1)
                 case PSA_ALG_SHA_1:
-                    status = psa_hashes_sha1_finish(&(operation->ctx.sha1), hash, hash_size, hash_length);
-                    if (status == PSA_SUCCESS) {
-                        *hash_length = actual_hash_length;
-                        return status;
-                    }
+                    return psa_hashes_sha1_finish(&(operation->ctx.sha1), hash, hash_size, hash_length);
                     break;
             #endif
             #if IS_ACTIVE(CONFIG_HASHES_SHA256)
                 case PSA_ALG_SHA_256:
-                    status = psa_hashes_sha256_finish(&(operation->ctx.sha256), hash, hash_size, hash_length);
-                    if (status == PSA_SUCCESS) {
-                        *hash_length = actual_hash_length;
-                        return status;
-                    }
+                    return psa_hashes_sha256_finish(&(operation->ctx.sha256), hash, hash_size, hash_length);
                     break;
             #endif
         }
@@ -161,11 +132,7 @@ psa_status_t psa_driver_wrapper_hash_finish(psa_hash_operation_t * operation,
 #if IS_ACTIVE(CONFIG_SE_HASHES)
     else if (operation->driver_id == PSA_CRYPTO_SE_DRIVER_ID) {
     #if IS_ACTIVE(CONFIG_MODULE_CRYPTOAUTHLIB_HASHES)
-        status = atca_hash_finish(&(operation->ctx.atca_ctx), hash, hash_size, hash_length);
-        if (status == PSA_SUCCESS) {
-            *hash_length = actual_hash_length;
-            return status;
-        }
+        return atca_hash_finish(&(operation->ctx.atca_ctx), hash, hash_size, hash_length);
     #endif
     }
 #endif
