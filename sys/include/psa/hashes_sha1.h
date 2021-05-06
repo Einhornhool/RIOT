@@ -21,47 +21,25 @@
 
 #ifndef PSA_BUILTIN_HASHES_H
 #define PSA_BUILTIN_HASHES_H
-
 #include "kernel_defines.h"
-
 #include "crypto.h"
 
-#include "hashes/md5.h"
+#if IS_ACTIVE(CONFIG_PERIPH_HASHES_SHA1)
+#include "periph_hashes_context.h"
+#else
 #include "hashes/sha1.h"
-#include "hashes/sha224.h"
-#include "hashes/sha256.h"
+typedef sha1_context psa_hashes_sha1_operation_t;
+#endif
 
-typedef struct
-{
-    psa_algorithm_t alg;
-    union {
-        unsigned dummy; /* Make the union non-empty even with no supported algorithms. */
-
-        #if IS_ACTIVE(CONFIG_SW_HASH_MD5)
-                md5_ctx_t md5;
-        #endif
-        #if IS_ACTIVE(CONFIG_SW_HASH_SHA1)
-                sha1_context sha1;
-        #endif
-        #if IS_ACTIVE(CONFIG_SW_HASH_SHA224)
-                sha224_context_t sha224;
-        #endif
-        #if IS_ACTIVE(CONFIG_SW_HASH_SHA256)
-                sha256_context_t sha256;
-        #endif
-    } ctx;
-} psa_builtin_hash_operation_t;
-
-psa_status_t psa_builtin_hash_setup(psa_builtin_hash_operation_t * operation,
+psa_status_t psa_hashes_sha1_setup(psa_hashes_sha1_operation_t * operation,
                                            psa_algorithm_t alg);
 
-psa_status_t psa_builtin_hash_update(psa_builtin_hash_operation_t * operation,
+psa_status_t psa_hashes_sha1_update(psa_hashes_sha1_operation_t * operation,
                              const uint8_t * input,
                              size_t input_length);
 
-psa_status_t psa_builtin_hash_finish(psa_builtin_hash_operation_t * operation,
+psa_status_t psa_hashes_sha1_finish(psa_hashes_sha1_operation_t * operation,
                              uint8_t * hash,
                              size_t hash_size,
                              size_t * hash_length);
-
 #endif /* PSA_BUILTIN_HASHES_H */

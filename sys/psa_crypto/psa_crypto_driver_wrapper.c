@@ -20,47 +20,57 @@
 
 #include "kernel_defines.h"
 #include "psa/crypto.h"
-#include "psa/builtin_hashes.h"
 
-#if IS_ACTIVE(CONFIG_PERIPH_HASHES)
-#include "periph_hashes.h"
+#if IS_ACTIVE(CONFIG_HASHES_SHA1)
+#include "psa/hashes_sha1.h"
+#endif
+#if IS_ACTIVE(CONFIG_HASHES_SHA256)
+#include "psa/hashes_sha256.h"
 #endif
 #if IS_ACTIVE(CONFIG_MODULE_CRYPTOAUTHLIB_HASHES)
 #include "atca_hashes.h"
 #endif
 
-#define PSA_CRYPTO_BUILTIN_DRIVER_ID    (1)
-#if IS_ACTIVE(CONFIG_PERIPH_HASHES)
-#define PSA_CRYPTO_PERIPH_DRIVER_ID     (2)
-#endif
+#define PSA_CRYPTO_TRANSPARENT_DRIVER_ID    (1)
 #if IS_ACTIVE(CONFIG_SE_HASHES)
-#define PSA_CRYPTO_SE_DRIVER_ID         (3)
+#define PSA_CRYPTO_SE_DRIVER_ID         (2)
 #endif
 
 psa_status_t psa_driver_wrapper_hash_setup(psa_hash_operation_t * operation,
                                            psa_algorithm_t alg)
 {
+    if (operation->alg != 0) {
+        return PSA_ERROR_BAD_STATE;
+    }
+
     psa_status_t status = PSA_ERROR_NOT_SUPPORTED;
 
-    #if IS_ACTIVE(CONFIG_PERIPH_HASHES)
-    status = periph_hash_setup(&(operation->ctx.periph_ctx), alg);
-    if (status == PSA_SUCCESS) {
-        operation->driver_id = PSA_CRYPTO_PERIPH_DRIVER_ID;
-    }
-    if (status != PSA_ERROR_NOT_SUPPORTED) {
-        return status;
-    }
+    switch(alg) {
+    #if IS_ACTIVE(CONFIG_HASHES_SHA1)
+        case PSA_ALG_SHA_1:
+            status = psa_hashes_sha1_setup(&operation->ctx.sha1, alg);
+            if (status == PSA_SUCCESS) {
+                operation->driver_id = PSA_CRYPTO_TRANSPARENT_DRIVER_ID;
+                operation->alg = alg;
+            }
+            if (status != PSA_ERROR_NOT_SUPPORTED) {
+                return status;
+            }
+            break;
     #endif
-
-    #if IS_ACTIVE(CONFIG_MODULE_HASHES)
-    status = psa_builtin_hash_setup(&(operation->ctx.builtin_ctx), alg);
-    if (status == PSA_SUCCESS) {
-        operation->driver_id = PSA_CRYPTO_BUILTIN_DRIVER_ID;
-    }
-    if (status != PSA_ERROR_NOT_SUPPORTED) {
-        return status;
-    }
+    #if IS_ACTIVE(CONFIG_HASHES_SHA256)
+        case PSA_ALG_SHA_256:
+            status = psa_hashes_sha256_setup(&operation->ctx.sha256, alg);
+            if (status == PSA_SUCCESS) {
+                operation->driver_id = PSA_CRYPTO_TRANSPARENT_DRIVER_ID;
+                operation->alg = alg;
+            }
+            if (status != PSA_ERROR_NOT_SUPPORTED) {
+                return status;
+            }
+            break;
     #endif
+    }
 
     #if IS_ACTIVE(CONFIG_MODULE_CRYPTOAUTHLIB_HASHES)
     status = atca_hash_setup(&(operation->ctx.atca_ctx), alg);
@@ -71,6 +81,7 @@ psa_status_t psa_driver_wrapper_hash_setup(psa_hash_operation_t * operation,
         return status;
     }
     #endif
+
     (void) status;
     (void) operation;
     (void) alg;
@@ -81,26 +92,32 @@ psa_status_t psa_driver_wrapper_hash_update(psa_hash_operation_t * operation,
                              const uint8_t * input,
                              size_t input_length)
 {
-    switch(operation->driver_id) {
-    #if IS_ACTIVE(CONFIG_PERIPH_HASHES)
-        case PSA_CRYPTO_PERIPH_DRIVER_ID:
-            return periph_hash_update(&(operation->ctx.periph_ctx), input, input_length);
-    #endif
-
-    #if IS_ACTIVE(CONFIG_MODULE_HASHES)
-        case PSA_CRYPTO_BUILTIN_DRIVER_ID:
-            return psa_builtin_hash_update(&(operation->ctx.builtin_ctx), input, input_length);
-    #endif
-
-    #if IS_ACTIVE(CONFIG_MODULE_CRYPTOAUTHLIB_HASHES)
-        case PSA_CRYPTO_SE_DRIVER_ID:
-            return atca_hash_update(&(operation->ctx.atca_ctx), input, input_length);
-    #endif
-        default:
-            (void) input;
-            (void) input_length;
-            return PSA_ERROR_BAD_STATE;
+    if (operation->alg == 0) {
+        return PSA_ERROR_BAD_STATE;
     }
+
+    if (operation->driver_id == PSA_CRYPTO_TRANSPARENT_DRIVER_ID) {
+        switch(operation->alg) {
+        #if IS_ACTIVE(CONFIG_HASHES_SHA1)
+            case PSA_ALG_SHA_1:
+                return psa_hashes_sha1_update(&(operation->ctx.sha1), input, input_length);
+        #endif
+        #if IS_ACTIVE(CONFIG_HASHES_SHA256)
+            case PSA_ALG_SHA_256:
+                return psa_hashes_sha256_update(&(operation->ctx.sha256), input, input_length);
+        #endif
+        }
+    }
+#if IS_ACTIVE(CONFIG_SE_HASHES)
+    else if (operation->driver_id == PSA_CRYPTO_SE_DRIVER_ID){
+    #if IS_ACTIVE(CONFIG_MODULE_CRYPTOAUTHLIB_HASHES)
+        return atca_hash_update(&(operation->ctx.atca_ctx), input, input_length);
+    #endif
+    }
+#endif
+    (void) input;
+    (void) input_length;
+    return PSA_ERROR_BAD_STATE;
 }
 
 psa_status_t psa_driver_wrapper_hash_finish(psa_hash_operation_t * operation,
@@ -108,25 +125,52 @@ psa_status_t psa_driver_wrapper_hash_finish(psa_hash_operation_t * operation,
                              size_t hash_size,
                              size_t * hash_length)
 {
-    switch(operation->driver_id) {
-    #if IS_ACTIVE(CONFIG_PERIPH_HASHES)
-        case PSA_CRYPTO_PERIPH_DRIVER_ID:
-            return periph_hash_finish(&(operation->ctx.periph_ctx), hash, hash_size, hash_length);
-    #endif
-
-    #if IS_ACTIVE(CONFIG_MODULE_HASHES)
-        case PSA_CRYPTO_BUILTIN_DRIVER_ID:
-            return psa_builtin_hash_finish(&(operation->ctx.builtin_ctx), hash, hash_size, hash_length);
-    #endif
-
-    #if IS_ACTIVE(CONFIG_MODULE_CRYPTOAUTHLIB_HASHES)
-        case PSA_CRYPTO_SE_DRIVER_ID:
-            return atca_hash_finish(&(operation->ctx.atca_ctx), hash, hash_size, hash_length);
-    #endif
-        default:
-            (void) hash;
-            (void) hash_size;
-            (void) hash_length;
-            return PSA_ERROR_BAD_STATE;
+    if (operation->alg == 0) {
+        return PSA_ERROR_BAD_STATE;
     }
+
+    uint8_t actual_hash_length = PSA_HASH_LENGTH(operation->alg);
+    if (hash_size < actual_hash_length) {
+        return PSA_ERROR_BUFFER_TOO_SMALL;
+    }
+
+    psa_status_t status = PSA_ERROR_BAD_STATE;
+
+    if (operation->driver_id == PSA_CRYPTO_TRANSPARENT_DRIVER_ID) {
+        switch(operation->alg) {
+            #if IS_ACTIVE(CONFIG_HASHES_SHA1)
+                case PSA_ALG_SHA_1:
+                    status = psa_hashes_sha1_finish(&(operation->ctx.sha1), hash, hash_size, hash_length);
+                    if (status == PSA_SUCCESS) {
+                        *hash_length = actual_hash_length;
+                        return status;
+                    }
+                    break;
+            #endif
+            #if IS_ACTIVE(CONFIG_HASHES_SHA256)
+                case PSA_ALG_SHA_256:
+                    status = psa_hashes_sha256_finish(&(operation->ctx.sha256), hash, hash_size, hash_length);
+                    if (status == PSA_SUCCESS) {
+                        *hash_length = actual_hash_length;
+                        return status;
+                    }
+                    break;
+            #endif
+        }
+    }
+#if IS_ACTIVE(CONFIG_SE_HASHES)
+    else if (operation->driver_id == PSA_CRYPTO_SE_DRIVER_ID) {
+    #if IS_ACTIVE(CONFIG_MODULE_CRYPTOAUTHLIB_HASHES)
+        status = atca_hash_finish(&(operation->ctx.atca_ctx), hash, hash_size, hash_length);
+        if (status == PSA_SUCCESS) {
+            *hash_length = actual_hash_length;
+            return status;
+        }
+    #endif
+    }
+#endif
+    (void) hash;
+    (void) hash_size;
+    (void) hash_length;
+    return PSA_ERROR_BAD_STATE;
 }

@@ -21,20 +21,23 @@
 #ifndef CRYPTO_CONTEXT_H
 #define CRYPTO_CONTEXT_H
 
-#if IS_ACTIVE(CONFIG_PERIPH_HASHES)
-#include "periph_hashes.h"
+#if IS_ACTIVE(CONFIG_HASHES_SHA1)
+#include "hashes_sha1.h"
+#endif
+#if IS_ACTIVE(CONFIG_HASHES_SHA256)
+#include "hashes_sha256.h"
 #endif
 #if IS_ACTIVE(CONFIG_MODULE_CRYPTOAUTHLIB_HASHES)
 #include "atca_hashes.h"
 #endif
 
-#include "psa/builtin_hashes.h"
-
 typedef union {
     unsigned dummy; /* Make the union non-empty even with no supported algorithms. */
-    psa_builtin_hash_operation_t builtin_ctx;
-#if IS_ACTIVE(CONFIG_PERIPH_HASHES)
-    psa_hash_periph_operation_t periph_ctx;
+#if IS_ACTIVE(CONFIG_HASHES_SHA1)
+    psa_hashes_sha1_operation_t sha1;
+#endif
+#if IS_ACTIVE(CONFIG_HASHES_SHA256)
+    psa_hashes_sha256_operation_t sha256;
 #endif
 #if IS_ACTIVE(CONFIG_MODULE_CRYPTOAUTHLIB_HASHES)
     psa_hash_atca_operation_t atca_ctx;
