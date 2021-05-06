@@ -86,17 +86,19 @@ config PERIPH_HASHES
     depends on HAS_CPU_NRF52
     select MODULE_PERIPH_HASHES
 
-config PERIPH_HASH_SHA1
+config PERIPH_HASHES_SHA1
+    bool
+    depends on HAS_CPU_NRF52
+    select MODULE_PERIPH_HASHES_SHA1
+
+config PERIPH_HASHES_SHA224
     bool
     depends on HAS_CPU_NRF52
 
-config PERIPH_HASH_SHA224
+config PERIPH_HASHES_SHA256
     bool
     depends on HAS_CPU_NRF52
-
-config PERIPH_HASH_SHA256
-    bool
-    depends on HAS_CPU_NRF52
+    select MODULE_PERIPH_HASHES_SHA256
 
 ## Definition of specific features
 config HAS_CPU_NRF52
@@ -108,6 +110,12 @@ config MODULE_PERIPH_HASHES
     bool
     help
         Use CryptoCell Hardware Driver
+
+config MODULE_PERIPH_HASHES_SHA1
+    bool
+
+config MODULE_PERIPH_HASHES_SHA256
+    bool
 
 rsource "cryptocell_lib/Kconfig"
 rsource "vectors/Kconfig"
