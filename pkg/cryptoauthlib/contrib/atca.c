@@ -70,7 +70,7 @@ ATCA_STATUS hal_i2c_send(ATCAIface iface, uint8_t *txdata, int txlength)
     txdata[0] = ATCA_DATA_ADDR;
 
     i2c_acquire(cfg->atcai2c.bus);
-    ret = i2c_write_bytes(cfg->atcai2c.bus, (cfg->atcai2c.slave_address >> 1),
+    ret = i2c_write_bytes(cfg->atcai2c.bus, (cfg->atcai2c.address >> 1),
                           txdata, txlength + 1, 0);
     i2c_release(cfg->atcai2c.bus);
 
@@ -99,7 +99,7 @@ ATCA_STATUS hal_i2c_receive(ATCAIface iface, uint8_t *rxdata,
     while (retries-- > 0 && ret != 0) {
         /* read first byte (size of output data) and store it in variable length_package
            to check if output will fit into rxdata */
-        ret = i2c_read_byte(cfg->atcai2c.bus, (cfg->atcai2c.slave_address >> 1),
+        ret = i2c_read_byte(cfg->atcai2c.bus, (cfg->atcai2c.address >> 1),
                             &length_package, 0);
     }
     i2c_release(cfg->atcai2c.bus);
@@ -126,7 +126,7 @@ ATCA_STATUS hal_i2c_receive(ATCAIface iface, uint8_t *rxdata,
     i2c_acquire(cfg->atcai2c.bus);
     while (retries-- > 0 && ret != 0) {
         ret = i2c_read_bytes(cfg->atcai2c.bus,
-                             (cfg->atcai2c.slave_address >> 1), (rxdata + 1),
+                             (cfg->atcai2c.address >> 1), (rxdata + 1),
                              bytes_to_read, 0);
     }
     i2c_release(cfg->atcai2c.bus);
@@ -172,7 +172,7 @@ ATCA_STATUS hal_i2c_wake(ATCAIface iface)
     i2c_acquire(cfg->atcai2c.bus);
     while (retries-- > 0 && status != 0) {
         status = i2c_read_bytes(cfg->atcai2c.bus,
-                                (cfg->atcai2c.slave_address >> 1),
+                                (cfg->atcai2c.address >> 1),
                                 &data[0], 4, 0);
     }
     i2c_release(cfg->atcai2c.bus);
@@ -189,7 +189,7 @@ ATCA_STATUS hal_i2c_idle(ATCAIface iface)
     ATCAIfaceCfg *cfg = atgetifacecfg(iface);
 
     i2c_acquire(cfg->atcai2c.bus);
-    i2c_write_byte(cfg->atcai2c.bus, (cfg->atcai2c.slave_address >> 1),
+    i2c_write_byte(cfg->atcai2c.bus, (cfg->atcai2c.address >> 1),
                    ATCA_IDLE_ADDR, 0);
     i2c_release(cfg->atcai2c.bus);
     return ATCA_SUCCESS;
@@ -200,7 +200,7 @@ ATCA_STATUS hal_i2c_sleep(ATCAIface iface)
     ATCAIfaceCfg *cfg = atgetifacecfg(iface);
 
     i2c_acquire(cfg->atcai2c.bus);
-    i2c_write_byte(cfg->atcai2c.bus, (cfg->atcai2c.slave_address >> 1),
+    i2c_write_byte(cfg->atcai2c.bus, (cfg->atcai2c.address >> 1),
                    ATCA_SLEEP_ADDR, 0);
     i2c_release(cfg->atcai2c.bus);
     return ATCA_SUCCESS;
