@@ -21,6 +21,7 @@
 #define CFG_I2C_DEFAULT_H
 
 #include "periph_cpu.h"
+#include "kernel_defines.h"
 
 #ifdef __cplusplus
 extern "C" {
