@@ -857,47 +857,6 @@ static psa_status_t psa_validate_key_attributes(const psa_key_attributes_t *attr
     return PSA_SUCCESS;
 }
 
-static void psa_allocate_key_storage(const psa_key_attributes_t * attr, psa_key_slot_t * slot)
-{
-    psa_key_location_t loc = PSA_KEY_LIFETIME_GET_LOCATION(attr->lifetime);
-    psa_key_type_t type = psa_get_key_type(attr);
-    psa_key_bits_t bits = psa_get_key_bits(attr);
-
-    size_t bytes = 0;
-
-    if (loc != PSA_KEY_LOCATION_LOCAL_STORAGE) {
-        /* If key is stored on SE, only allocate size of key slot number */
-        bytes = sizeof(psa_key_slot_number_t);
-    }
-    else {
-        /* If key is stored locally, allocate key size */
-        bytes = PSA_BITS_TO_BYTES(bits);
-    }
-
-    if (PSA_KEY_TYPE_IS_ASYMMETRIC(type)) {
-        if (PSA_KEY_TYPE_IS_PUBLIC_KEY(type)) {
-            /* If key is only public key, allocate memory for public key*/
-            DEBUG("Allocating Public Key: %d\n", bytes);
-            slot->key.pubkey_data = psa_malloc(bytes);
-            slot->key.pubkey_bytes = bytes;
-            return;
-        }
-        /* If key is key pair, allocate space for private key and public key */
-        DEBUG("Allocating Key Pair: %d / %d\n", bytes, PSA_EXPORT_PUBLIC_KEY_OUTPUT_SIZE(type, bits));
-        slot->key.pubkey_data = psa_malloc(PSA_EXPORT_PUBLIC_KEY_OUTPUT_SIZE(type, bits));
-        slot->key.pubkey_bytes = PSA_EXPORT_PUBLIC_KEY_OUTPUT_SIZE(type, bits);
-        slot->key.data = psa_malloc(bytes);
-        slot->key.bytes = bytes;
-        return;
-    }
-    /* If key is not asymmetric, only allocate key.data */
-    DEBUG("Allocating unstructured key: %d\n", bytes);
-    slot->key.pubkey_data = NULL;
-    slot->key.pubkey_bytes = 0;
-    slot->key.data = psa_malloc(bytes);
-    slot->key.bytes = bytes;
-}
-
 static psa_status_t psa_start_key_creation(psa_key_creation_method_t method, const psa_key_attributes_t *attributes, psa_key_slot_t **p_slot, psa_se_drv_data_t **p_drv)
 {
     psa_status_t status;
@@ -921,9 +880,6 @@ static psa_status_t psa_start_key_creation(psa_key_creation_method_t method, con
     if (PSA_KEY_LIFETIME_IS_VOLATILE(slot->attr.lifetime)) {
         slot->attr.id = key_id;
     }
-
-    /* Allocate memory for key */
-    psa_allocate_key_storage(attributes, slot);
 
 #if IS_ACTIVE(CONFIG_PSA_SECURE_ELEMENT)
     /* Find a free slot on a secure element and store SE slot number in key_data */

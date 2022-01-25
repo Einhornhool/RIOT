@@ -19,7 +19,6 @@
  */
 
 #include "psa_crypto_slot_management.h"
-#include "tlsf.h"
 
 #define ENABLE_DEBUG    (0)
 #include "debug.h"
@@ -31,32 +30,9 @@ typedef struct
 
 static psa_global_data_t global_data;
 
-#define TLSF_SIZE               (5120)
-#if IS_ACTIVE(CONFIG_PSA_ECC) || IS_ACTIVE(CONFIG_PSA_SECURE_ELEMENT_ECC)
-#define PSA_TLSF_HEAP_SIZE      (TLSF_SIZE + (PSA_KEY_SLOT_COUNT * PSA_EXPORT_PUBLIC_KEY_MAX_SIZE))
-#else
-#define PSA_TLSF_HEAP_SIZE      (TLSF_SIZE + (PSA_KEY_SLOT_COUNT * PSA_MAX_KEY_DATA_SIZE))
-#endif
-
-static uint8_t _tlsf_heap[PSA_TLSF_HEAP_SIZE];
-static tlsf_t _tlsf;
-
-void * psa_malloc(size_t s)
-{
-    return tlsf_malloc(_tlsf, s);
-}
-
-void psa_free(void *p)
-{
-    return tlsf_free(_tlsf, p);
-}
-
 void psa_init_key_slots(void)
 {
     psa_wipe_all_key_slots();
-    memset(_tlsf_heap, 0, sizeof(_tlsf_heap));
-    _tlsf = tlsf_create_with_pool(_tlsf_heap, sizeof(_tlsf_heap));
-    DEBUG("TLSF Size: %d\nKey Slot Count: %d\nMax Key Data Size: %d\nTLSF Heap Size: %d\nGlobal Data Size: %d\n", sizeof(tlsf_t), PSA_KEY_SLOT_COUNT, PSA_MAX_KEY_DATA_SIZE, sizeof(_tlsf_heap), sizeof(global_data));
 }
 
 int psa_is_valid_key_id(psa_key_id_t id, int vendor_ok)
@@ -77,14 +53,7 @@ int psa_is_valid_key_id(psa_key_id_t id, int vendor_ok)
 
 psa_status_t psa_wipe_key_slot(psa_key_slot_t *slot)
 {
-    psa_key_type_t type = slot->attr.type;
-
     memset(slot, 0, sizeof(*slot));
-    psa_free(slot->key.data);
-
-    if (PSA_KEY_TYPE_IS_KEY_PAIR(type)) {
-        psa_free(slot->key.pubkey_data);
-    }
 
     return PSA_SUCCESS;
 }
