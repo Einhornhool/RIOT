@@ -1085,7 +1085,14 @@ psa_status_t psa_generate_key(const psa_key_attributes_t * attributes,
         }
 
         slot->key.bytes = PSA_MAX_KEY_DATA_SIZE;
+
+        if (PSA_KEY_TYPE_IS_KEY_PAIR(attributes->type)) {
+            slot->key.pubkey_bytes = PSA_EXPORT_PUBLIC_KEY_OUTPUT_SIZE(attributes->type, attributes->bits);
+        }
     }
+
+    DEBUG("Key ByteS: %d\n", slot->key.bytes);
+    DEBUG("Pub Key ByteS: %d\n", slot->key.pubkey_bytes);
 
     if (PSA_KEY_TYPE_IS_KEY_PAIR(attributes->type)) {
         status = psa_location_dispatch_generate_key(attributes, slot->key.data, slot->key.bytes, &slot->key.bytes, slot->key.pubkey_data, slot->key.pubkey_bytes, &slot->key.pubkey_bytes);

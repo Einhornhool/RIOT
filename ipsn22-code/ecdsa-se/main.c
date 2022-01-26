@@ -4,6 +4,8 @@
 #include "psa/crypto.h"
 #include "atca_params.h"
 
+#include "ps.h"
+
 #if TEST_TIME
 #include "periph/gpio.h"
 gpio_t external_gpio = GPIO_PIN(1, 8);
@@ -211,20 +213,21 @@ static void ecdsa_sec_se(void)
 
     puts("ECDSA Secondary SE Success");
 }
-#endif
+#endif /* MULTIPLE_BACKENDS */
 
 int main(void)
 {
     _test_init();
 
-    for (int i = 0; i < 10; i++) {
+    for (int i = 0; i < 1; i++) {
         ecdsa_prim_se();
     }
 
 #ifdef MULTIPLE_BACKENDS
     ecdsa_sec_se();
 #endif
+    puts("ECDSA SE Done");
 
-    puts("ECDSA Primary SE Done");
+    ps();
     return 0;
 }

@@ -5,5 +5,7 @@ PKG_LICENSE=BSD-2-Clause
 
 include $(RIOTBASE)/pkg/pkg.mk
 
+CFLAGS += -Wno-maybe-uninitialized
+
 all:
 	$(QQ)"$(MAKE)" -C $(PKG_SOURCE_DIR) -f $(RIOTBASE)/Makefile.base

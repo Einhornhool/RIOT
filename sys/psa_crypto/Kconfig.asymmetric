@@ -50,6 +50,7 @@ if PSA_ECC_P256
 choice PSA_ECC_P256_IMPLEMENTATION
     bool "NIST P256 Implementation"
     default PERIPH_ECC_CURVE_P256 if HAS_PERIPH_ECC_P256
+    default MICRO_ECC_CURVE_P256
 
 config PERIPH_ECC_CURVE_P256
     bool "Hardware Accelerated"
