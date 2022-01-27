@@ -340,9 +340,9 @@ def plot_for_board(results, export_path=None):
     axs['r_low'].xaxis.tick_bottom()
 
     axs['flash'].yaxis.set_major_locator(MultipleLocator(2))
-    axs['f_low'].yaxis.set_major_locator(MultipleLocator(12))
+    axs['f_low'].yaxis.set_major_locator(MultipleLocator(2))
     axs['ram'].yaxis.set_major_locator(MultipleLocator(2))
-    axs['r_low'].yaxis.set_major_locator(MultipleLocator(6))
+    axs['r_low'].yaxis.set_major_locator(MultipleLocator(1))
 
     # auto-locate minor tick
     axs['flash'].yaxis.set_minor_locator(AutoMinorLocator())

@@ -26,6 +26,11 @@
 #include "psa_crypto_se_management.h"
 #include "psa_crypto_se_driver.h"
 
+#if TEST_TIME
+#include "periph/gpio.h"
+extern gpio_t internal_gpio;
+#endif
+
 psa_status_t psa_location_dispatch_export_public_key(  const psa_key_attributes_t *attributes,
                                                     uint8_t *key_buffer,
                                                     size_t key_buffer_size,
@@ -45,7 +50,13 @@ psa_status_t psa_location_dispatch_generate_key(   const psa_key_attributes_t *a
     const psa_drv_se_t *drv;
     psa_drv_se_context_t *drv_context;
 
+#if TEST_TIME
+    gpio_set(internal_gpio);
     if (psa_get_se_driver(attributes->lifetime, &drv, &drv_context)) {
+    gpio_clear(internal_gpio);
+#else
+    if (psa_get_se_driver(attributes->lifetime, &drv, &drv_context)) {
+#endif
         if (drv->key_management == NULL || drv->key_management->p_generate == NULL) {
             return PSA_ERROR_NOT_SUPPORTED;
         }
@@ -188,7 +199,13 @@ psa_status_t psa_location_dispatch_sign_hash(  const psa_key_attributes_t *attri
     const psa_drv_se_t *drv;
     psa_drv_se_context_t *drv_context;
 
+#if TEST_TIME
+    gpio_set(internal_gpio);
     if (psa_get_se_driver(attributes->lifetime, &drv, &drv_context)) {
+    gpio_clear(internal_gpio);
+#else
+    if (psa_get_se_driver(attributes->lifetime, &drv, &drv_context)) {
+#endif
         if (drv->asymmetric == NULL || drv->asymmetric->p_sign == NULL) {
             return PSA_ERROR_NOT_SUPPORTED;
         }
@@ -213,7 +230,13 @@ psa_status_t psa_location_dispatch_verify_hash(const psa_key_attributes_t *attri
     const psa_drv_se_t *drv;
     psa_drv_se_context_t *drv_context;
 
+#if TEST_TIME
+    gpio_set(internal_gpio);
     if (psa_get_se_driver(attributes->lifetime, &drv, &drv_context)) {
+    gpio_clear(internal_gpio);
+#else
+    if (psa_get_se_driver(attributes->lifetime, &drv, &drv_context)) {
+#endif
         if (drv->asymmetric == NULL || drv->asymmetric->p_verify == NULL) {
             return PSA_ERROR_NOT_SUPPORTED;
         }

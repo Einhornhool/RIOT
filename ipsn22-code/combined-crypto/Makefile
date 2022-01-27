@@ -1,5 +1,5 @@
 # name of the application
-APPLICATION = uecc_ecdsa
+APPLICATION = combined-crypto
 
 CFLAGS +=-DDEVELHELP=1
 CFLAGS += -DTHREAD_STACKSIZE_MAIN=\(5*THREAD_STACKSIZE_DEFAULT\)

@@ -21,7 +21,7 @@ typedef struct {
     psa_key_attributes_t attr;
     size_t lock_count;
     struct key_data {
-        uint8_t data[CONFIG_PSA_MAX_KEY_SIZE]; /*!< Contains symmetric raw key, OR slot number for symmetric key in case of SE, OR asymmetric key pair structure */
+        uint8_t data[PSA_MAX_PRIV_KEY_BUFFER_SIZE]; /*!< Contains symmetric raw key, OR slot number for symmetric key in case of SE, OR asymmetric key pair structure */
         size_t bytes; /*!< Contains actual size of symmetric key or size of asymmetric key pair  structure, TODO: Is there a better solution? */
         uint8_t pubkey_data[PSA_EXPORT_PUBLIC_KEY_MAX_SIZE];
         size_t pubkey_bytes;

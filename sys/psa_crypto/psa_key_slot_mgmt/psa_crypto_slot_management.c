@@ -54,6 +54,11 @@ int psa_is_valid_key_id(psa_key_id_t id, int vendor_ok)
 psa_status_t psa_wipe_key_slot(psa_key_slot_t *slot)
 {
     memset(slot, 0, sizeof(*slot));
+    DEBUG("Key Slot Size: %d\n", sizeof(psa_key_slot_t));
+    DEBUG("Privkey Buffer Size: %d\n", PSA_MAX_PRIV_KEY_BUFFER_SIZE);
+    DEBUG("PrivkeySize: %d\n", CONFIG_PSA_MAX_KEY_SIZE);
+    DEBUG("PubkeySize: %d\n", PSA_EXPORT_PUBLIC_KEY_MAX_SIZE);
+    DEBUG("Key Attribute Size: %d\n", sizeof(psa_key_attributes_t));
 
     return PSA_SUCCESS;
 }

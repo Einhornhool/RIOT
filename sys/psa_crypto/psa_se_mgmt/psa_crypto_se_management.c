@@ -1,11 +1,11 @@
 #include "psa_crypto_se_management.h"
 #include "psa_crypto_se_driver.h"
 
-#if IS_ACTIVE(CONFIG_PSA_MULTIPLE_SECURE_ELEMENTS)
+// #if IS_ACTIVE(CONFIG_PSA_MULTIPLE_SECURE_ELEMENTS)
 static psa_se_drv_data_t driver_table[PSA_MAX_SE_COUNT];
-#else
-static psa_se_drv_data_t se_driver;
-#endif
+// #else
+// static psa_se_drv_data_t se_driver;
+// #endif
 
 psa_status_t psa_register_secure_element(psa_key_location_t location, const psa_drv_se_t *methods, void * drv_data)
 {
@@ -27,7 +27,7 @@ psa_status_t psa_register_secure_element(psa_key_location_t location, const psa_
         return PSA_ERROR_INSUFFICIENT_MEMORY;
     }
 
-#if IS_ACTIVE(CONFIG_PSA_MULTIPLE_SECURE_ELEMENTS)
+// #if IS_ACTIVE(CONFIG_PSA_MULTIPLE_SECURE_ELEMENTS)
     size_t i;
     for (i = 0; i < PSA_MAX_SE_COUNT; i++) {
         if (driver_table[i].location == 0) {
@@ -43,9 +43,9 @@ psa_status_t psa_register_secure_element(psa_key_location_t location, const psa_
     }
 
     temp = &driver_table[i];
-#else
-    temp = &se_driver;
-#endif
+// #else
+//     temp = &se_driver;
+// #endif
 
     temp->location = location;
     temp->methods = methods;
@@ -64,15 +64,15 @@ psa_se_drv_data_t *psa_get_se_driver_data(psa_key_lifetime_t lifetime)
     if (location == 0) {
         return NULL;
     }
-#if IS_ACTIVE(CONFIG_PSA_MULTIPLE_SECURE_ELEMENTS)
+// #if IS_ACTIVE(CONFIG_PSA_MULTIPLE_SECURE_ELEMENTS)
     for (size_t i = 0; i < PSA_MAX_SE_COUNT; i++) {
         if (driver_table[i].location == location) {
             drv = &driver_table[i];
         }
     }
-#else
-    drv = &se_driver;
-#endif
+// #else
+//     drv = &se_driver;
+// #endif
     (void) lifetime;
     return drv;
 }
