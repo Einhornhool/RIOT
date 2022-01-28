@@ -42,7 +42,7 @@ psa_status_t psa_location_dispatch_export_public_key(  const psa_key_attributes_
     return psa_builtin_export_public_key(attributes, key_buffer, key_buffer_size, data, data_size, data_length);
 }
 
-psa_status_t psa_location_dispatch_generate_key(   const psa_key_attributes_t *attributes,
+psa_status_t psa_location_dispatch_generate_key(const psa_key_attributes_t *attributes,
                                                 uint8_t *key_buffer, size_t key_buffer_size,
                                                 size_t *key_buffer_length, uint8_t *pubkey_buffer, size_t pubkey_buffer_size, size_t *pubkey_buffer_length)
 {

@@ -57,4 +57,8 @@ void auto_init_atca(void)
         }
 #endif
     }
+
+    DEBUG("ATCA DEV Size: %d\n", sizeof(struct atca_device));
+    DEBUG("ATCA iFace Size: %d\n", sizeof(struct atca_iface));
+    DEBUG("ATCA iFace Cfg Size: %d\n", sizeof(ATCAIfaceCfg));
 }

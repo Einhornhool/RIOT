@@ -42,10 +42,10 @@ groups:
   :
     modules:
       - ["pkg", "cryptoauthlib", "contrib"]
-      - ["sys", "auto_init", "auto_init_security", "auto_init_atca"]
+      - ["sys", "auto_init", "security"]
       - ["pkg", "cryptoauthlib"]
       - ["~", "pkg", "cryptoauthlib", "psa_se_driver"]
-      - ["pkg", "micro-ecc"]
+      - ["sys", "hashes"]
 
     config:
       backend: True
