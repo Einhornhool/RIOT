@@ -1,14 +1,11 @@
 #include "psa_crypto_se_management.h"
 #include "psa_crypto_se_driver.h"
 
-#if IS_ACTIVE(CONFIG_PSA_MULTIPLE_SECURE_ELEMENTS)
 static psa_se_drv_data_t driver_table[PSA_MAX_SE_COUNT];
-#else
-static psa_se_drv_data_t se_driver;
-#endif
 
 psa_status_t psa_register_secure_element(psa_key_location_t location, const psa_drv_se_t *methods, void * drv_data)
 {
+    size_t i;
     psa_se_drv_data_t *temp;
 
     if (methods->hal_version != PSA_DRV_SE_HAL_VERSION) {
@@ -27,14 +24,14 @@ psa_status_t psa_register_secure_element(psa_key_location_t location, const psa_
         return PSA_ERROR_INSUFFICIENT_MEMORY;
     }
 
-#if IS_ACTIVE(CONFIG_PSA_MULTIPLE_SECURE_ELEMENTS)
-    size_t i;
+    /* Find next free slot in driver table */
     for (i = 0; i < PSA_MAX_SE_COUNT; i++) {
-        if (driver_table[i].location == 0) {
-            break;
-        }
         if (driver_table[i].location == location) {
             return PSA_ERROR_ALREADY_EXISTS;
+        }
+
+        if (driver_table[i].location == 0) {
+            break;
         }
     }
 
@@ -43,10 +40,6 @@ psa_status_t psa_register_secure_element(psa_key_location_t location, const psa_
     }
 
     temp = &driver_table[i];
-#else
-    temp = &se_driver;
-#endif
-
     temp->location = location;
     temp->methods = methods;
     temp->u.internal.drv_data = (uintptr_t) drv_data;
@@ -61,18 +54,17 @@ psa_se_drv_data_t *psa_get_se_driver_data(psa_key_lifetime_t lifetime)
 {
     psa_se_drv_data_t * drv = NULL;
     psa_key_location_t location = PSA_KEY_LIFETIME_GET_LOCATION(lifetime);
+
     if (location == 0) {
         return NULL;
     }
-#if IS_ACTIVE(CONFIG_PSA_MULTIPLE_SECURE_ELEMENTS)
+
     for (size_t i = 0; i < PSA_MAX_SE_COUNT; i++) {
         if (driver_table[i].location == location) {
             drv = &driver_table[i];
         }
     }
-#else
-    drv = &se_driver;
-#endif
+
     (void) lifetime;
     return drv;
 }

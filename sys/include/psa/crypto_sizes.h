@@ -77,6 +77,11 @@
             bits == 256 || \
             bits == 384)
 
+/**
+ * The maximum size of an asymmetric private key.
+ */
+#define PSA_MAX_PRIV_KEY_SIZE   (PSA_BYTES_TO_BITS(CONFIG_PSA_MAX_KEY_SIZE))
+
 /* Maximum size of the export encoding of an ECC public key.
  *
  * The representation of an ECC public key is:
@@ -151,11 +156,6 @@
  */
 #define PSA_EXPORT_PUBLIC_KEY_MAX_SIZE \
         (PSA_KEY_EXPORT_ECC_PUBLIC_KEY_MAX_SIZE(PSA_MAX_PRIV_KEY_SIZE))
-
-/**
- * The maximum size of an asymmetric private key.
- */
-#define PSA_MAX_PRIV_KEY_SIZE   (PSA_BYTES_TO_BITS(CONFIG_PSA_MAX_KEY_SIZE))
 
 /**
  * The maximum size of an asymmetric private key buffer. If only a secure element driver is

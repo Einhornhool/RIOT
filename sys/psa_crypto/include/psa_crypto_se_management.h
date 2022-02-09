@@ -4,11 +4,7 @@
 #include "psa/crypto.h"
 #include "psa_crypto_se_driver.h"
 
-#if IS_ACTIVE(CONFIG_PSA_MULTIPLE_SECURE_ELEMENTS)
-#define PSA_MAX_SE_COUNT    (4)
-#else
-#define PSA_MAX_SE_COUNT (PSA_KEY_LOCATION_PRIMARY_SECURE_ELEMENT)
-#endif
+#define PSA_MAX_SE_COUNT    (CONFIG_PSA_MAX_SE_COUNT)
 
 typedef struct
 {

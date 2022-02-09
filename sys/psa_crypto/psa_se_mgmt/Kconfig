@@ -26,6 +26,11 @@ config PSA_SE_ATECCX08A
 config PSA_MULTIPLE_SECURE_ELEMENTS
     bool "Use multiple secure elements"
 
+config PSA_MAX_SE_COUNT
+    int "Sets maximum number of usable SEs"
+    default 2 if PSA_MULTIPLE_SECURE_ELEMENTS
+    default 1
+
 config PSA_SECURE_ELEMENT_ECC
     bool
     help
