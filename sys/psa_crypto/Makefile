@@ -1,5 +1,6 @@
 # PSA Crypto casts like hell, so this needs to shut the f up
 CFLAGS += -Wno-cast-align
+CFLAGS += -Wno-strict-aliasing
 
 # include the PSA headers
 INCLUDES += -I$(RIOTBASE)/sys/psa_crypto/include
