@@ -262,6 +262,7 @@ def plot_for_board(results, export_path=None):
                 # If group is a backend transform to negative values to plot negative bars
                 values['flash'] = np.multiply(values['flash'], -1)
                 values['ram'] = np.multiply(values['ram'], -1)
+                print(values)
                 # Set bottom to backend values
                 bottom = backend_acc
 
