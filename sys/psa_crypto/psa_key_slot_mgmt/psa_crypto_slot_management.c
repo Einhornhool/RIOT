@@ -19,44 +19,27 @@
  */
 
 #include "psa_crypto_slot_management.h"
-#include "tlsf.h"
 
 #define ENABLE_DEBUG    (0)
 #include "debug.h"
 
 typedef struct
 {
+    /* Slots for symmetric keys */
     psa_key_slot_t key_slots[PSA_KEY_SLOT_COUNT];
-} psa_global_data_t;
 
-static psa_global_data_t global_data;
+    /* Slots for asymmetric Key Pairs */
+    psa_key_slot_t asymmetric_key_slots[PSA_KEY_SLOT_COUNT];
 
-#define TLSF_SIZE               (5120)
-#if IS_ACTIVE(CONFIG_PSA_ECC) || IS_ACTIVE(CONFIG_PSA_SECURE_ELEMENT_ECC)
-#define PSA_TLSF_HEAP_SIZE      (TLSF_SIZE + (PSA_KEY_SLOT_COUNT * PSA_EXPORT_PUBLIC_KEY_MAX_SIZE))
-#else
-#define PSA_TLSF_HEAP_SIZE      (TLSF_SIZE + (PSA_KEY_SLOT_COUNT * PSA_MAX_KEY_DATA_SIZE))
-#endif
+    /* Slots for keys stored in external storage */
+    psa_key_slot_t external_key_slots[PSA_KEY_SLOT_COUNT];
+} psa_key_storage_t;
 
-static uint8_t _tlsf_heap[PSA_TLSF_HEAP_SIZE];
-static tlsf_t _tlsf;
-
-void * psa_malloc(size_t s)
-{
-    return tlsf_malloc(_tlsf, s);
-}
-
-void psa_free(void *p)
-{
-    return tlsf_free(_tlsf, p);
-}
+static psa_key_storage_t key_storage;
 
 void psa_init_key_slots(void)
 {
     psa_wipe_all_key_slots();
-    memset(_tlsf_heap, 0, sizeof(_tlsf_heap));
-    _tlsf = tlsf_create_with_pool(_tlsf_heap, sizeof(_tlsf_heap));
-    DEBUG("TLSF Size: %d\nKey Slot Count: %d\nMax Key Data Size: %d\nTLSF Heap Size: %d\nGlobal Data Size: %d\n", sizeof(tlsf_t), PSA_KEY_SLOT_COUNT, PSA_MAX_KEY_DATA_SIZE, sizeof(_tlsf_heap), sizeof(global_data));
 }
 
 int psa_is_valid_key_id(psa_key_id_t id, int vendor_ok)
@@ -66,9 +49,9 @@ int psa_is_valid_key_id(psa_key_id_t id, int vendor_ok)
         return 1;
     }
 
-    if (vendor_ok &&
-        (PSA_KEY_ID_VENDOR_MIN <= id) &&
-        (id <= PSA_KEY_ID_VENDOR_MAX)) {
+    if (vendor_ok
+        && (PSA_KEY_ID_VENDOR_MIN <= id)
+        && (id <= PSA_KEY_ID_VENDOR_MAX)) {
         return 1;
     }
 
@@ -80,11 +63,6 @@ psa_status_t psa_wipe_key_slot(psa_key_slot_t *slot)
     psa_key_type_t type = slot->attr.type;
 
     memset(slot, 0, sizeof(*slot));
-    psa_free(slot->key.data);
-
-    if (PSA_KEY_TYPE_IS_KEY_PAIR(type)) {
-        psa_free(slot->key.pubkey_data);
-    }
 
     return PSA_SUCCESS;
 }
@@ -92,12 +70,11 @@ psa_status_t psa_wipe_key_slot(psa_key_slot_t *slot)
 static psa_status_t psa_get_and_lock_key_slot_in_memory(psa_key_id_t id, psa_key_slot_t **p_slot)
 {
     psa_status_t status = PSA_ERROR_CORRUPTION_DETECTED;
-#if PSA_KEY_SLOT_COUNT
     size_t slot_index;
     psa_key_slot_t *slot = NULL;
 
     if (psa_key_id_is_volatile(id)) {
-        slot = &global_data.key_slots[id - PSA_KEY_ID_VOLATILE_MIN];
+        slot = &key_storage.key_slots[id - PSA_KEY_ID_VOLATILE_MIN];
         status = (slot->attr.id == id) ? PSA_SUCCESS : PSA_ERROR_DOES_NOT_EXIST;
     }
     else {
@@ -106,7 +83,7 @@ static psa_status_t psa_get_and_lock_key_slot_in_memory(psa_key_id_t id, psa_key
         }
 
         for (slot_index = 0; slot_index < PSA_KEY_SLOT_COUNT; slot_index++) {
-            slot = &global_data.key_slots[slot_index];
+            slot = &key_storage.key_slots[slot_index];
             if (slot->attr.id == id) {
                 break;
             }
@@ -120,7 +97,7 @@ static psa_status_t psa_get_and_lock_key_slot_in_memory(psa_key_id_t id, psa_key
             *p_slot = slot;
         }
     }
-#endif
+
     (void) id;
     (void) p_slot;
     return status;
@@ -147,13 +124,27 @@ psa_status_t psa_get_and_lock_key_slot(psa_key_id_t id, psa_key_slot_t **p_slot)
 void psa_wipe_all_key_slots(void)
 {
     for (int i = 0; i < PSA_KEY_SLOT_COUNT; i++) {
-        psa_key_slot_t *slot = &global_data.key_slots[i];
+        psa_key_slot_t *slot = &key_storage.key_slots[i];
         slot->lock_count = 1;
         psa_wipe_key_slot(slot);
     }
 }
 
-psa_status_t psa_get_empty_key_slot(psa_key_id_t *id, psa_key_slot_t **p_slot)
+#if IS_ACTIVE(PSA_DYNAMIC_KEY_SLOT_ALLOCATION)
+psa_status_t psa_allocate_empty_key_slot(   psa_key_id_t *id,
+                                            const psa_key_attributes_t * attr,
+                                            psa_key_slot_t **p_slot) {
+    return PSA_ERROR_NOT_SUPPORTED;
+}
+#else
+psa_status_t psa_allocate_empty_key_slot(   psa_key_id_t *id,
+                                            const psa_key_attributes_t * attr,
+                                            psa_key_slot_t **p_slot) {
+    return PSA_ERROR_NOT_SUPPORTED;
+}
+#endif
+
+psa_status_t psa_get_empty_key_slot(psa_key_id_t *id, const psa_key_attributes_t * attr, psa_key_slot_t **p_slot)
 {
     psa_status_t status = PSA_ERROR_CORRUPTION_DETECTED;
     psa_key_slot_t *selected_slot, *unlocked_persistent_slot;
@@ -161,7 +152,7 @@ psa_status_t psa_get_empty_key_slot(psa_key_id_t *id, psa_key_slot_t **p_slot)
     selected_slot = unlocked_persistent_slot = NULL;
 
     for (size_t i = 0; i < PSA_KEY_SLOT_COUNT; i++) {
-        psa_key_slot_t *slot = &global_data.key_slots[i];
+        psa_key_slot_t *slot = &key_storage.key_slots[i];
         if (!psa_key_slot_occupied(slot)) {
             selected_slot = slot;
             break;
@@ -186,7 +177,7 @@ psa_status_t psa_get_empty_key_slot(psa_key_id_t *id, psa_key_slot_t **p_slot)
             *id = 0;
             return status;
         }
-        *id = PSA_KEY_ID_VOLATILE_MIN + ((psa_key_id_t) (selected_slot - global_data.key_slots));
+        *id = PSA_KEY_ID_VOLATILE_MIN + ((psa_key_id_t) (selected_slot - key_storage.key_slots));
         *p_slot = selected_slot;
 
         return PSA_SUCCESS;

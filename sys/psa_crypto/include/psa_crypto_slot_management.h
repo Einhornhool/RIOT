@@ -21,9 +21,9 @@ typedef struct {
     psa_key_attributes_t attr;
     size_t lock_count;
     struct key_data {
-        void * data; /*!< Contains symmetric raw key, OR slot number for symmetric key in case of SE, OR asymmetric key pair structure */
+        uint8_t data[PSA_MAX_KEY_DATA_SIZE]; /*!< Contains symmetric raw key, OR slot number for symmetric key in case of SE, OR asymmetric key pair structure */
         size_t bytes; /*!< Contains actual size of symmetric key or size of asymmetric key pair  structure, TODO: Is there a better solution? */
-        void * pubkey_data;
+        uint8_t pubkey_data[PSA_EXPORT_PUBLIC_KEY_MAX_SIZE];
         size_t pubkey_bytes;
     } key;
 } psa_key_slot_t;
@@ -70,7 +70,12 @@ static inline psa_status_t psa_key_lifetime_is_external(psa_key_lifetime_t lifet
 psa_status_t psa_wipe_key_slot(psa_key_slot_t *slot);
 psa_status_t psa_get_and_lock_key_slot(psa_key_id_t id, psa_key_slot_t **slot);
 void psa_wipe_all_key_slots(void);
-psa_status_t psa_get_empty_key_slot(psa_key_id_t *id, psa_key_slot_t **slot);
+
+psa_status_t psa_allocate_empty_key_slot(   psa_key_id_t *id,
+                                            const psa_key_attributes_t * attr,
+                                            psa_key_slot_t **p_slot);
+
+psa_status_t psa_get_empty_key_slot(psa_key_id_t *id, const psa_key_attributes_t * attr, psa_key_slot_t **slot);
 psa_status_t psa_lock_key_slot(psa_key_slot_t *slot);
 psa_status_t psa_unlock_key_slot(psa_key_slot_t *slot);
 psa_status_t psa_validate_key_location(psa_key_lifetime_t lifetime, psa_se_drv_data_t **driver);

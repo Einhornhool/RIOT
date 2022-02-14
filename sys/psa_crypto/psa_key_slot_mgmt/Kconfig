@@ -7,4 +7,3 @@
 
 config MODULE_PSA_KEY_SLOT_MGMT
     bool
-    select PACKAGE_TLSF
