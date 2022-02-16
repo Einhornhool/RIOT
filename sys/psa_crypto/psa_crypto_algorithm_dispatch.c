@@ -154,8 +154,7 @@ psa_status_t psa_algorithm_dispatch_hash_finish(psa_hash_operation_t * operation
 
 psa_status_t psa_algorithm_dispatch_sign_hash(  const psa_key_attributes_t *attributes,
                                             psa_algorithm_t alg,
-                                            const uint8_t *key_buffer,
-                                            size_t key_buffer_size,
+                                            const psa_key_slot_t * slot,
                                             const uint8_t * hash,
                                             size_t hash_length,
                                             uint8_t * signature,
@@ -175,16 +174,15 @@ psa_status_t psa_algorithm_dispatch_sign_hash(  const psa_key_attributes_t *attr
     switch(asym_key) {
 #if IS_ACTIVE(CONFIG_PSA_ECC_P192_DRIVER)
         case PSA_ECC_P192_R1:
-            return psa_ecc_p192r1_sign_hash(attributes, alg, key_buffer, key_buffer_size, hash, hash_length, signature, signature_size, signature_length);
+            return psa_ecc_p192r1_sign_hash(attributes, alg, slot->key.data, slot->key.bytes, hash, hash_length, signature, signature_size, signature_length);
 #endif
 #if IS_ACTIVE(CONFIG_PSA_ECC_P256_DRIVER)
         case PSA_ECC_P256_R1:
-            return psa_ecc_p256r1_sign_hash(attributes, alg, key_buffer, key_buffer_size, hash, hash_length, signature, signature_size, signature_length);
+            return psa_ecc_p256r1_sign_hash(attributes, alg, slot->key.data, slot->key.bytes, hash, hash_length, signature, signature_size, signature_length);
 #endif
         default:
             (void) alg;
-            (void) key_buffer;
-            (void) key_buffer_size;
+            (void) slot;
             (void) hash;
             (void) hash_length;
             (void) signature;
@@ -196,8 +194,7 @@ psa_status_t psa_algorithm_dispatch_sign_hash(  const psa_key_attributes_t *attr
 
 psa_status_t psa_algorithm_dispatch_verify_hash(  const psa_key_attributes_t *attributes,
                                             psa_algorithm_t alg,
-                                            const uint8_t *key_buffer,
-                                            size_t key_buffer_size,
+                                            const psa_key_slot_t * slot,
                                             const uint8_t * hash,
                                             size_t hash_length,
                                             const uint8_t * signature,
@@ -216,16 +213,15 @@ psa_status_t psa_algorithm_dispatch_verify_hash(  const psa_key_attributes_t *at
     switch(asym_key) {
 #if IS_ACTIVE(CONFIG_PSA_ECC_P192_DRIVER)
         case PSA_ECC_P192_R1:
-            return psa_ecc_p192r1_verify_hash(attributes, alg, key_buffer, key_buffer_size, hash, hash_length, signature, signature_length);
+            return psa_ecc_p192r1_verify_hash(attributes, alg, slot->key.data, slot->key.bytes, hash, hash_length, signature, signature_length);
 #endif
 #if IS_ACTIVE(CONFIG_PSA_ECC_P256_DRIVER)
         case PSA_ECC_P256_R1:
-            return psa_ecc_p256r1_verify_hash(attributes, alg, key_buffer, key_buffer_size, hash, hash_length, signature, signature_length);
+            return psa_ecc_p256r1_verify_hash(attributes, alg, slot->key.data, slot->key.bytes, hash, hash_length, signature, signature_length);
 #endif
         default:
             (void) alg;
-            (void) key_buffer;
-            (void) key_buffer_size;
+            (void) slot;
             (void) hash;
             (void) hash_length;
             (void) signature;
@@ -235,8 +231,7 @@ psa_status_t psa_algorithm_dispatch_verify_hash(  const psa_key_attributes_t *at
 }
 
 psa_status_t psa_algorithm_dispatch_generate_key(   const psa_key_attributes_t *attributes,
-                                                    uint8_t *key_buffer, size_t key_buffer_size,
-                                                    size_t *key_buffer_length, uint8_t *pubkey_buffer, size_t pubkey_buffer_size, size_t *pubkey_buffer_length)
+                                                    psa_key_slot_t * slot)
 {
     psa_status_t status = PSA_ERROR_CORRUPTION_DETECTED;
 
@@ -255,25 +250,20 @@ psa_status_t psa_algorithm_dispatch_generate_key(   const psa_key_attributes_t *
         switch(asym_key) {
 #if IS_ACTIVE(CONFIG_PSA_ECC_P192_DRIVER)
             case PSA_ECC_P192_R1:
-                return psa_generate_ecc_p192r1_key_pair(attributes, key_buffer, pubkey_buffer, key_buffer_length, pubkey_buffer_length);
+                return psa_generate_ecc_p192r1_key_pair(attributes, slot->key.data, slot->key.pubkey_data, &slot->key.bytes, &slot->key.pubkey_bytes);
 #endif
 #if IS_ACTIVE(CONFIG_PSA_ECC_P256_DRIVER)
             case PSA_ECC_P256_R1:
-                return psa_generate_ecc_p256r1_key_pair(attributes, key_buffer, pubkey_buffer, key_buffer_length, pubkey_buffer_length);
+                return psa_generate_ecc_p256r1_key_pair(attributes, slot->key.data, slot->key.pubkey_data, &slot->key.bytes, &slot->key.pubkey_bytes);
 #endif
             default:
             (void) status;
-            (void) key_buffer;
-            (void) key_buffer_size;
-            (void) key_buffer_length;
-            (void) pubkey_buffer;
-            (void) pubkey_buffer_size;
-            (void) pubkey_buffer_length;
+            (void) slot;
             return PSA_ERROR_NOT_SUPPORTED;
         }
     }
 
-    return psa_builtin_generate_key(attributes, key_buffer, key_buffer_size, key_buffer_length);
+    return psa_builtin_generate_key(attributes, slot->key.data, slot->key.bytes, &slot->key.bytes);
 }
 
 psa_status_t psa_algorithm_dispatch_cipher_set_iv(  psa_cipher_operation_t *operation,
@@ -282,8 +272,7 @@ psa_status_t psa_algorithm_dispatch_cipher_set_iv(  psa_cipher_operation_t *oper
 
 psa_status_t psa_algorithm_dispatch_cipher_encrypt( const psa_key_attributes_t * attributes,
                                                     psa_algorithm_t alg,
-                                                    const uint8_t * key_buffer,
-                                                    size_t key_buffer_size,
+                                                    const psa_key_slot_t * slot,
                                                     const uint8_t * input,
                                                     size_t input_length,
                                                     uint8_t * output,
@@ -299,19 +288,18 @@ psa_status_t psa_algorithm_dispatch_cipher_encrypt( const psa_key_attributes_t *
     switch(op) {
 #if IS_ACTIVE(CONFIG_PSA_CIPHER_AES_128)
         case PSA_CBC_NO_PAD_AES_128:
-            return psa_cipher_cbc_aes_128_encrypt(attributes, key_buffer, key_buffer_size, alg, input, input_length, output, output_size, output_length);
+            return psa_cipher_cbc_aes_128_encrypt(attributes, slot->key.data, slot->key.bytes, alg, input, input_length, output, output_size, output_length);
 #endif
 #if IS_ACTIVE(CONFIG_PSA_CIPHER_AES_192)
         case PSA_CBC_NO_PAD_AES_192:
-            return psa_cipher_cbc_aes_192_encrypt(attributes, key_buffer, key_buffer_size, alg, input, input_length, output, output_size, output_length);
+            return psa_cipher_cbc_aes_192_encrypt(attributes, slot->key.data, slot->key.bytes, alg, input, input_length, output, output_size, output_length);
 #endif
 #if IS_ACTIVE(CONFIG_PSA_CIPHER_AES_256)
         case PSA_CBC_NO_PAD_AES_256:
-            return psa_cipher_cbc_aes_256_encrypt(attributes, key_buffer, key_buffer_size, alg, input, input_length, output, output_size, output_length);
+            return psa_cipher_cbc_aes_256_encrypt(attributes, slot->key.data, slot->key.bytes, alg, input, input_length, output, output_size, output_length);
 #endif
         default:
-            (void) key_buffer;
-            (void) key_buffer_size;
+            (void) slot;
             (void) input;
             (void) input_length;
             (void) output;

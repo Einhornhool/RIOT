@@ -40,8 +40,7 @@ psa_status_t psa_algorithm_dispatch_hash_finish(psa_hash_operation_t * operation
 
 psa_status_t psa_algorithm_dispatch_sign_hash(  const psa_key_attributes_t *attributes,
                                             psa_algorithm_t alg,
-                                            const uint8_t *key_buffer,
-                                            size_t key_buffer_size,
+                                            const psa_key_slot_t * slot,
                                             const uint8_t * hash,
                                             size_t hash_length,
                                             uint8_t * signature,
@@ -50,28 +49,25 @@ psa_status_t psa_algorithm_dispatch_sign_hash(  const psa_key_attributes_t *attr
 
 psa_status_t psa_algorithm_dispatch_verify_hash(  const psa_key_attributes_t *attributes,
                                             psa_algorithm_t alg,
-                                            const uint8_t *key_buffer,
-                                            size_t key_buffer_size,
+                                            const psa_key_slot_t * slot,
                                             const uint8_t * hash,
                                             size_t hash_length,
                                             const uint8_t * signature,
                                             size_t signature_length);
 
 psa_status_t psa_algorithm_dispatch_generate_key(   const psa_key_attributes_t *attributes,
-                                                uint8_t *key_buffer, size_t key_buffer_size,
-                                                size_t *key_buffer_length, uint8_t *pubkey_buffer, size_t pubkey_buffer_size, size_t *pubkey_buffer_length);
+                                                    psa_key_slot_t * slot);
 
 psa_status_t psa_algorithm_dispatch_cipher_encrypt( const psa_key_attributes_t * attributes,
                                                     psa_algorithm_t alg,
-                                                    const uint8_t * key_buffer,
-                                                    size_t key_buffer_size,
+                                                    const psa_key_slot_t * slot,
                                                     const uint8_t * input,
                                                     size_t input_length,
                                                     uint8_t * output,
                                                     size_t output_size,
                                                     size_t * output_length);
 
-psa_status_t psa_algorithm_dispatch_mac_compute(const psa_key_attributes_t *attributes,
+psa_status_t psa_algorithm_dispatch_mac_compute(const psa_key_attributes_t * attributes,
                                                 psa_algorithm_t alg,
                                                 const uint8_t * key_buffer,
                                                 size_t key_buffer_size,

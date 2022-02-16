@@ -1012,12 +1012,11 @@ psa_status_t psa_export_key(psa_key_id_t key,
                             uint8_t * data,
                             size_t data_size,
                             size_t * data_length);
-psa_status_t psa_builtin_export_public_key(  const psa_key_attributes_t *attributes,
-                                                    uint8_t *key_buffer,
-                                                    size_t key_buffer_size,
-                                                    uint8_t * data,
-                                                    size_t data_size,
-                                                    size_t * data_length);
+psa_status_t psa_builtin_export_public_key( const uint8_t *key_buffer,
+                                            size_t key_buffer_size,
+                                            uint8_t * data,
+                                            size_t data_size,
+                                            size_t * data_length);
 psa_status_t psa_export_public_key(psa_key_id_t key,
                                    uint8_t * data,
                                    size_t data_size,

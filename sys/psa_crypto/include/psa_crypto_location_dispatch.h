@@ -27,8 +27,7 @@
 
 psa_status_t psa_location_dispatch_sign_hash(  const psa_key_attributes_t *attributes,
                                             psa_algorithm_t alg,
-                                            const uint8_t *key_buffer,
-                                            size_t key_buffer_size,
+                                            const psa_key_slot_t * slot,
                                             const uint8_t * hash,
                                             size_t hash_length,
                                             uint8_t * signature,
@@ -37,8 +36,7 @@ psa_status_t psa_location_dispatch_sign_hash(  const psa_key_attributes_t *attri
 
 psa_status_t psa_location_dispatch_verify_hash(  const psa_key_attributes_t *attributes,
                                             psa_algorithm_t alg,
-                                            const uint8_t *key_buffer,
-                                            size_t key_buffer_size,
+                                            const psa_key_slot_t * slot,
                                             const uint8_t * hash,
                                             size_t hash_length,
                                             const uint8_t * signature,
@@ -46,40 +44,28 @@ psa_status_t psa_location_dispatch_verify_hash(  const psa_key_attributes_t *att
 
 psa_status_t psa_location_dispatch_mac_compute(const psa_key_attributes_t *attributes,
                                                 psa_algorithm_t alg,
-                                                const uint8_t * key_buffer,
-                                                size_t key_buffer_size,
+                                                const psa_key_slot_t * slot,
                                                 const uint8_t * input,
                                                 size_t input_length,
                                                 uint8_t * mac,
                                                 size_t mac_size,
                                                 size_t * mac_length);
 
-psa_status_t psa_location_dispatch_export_public_key(  const psa_key_attributes_t *attributes,
-                                                    const uint8_t *key_buffer,
-                                                    size_t key_buffer_size,
-                                                    uint8_t * data,
-                                                    size_t data_size,
-                                                    size_t * data_length);
-
-psa_status_t psa_location_dispatch_generate_key(   const psa_key_attributes_t *attributes,
-                                                uint8_t *key_buffer, size_t key_buffer_size,
-                                                size_t *key_buffer_length, uint8_t *pubkey_buffer, size_t pubkey_buffer_size, size_t *pubkey_buffer_length);
+psa_status_t psa_location_dispatch_generate_key(const psa_key_attributes_t *attributes,
+                                                psa_key_slot_t * slot);
 
 psa_status_t psa_location_dispatch_import_key( const psa_key_attributes_t *attributes,
                                             const uint8_t *data, size_t data_length,
-                                            uint8_t *key_buffer, size_t key_buffer_size,
-                                            size_t *key_buffer_length, size_t *bits);
+                                            psa_key_slot_t * slot, size_t *bits);
 
 psa_status_t psa_location_dispatch_cipher_encrypt_setup(   psa_cipher_operation_t *operation,
                                                         const psa_key_attributes_t *attributes,
-                                                        const uint8_t *key_buffer,
-                                                        size_t key_buffer_size,
+                                                        const psa_key_slot_t * slot,
                                                         psa_algorithm_t alg);
 
 psa_status_t psa_location_dispatch_cipher_decrypt_setup(psa_cipher_operation_t *operation,
                                                     const psa_key_attributes_t *attributes,
-                                                    const uint8_t *key_buffer,
-                                                    size_t key_buffer_size,
+                                                    const psa_key_slot_t * slot,
                                                     psa_algorithm_t alg);
 
 psa_status_t psa_location_dispatch_cipher_set_iv(  psa_cipher_operation_t *operation,
@@ -88,8 +74,7 @@ psa_status_t psa_location_dispatch_cipher_set_iv(  psa_cipher_operation_t *opera
 
 psa_status_t psa_location_dispatch_cipher_encrypt(  const psa_key_attributes_t * attributes,
                                                     psa_algorithm_t alg,
-                                                    const uint8_t * key_buffer,
-                                                    size_t key_buffer_size,
+                                                    const psa_key_slot_t * slot,
                                                     const uint8_t * input,
                                                     size_t input_length,
                                                     uint8_t * output,

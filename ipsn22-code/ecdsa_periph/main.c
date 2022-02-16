@@ -94,7 +94,7 @@ static void ecdsa_periph(void)
 int main(void)
 {
     _test_init();
-    for (int i = 0; i < 100; i++) {
+    for (int i = 0; i < 1; i++) {
         ecdsa_periph();
     }
 

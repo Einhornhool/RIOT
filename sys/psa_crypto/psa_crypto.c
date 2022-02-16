@@ -383,10 +383,10 @@ static psa_status_t psa_cipher_setup(   psa_cipher_operation_t * operation,
     psa_key_attributes_t attr = slot->attr;
 
     if (cipher_operation == PSA_CIPHER_ENCRYPT) {
-        status = psa_location_dispatch_cipher_encrypt_setup(operation, &attr, slot->key.data, slot->key.bytes, alg);
+        status = psa_location_dispatch_cipher_encrypt_setup(operation, &attr, slot, alg);
     }
     else if (cipher_operation == PSA_CIPHER_DECRYPT) {
-        status = psa_location_dispatch_cipher_decrypt_setup(operation, &attr, slot->key.data, slot->key.bytes, alg);
+        status = psa_location_dispatch_cipher_decrypt_setup(operation, &attr, slot, alg);
     }
 
     if (status != PSA_SUCCESS) {
@@ -462,7 +462,7 @@ psa_status_t psa_cipher_encrypt(psa_key_id_t key,
         return status;
     }
 
-    status = psa_location_dispatch_cipher_encrypt(&slot->attr, alg, slot->key.data, slot->key.bytes, input, input_length, output, output_size, output_length);
+    status = psa_location_dispatch_cipher_encrypt(&slot->attr, alg, slot, input, input_length, output, output_size, output_length);
 
     unlock_status = psa_unlock_key_slot(slot);
     return ((status == PSA_SUCCESS) ? unlock_status : status);
@@ -751,7 +751,8 @@ psa_status_t psa_hash_compute(psa_algorithm_t alg,
 }
 
 /* Key Management */
-psa_status_t psa_copy_key_material_into_slot (psa_key_slot_t *slot, const uint8_t *data, size_t data_length)
+#if IS_ACTIVE(CONFIG_PSA_SECURE_ELEMENT)
+static psa_status_t psa_copy_key_material_into_slot(psa_key_slot_t *slot, const uint8_t *data, size_t data_length)
 {
     if (data_length > PSA_MAX_KEY_DATA_SIZE) {
         return PSA_ERROR_INVALID_ARGUMENT;
@@ -766,6 +767,7 @@ psa_status_t psa_copy_key_material_into_slot (psa_key_slot_t *slot, const uint8_
 
     return PSA_SUCCESS;
 }
+#endif
 
 static psa_status_t psa_validate_key_policy(const psa_key_policy_t *policy)
 {
@@ -870,7 +872,7 @@ static psa_status_t psa_start_key_creation(psa_key_creation_method_t method, con
         return status;
     }
 
-    status = psa_get_empty_key_slot(&key_id, attributes, p_slot);
+    status = psa_allocate_empty_key_slot(&key_id, attributes, p_slot);
     if (status != PSA_SUCCESS) {
         return status;
     }
@@ -949,13 +951,11 @@ psa_status_t psa_destroy_key(psa_key_id_t key)
     psa_status_t status;
     psa_key_slot_t *slot;
 
-    DEBUG("Destroying Key\n");
     status = psa_get_and_lock_key_slot(key, &slot);
     if (status != PSA_SUCCESS) {
         return status;
     }
     if (slot->lock_count > 1) {
-        DEBUG("Lock Count: %d\n", slot->lock_count);
         return PSA_ERROR_GENERIC_ERROR;
     }
 
@@ -974,8 +974,7 @@ psa_status_t psa_export_key(psa_key_id_t key,
     return PSA_ERROR_NOT_SUPPORTED;
 }
 
-psa_status_t psa_builtin_export_public_key( const psa_key_attributes_t *attributes,
-                                            uint8_t *key_buffer,
+psa_status_t psa_builtin_export_public_key( const uint8_t *key_buffer,
                                             size_t key_buffer_size,
                                             uint8_t * data,
                                             size_t data_size,
@@ -989,7 +988,6 @@ psa_status_t psa_builtin_export_public_key( const psa_key_attributes_t *attribut
     memcpy(data, key_buffer, key_buffer_size);
     *data_length = key_buffer_size;
 
-    (void) attributes;
     return PSA_SUCCESS;
 }
 
@@ -1028,9 +1026,7 @@ psa_status_t psa_export_public_key(psa_key_id_t key,
         return status;
     }
 
-    psa_key_attributes_t attributes = slot->attr;
-
-    status = psa_builtin_export_public_key(&attributes, slot->key.pubkey_data, slot->key.pubkey_bytes, data, data_size, data_length);
+    status = psa_builtin_export_public_key(slot->key.pubkey_data, slot->key.pubkey_bytes, data, data_size, data_length);
 
     unlock_status = psa_unlock_key_slot(slot);
     return ((status == PSA_SUCCESS) ? unlock_status : status);
@@ -1087,12 +1083,7 @@ psa_status_t psa_generate_key(const psa_key_attributes_t * attributes,
         slot->key.bytes = PSA_MAX_KEY_DATA_SIZE;
     }
 
-    if (PSA_KEY_TYPE_IS_KEY_PAIR(attributes->type)) {
-        status = psa_location_dispatch_generate_key(attributes, slot->key.data, slot->key.bytes, &slot->key.bytes, slot->key.pubkey_data, slot->key.pubkey_bytes, &slot->key.pubkey_bytes);
-    }
-    else {
-        status = psa_location_dispatch_generate_key(attributes, slot->key.data, slot->key.bytes, &slot->key.bytes, NULL, 0, NULL);
-    }
+    status = psa_location_dispatch_generate_key(attributes, slot);
 
     if (status != PSA_SUCCESS) {
         psa_fail_key_creation(slot, driver);
@@ -1207,12 +1198,8 @@ psa_status_t psa_import_key(const psa_key_attributes_t * attributes,
 
     bits = slot->attr.bits;
 
-    if (PSA_KEY_TYPE_IS_PUBLIC_KEY(attributes->type)) {
-        status = psa_location_dispatch_import_key(attributes, data, data_length, slot->key.pubkey_data, slot->key.pubkey_bytes, &slot->key.pubkey_bytes, &bits);
-    }
-    else {
-        status = psa_location_dispatch_import_key(attributes, data, data_length, slot->key.data, slot->key.bytes, &slot->key.bytes, &bits);
-    }
+    status = psa_location_dispatch_import_key(attributes, data, data_length, slot, &bits);
+
     if (status != PSA_SUCCESS) {
         psa_fail_key_creation(slot, driver);
         return status;
@@ -1400,7 +1387,7 @@ psa_status_t psa_mac_compute(psa_key_id_t key,
         return status;
     }
 
-    status = psa_location_dispatch_mac_compute(&slot->attr, alg, slot->key.data, slot->key.bytes, input, input_length, mac, mac_size, mac_length);
+    status = psa_location_dispatch_mac_compute(&slot->attr, alg, slot, input, input_length, mac, mac_size, mac_length);
 
     unlock_status = psa_unlock_key_slot(slot);
     return ((status == PSA_SUCCESS) ? unlock_status : status);
@@ -1541,7 +1528,7 @@ psa_status_t psa_sign_hash(psa_key_id_t key,
 
     psa_key_attributes_t attributes = slot->attr;
 
-    status = psa_location_dispatch_sign_hash(&attributes, alg, slot->key.data, slot->key.bytes, hash, hash_length, signature, signature_size, signature_length);
+    status = psa_location_dispatch_sign_hash(&attributes, alg, slot, hash, hash_length, signature, signature_size, signature_length);
 
     unlock_status = psa_unlock_key_slot(slot);
     return ((status == PSA_SUCCESS) ? unlock_status : status);
@@ -1602,7 +1589,7 @@ psa_status_t psa_verify_hash(psa_key_id_t key,
 
     psa_key_attributes_t attributes = slot->attr;
 
-    status = psa_location_dispatch_verify_hash(&attributes, alg, slot->key.pubkey_data, slot->key.pubkey_bytes, hash, hash_length, signature, signature_length);
+    status = psa_location_dispatch_verify_hash(&attributes, alg, slot, hash, hash_length, signature, signature_length);
 
     unlock_status = psa_unlock_key_slot(slot);
     return ((status == PSA_SUCCESS) ? unlock_status : status);

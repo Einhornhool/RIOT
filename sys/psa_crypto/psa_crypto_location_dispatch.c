@@ -26,20 +26,8 @@
 #include "psa_crypto_se_management.h"
 #include "psa_crypto_se_driver.h"
 
-psa_status_t psa_location_dispatch_export_public_key(  const psa_key_attributes_t *attributes,
-                                                    uint8_t *key_buffer,
-                                                    size_t key_buffer_size,
-                                                    uint8_t * data,
-                                                    size_t data_size,
-                                                    size_t * data_length)
-{
-    /* Currently only direct copying of the key from local memory is supported */
-    return psa_builtin_export_public_key(attributes, key_buffer, key_buffer_size, data, data_size, data_length);
-}
-
-psa_status_t psa_location_dispatch_generate_key(   const psa_key_attributes_t *attributes,
-                                                uint8_t *key_buffer, size_t key_buffer_size,
-                                                size_t *key_buffer_length, uint8_t *pubkey_buffer, size_t pubkey_buffer_size, size_t *pubkey_buffer_length)
+psa_status_t psa_location_dispatch_generate_key(const psa_key_attributes_t *attributes,
+                                                psa_key_slot_t * slot)
 {
 #if IS_ACTIVE(CONFIG_PSA_SECURE_ELEMENT)
     const psa_drv_se_t *drv;
@@ -50,17 +38,16 @@ psa_status_t psa_location_dispatch_generate_key(   const psa_key_attributes_t *a
             return PSA_ERROR_NOT_SUPPORTED;
         }
 
-        return drv->key_management->p_generate(drv_context, *((psa_key_slot_number_t*)key_buffer), attributes, pubkey_buffer, pubkey_buffer_size, pubkey_buffer_length);
+        return drv->key_management->p_generate(drv_context, *((psa_key_slot_number_t*) slot->key.data), attributes, slot->key.pubkey_data, slot->key.pubkey_bytes, &slot->key.pubkey_bytes);
     }
 #endif /* CONFIG_PSA_SECURE_ELEMENT */
 
-    return psa_algorithm_dispatch_generate_key(attributes, key_buffer, key_buffer_size, key_buffer_length, pubkey_buffer, pubkey_buffer_size, pubkey_buffer_length);
+    return psa_algorithm_dispatch_generate_key(attributes, slot);
 }
 
 psa_status_t psa_location_dispatch_import_key( const psa_key_attributes_t *attributes,
                                             const uint8_t *data, size_t data_length,
-                                            uint8_t *key_buffer, size_t key_buffer_size,
-                                            size_t *key_buffer_length, size_t *bits)
+                                            psa_key_slot_t * slot, size_t *bits)
 {
     psa_status_t status = PSA_ERROR_CORRUPTION_DETECTED;
     psa_key_location_t location = PSA_KEY_LIFETIME_GET_LOCATION(attributes->lifetime);
@@ -74,7 +61,8 @@ psa_status_t psa_location_dispatch_import_key( const psa_key_attributes_t *attri
             return PSA_ERROR_NOT_SUPPORTED;
         }
         *bits = 0;
-        status = drv->key_management->p_import(drv_context, *((psa_key_slot_number_t*)key_buffer), attributes, data, data_length, bits);
+
+        status = drv->key_management->p_import(drv_context, *((psa_key_slot_number_t*)slot->key.data), attributes, data, data_length, bits);
         if (status != PSA_SUCCESS) {
             return status;
         }
@@ -87,7 +75,7 @@ psa_status_t psa_location_dispatch_import_key( const psa_key_attributes_t *attri
 
     switch(location) {
         case PSA_KEY_LOCATION_LOCAL_STORAGE:
-            return psa_builtin_import_key(attributes, data, data_length, key_buffer, key_buffer_size, key_buffer_length, bits);
+            return psa_builtin_import_key(attributes, data, data_length, slot->key.data, slot->key.bytes, &slot->key.bytes, bits);
         default:
             (void) status;
             return PSA_ERROR_NOT_SUPPORTED;
@@ -96,8 +84,7 @@ psa_status_t psa_location_dispatch_import_key( const psa_key_attributes_t *attri
 
 psa_status_t psa_location_dispatch_cipher_encrypt_setup(   psa_cipher_operation_t *operation,
                                                     const psa_key_attributes_t *attributes,
-                                                    const uint8_t *key_buffer,
-                                                    size_t key_buffer_size,
+                                                    const psa_key_slot_t * slot,
                                                     psa_algorithm_t alg)
 {
 #if IS_ACTIVE(CONFIG_PSA_SECURE_ELEMENT)
@@ -111,7 +98,8 @@ psa_status_t psa_location_dispatch_cipher_encrypt_setup(   psa_cipher_operation_
             if (drv->cipher == NULL || drv->cipher->p_setup == NULL) {
                 return PSA_ERROR_NOT_SUPPORTED;
             }
-            status = drv->cipher->p_setup(drv_context, &operation->ctx, *((psa_key_slot_number_t*) key_buffer), attributes->policy.alg, PSA_CRYPTO_DRIVER_ENCRYPT);
+
+            status = drv->cipher->p_setup(drv_context, &operation->ctx, *((psa_key_slot_number_t*) slot->key.data), attributes->policy.alg, PSA_CRYPTO_DRIVER_ENCRYPT);
             if (status != PSA_SUCCESS) {
                 return status;
             }
@@ -121,30 +109,26 @@ psa_status_t psa_location_dispatch_cipher_encrypt_setup(   psa_cipher_operation_
 #endif /* CONFIG_PSA_SECURE_ELEMENT */
     (void) operation;
     (void) attributes;
-    (void) key_buffer;
-    (void) key_buffer_size;
+    (void) slot;
     (void) alg;
     return PSA_ERROR_NOT_SUPPORTED;
 }
 
 psa_status_t psa_location_dispatch_cipher_decrypt_setup(psa_cipher_operation_t *operation,
                                                     const psa_key_attributes_t *attributes,
-                                                    const uint8_t *key_buffer,
-                                                    size_t key_buffer_size,
+                                                    const psa_key_slot_t * slot,
                                                     psa_algorithm_t alg)
 {
     (void) operation;
     (void) attributes;
-    (void) key_buffer;
-    (void) key_buffer_size;
+    (void) slot;
     (void) alg;
     return PSA_ERROR_NOT_SUPPORTED;
 }
 
 psa_status_t psa_location_dispatch_cipher_encrypt(  const psa_key_attributes_t * attributes,
                                                     psa_algorithm_t alg,
-                                                    const uint8_t * key_buffer,
-                                                    size_t key_buffer_size,
+                                                    const psa_key_slot_t * slot,
                                                     const uint8_t * input,
                                                     size_t input_length,
                                                     uint8_t * output,
@@ -163,7 +147,7 @@ psa_status_t psa_location_dispatch_cipher_encrypt(  const psa_key_attributes_t *
         if (drv->cipher == NULL || drv->cipher->p_ecb == NULL) {
             return PSA_ERROR_NOT_SUPPORTED;
         }
-        status = drv->cipher->p_ecb(drv_context, *((psa_key_slot_number_t *) key_buffer), alg, PSA_CRYPTO_DRIVER_ENCRYPT, input, input_length, output, output_size);
+        status = drv->cipher->p_ecb(drv_context, *((psa_key_slot_number_t *) slot->key.data), alg, PSA_CRYPTO_DRIVER_ENCRYPT, input, input_length, output, output_size);
         if (status != PSA_SUCCESS) {
             return status;
         }
@@ -171,13 +155,12 @@ psa_status_t psa_location_dispatch_cipher_encrypt(  const psa_key_attributes_t *
     }
 #endif /* CONFIG_PSA_SECURE_ELEMENT */
 
-    return psa_algorithm_dispatch_cipher_encrypt(attributes, alg, key_buffer, key_buffer_size, input, input_length, output, output_size, output_length);
+    return psa_algorithm_dispatch_cipher_encrypt(attributes, alg, slot, input, input_length, output, output_size, output_length);
 }
 
 psa_status_t psa_location_dispatch_sign_hash(  const psa_key_attributes_t *attributes,
                                             psa_algorithm_t alg,
-                                            const uint8_t *key_buffer,
-                                            size_t key_buffer_size,
+                                            const psa_key_slot_t * slot,
                                             const uint8_t * hash,
                                             size_t hash_length,
                                             uint8_t * signature,
@@ -191,19 +174,18 @@ psa_status_t psa_location_dispatch_sign_hash(  const psa_key_attributes_t *attri
     if (psa_get_se_driver(attributes->lifetime, &drv, &drv_context)) {
         if (drv->asymmetric == NULL || drv->asymmetric->p_sign == NULL) {
             return PSA_ERROR_NOT_SUPPORTED;
-        }
 
-        return drv->asymmetric->p_sign(drv_context, *((psa_key_slot_number_t*)key_buffer), alg, hash, hash_length, signature, signature_size, signature_length);
+
+        return drv->asymmetric->p_sign(drv_context, *((psa_key_slot_number_t*)slot->key.data), alg, hash, hash_length, signature, signature_size, signature_length);
     }
 #endif /* CONFIG_PSA_SECURE_ELEMENT */
 
-    return psa_algorithm_dispatch_sign_hash(attributes, alg, key_buffer, key_buffer_size, hash, hash_length, signature, signature_size, signature_length);
+    return psa_algorithm_dispatch_sign_hash(attributes, alg, slot, hash, hash_length, signature, signature_size, signature_length);
 }
 
 psa_status_t psa_location_dispatch_verify_hash(const psa_key_attributes_t *attributes,
                                             psa_algorithm_t alg,
-                                            const uint8_t *key_buffer,
-                                            size_t key_buffer_size,
+                                            const psa_key_slot_t * slot,
                                             const uint8_t * hash,
                                             size_t hash_length,
                                             const uint8_t * signature,
@@ -217,18 +199,16 @@ psa_status_t psa_location_dispatch_verify_hash(const psa_key_attributes_t *attri
         if (drv->asymmetric == NULL || drv->asymmetric->p_verify == NULL) {
             return PSA_ERROR_NOT_SUPPORTED;
         }
-
-        return drv->asymmetric->p_verify(drv_context, *((psa_key_slot_number_t *) key_buffer), alg, hash, hash_length, signature, signature_length);
+        return drv->asymmetric->p_verify(drv_context, *((psa_key_slot_number_t *)slot->key.data), alg, hash, hash_length, signature, signature_length);
     }
 #endif /* CONFIG_PSA_SECURE_ELEMENT */
 
-    return psa_algorithm_dispatch_verify_hash(attributes, alg, key_buffer, key_buffer_size, hash, hash_length, signature, signature_length);
+    return psa_algorithm_dispatch_verify_hash(attributes, alg, slot, hash, hash_length, signature, signature_length);
 }
 
 psa_status_t psa_location_dispatch_mac_compute(const psa_key_attributes_t *attributes,
                                                 psa_algorithm_t alg,
-                                                const uint8_t * key_buffer,
-                                                size_t key_buffer_size,
+                                                const psa_key_slot_t * slot,
                                                 const uint8_t * input,
                                                 size_t input_length,
                                                 uint8_t * mac,
@@ -243,12 +223,11 @@ psa_status_t psa_location_dispatch_mac_compute(const psa_key_attributes_t *attri
         if (drv->mac == NULL || drv->mac->p_mac == NULL) {
             return PSA_ERROR_NOT_SUPPORTED;
         }
-
-        return drv->mac->p_mac(drv_context, input, input_length, *((psa_key_slot_number_t *) key_buffer), alg, mac, mac_size, mac_length);
+        return drv->mac->p_mac(drv_context, input, input_length, *((psa_key_slot_number_t *) slot->key.data), alg, mac, mac_size, mac_length);
     }
 #endif /* CONFIG_PSA_SECURE_ELEMENT */
 
-    return psa_algorithm_dispatch_mac_compute(attributes, alg, key_buffer, key_buffer_size, input, input_length, mac, mac_size, mac_length);
+    return psa_algorithm_dispatch_mac_compute(attributes, alg, slot->key.data, slot->key.bytes, input, input_length, mac, mac_size, mac_length);
 }
 
 psa_status_t psa_location_dispatch_generate_random(uint8_t * output,
