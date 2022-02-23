@@ -974,7 +974,8 @@ psa_status_t psa_export_key(psa_key_id_t key,
     return PSA_ERROR_NOT_SUPPORTED;
 }
 
-psa_status_t psa_builtin_export_public_key( const uint8_t *key_buffer,
+#if IS_ACTIVE(CONFIG_PSA_ASYMMETRIC) || IS_ACTIVE(CONFIG_PSA_SECURE_ELEMENT_ECC)
+static psa_status_t psa_builtin_export_public_key( const uint8_t *key_buffer,
                                             size_t key_buffer_size,
                                             uint8_t * data,
                                             size_t data_size,
@@ -990,7 +991,6 @@ psa_status_t psa_builtin_export_public_key( const uint8_t *key_buffer,
 
     return PSA_SUCCESS;
 }
-
 
 psa_status_t psa_export_public_key(psa_key_id_t key,
                                    uint8_t * data,
@@ -1031,6 +1031,7 @@ psa_status_t psa_export_public_key(psa_key_id_t key,
     unlock_status = psa_unlock_key_slot(slot);
     return ((status == PSA_SUCCESS) ? unlock_status : status);
 }
+#endif
 
 psa_status_t psa_builtin_generate_key(const psa_key_attributes_t *attributes, uint8_t *key_buffer, size_t key_buffer_size, size_t *key_buffer_length)
 {

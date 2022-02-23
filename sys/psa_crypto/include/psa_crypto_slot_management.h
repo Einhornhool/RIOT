@@ -1,6 +1,7 @@
 #ifndef PSA_CRYPTO_SLOT_MANAGEMENT_H
 #define PSA_CRYPTO_SLOT_MANAGEMENT_H
 
+#include "clist.h"
 #include "psa/crypto.h"
 #include "psa_crypto_se_management.h"
 
@@ -13,27 +14,6 @@
 
 #define PSA_KEY_ID_VOLATILE_MIN (PSA_KEY_ID_VENDOR_MIN)
 #define PSA_KEY_ID_VOLATILE_MAX (PSA_KEY_ID_VENDOR_MIN + PSA_KEY_SLOT_COUNT)
-
-/**
- * @brief Structure of a virtual key slot in local memory.
- *
- * A slot contains key attributes, a lock count and the key_data structure.
- * Key_data consists of the size of the stored key in bytes and a uint8_t data array large enough
- * to store the largest key used in the current build.
- * Keys can be either symmetric or an asymmetric public key.
- */
-typedef struct {
-    psa_key_attributes_t attr;
-    size_t lock_count;
-    struct key_data {
-        uint8_t * data; /*!< Contains symmetric raw key, OR slot number for symmetric key in case of SE, OR asymmetric key pair structure */
-        size_t bytes; /*!< Contains actual size of symmetric key or size of asymmetric key pair  structure, TODO: Is there a better solution? */
-#if IS_ACTIVE(CONFIG_PSA_ASYMMETRIC)
-        uint8_t * pubkey_data;
-        size_t pubkey_bytes;
-#endif
-    } key;
-} psa_key_slot_t;
 
 void psa_init_key_slots(void);
 

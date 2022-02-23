@@ -2,7 +2,7 @@
 #include "psa/crypto.h"
 #include "psa_crypto_se_driver.h"
 
-#define ENABLE_DEBUG    (1)
+#define ENABLE_DEBUG    (0)
 #include "debug.h"
 
 #if TEST_TIME
@@ -385,7 +385,6 @@ psa_status_t atca_generate_mac( psa_drv_se_context_t *drv_context,
         DEBUG("ATCA Error: %d\n", status);
         return atca_to_psa_error(status);
     }
-
     *p_mac_length = 32;
 
     return PSA_SUCCESS;

@@ -107,4 +107,6 @@ typedef struct psa_key_attributes_s psa_key_attributes_t;
 
 typedef struct psa_cipher_operation_s psa_cipher_operation_t;
 
+typedef struct psa_key_slot_s psa_key_slot_t;
+
 #endif /* PSA_CRYPTO_TYPES_H */

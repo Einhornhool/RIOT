@@ -124,7 +124,7 @@ int main(void)
 {
     _test_init();
 
-    for (int i = 0; i < 100; i++) {
+    for (int i = 0; i < 1; i++) {
         psa_hmac_sha256();
     }
 

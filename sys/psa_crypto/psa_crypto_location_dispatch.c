@@ -26,6 +26,9 @@
 #include "psa_crypto_se_management.h"
 #include "psa_crypto_se_driver.h"
 
+#define ENABLE_DEBUG    (0)
+#include "debug.h"
+
 psa_status_t psa_location_dispatch_generate_key(const psa_key_attributes_t *attributes,
                                                 psa_key_slot_t * slot)
 {
@@ -174,8 +177,7 @@ psa_status_t psa_location_dispatch_sign_hash(  const psa_key_attributes_t *attri
     if (psa_get_se_driver(attributes->lifetime, &drv, &drv_context)) {
         if (drv->asymmetric == NULL || drv->asymmetric->p_sign == NULL) {
             return PSA_ERROR_NOT_SUPPORTED;
-
-
+        }
         return drv->asymmetric->p_sign(drv_context, *((psa_key_slot_number_t*)slot->key.data), alg, hash, hash_length, signature, signature_size, signature_length);
     }
 #endif /* CONFIG_PSA_SECURE_ELEMENT */
