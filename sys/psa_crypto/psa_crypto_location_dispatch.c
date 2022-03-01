@@ -225,6 +225,7 @@ psa_status_t psa_location_dispatch_mac_compute(const psa_key_attributes_t *attri
         if (drv->mac == NULL || drv->mac->p_mac == NULL) {
             return PSA_ERROR_NOT_SUPPORTED;
         }
+        DEBUG("Mac Compute SE\n");
         return drv->mac->p_mac(drv_context, input, input_length, *((psa_key_slot_number_t *) slot->key.data), alg, mac, mac_size, mac_length);
     }
 #endif /* CONFIG_PSA_SECURE_ELEMENT */

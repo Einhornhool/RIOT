@@ -758,12 +758,12 @@ static psa_status_t psa_copy_key_material_into_slot(psa_key_slot_t *slot, const 
         return PSA_ERROR_INVALID_ARGUMENT;
     }
 
-    if (PSA_KEY_TYPE_IS_ECC_PUBLIC_KEY(slot->attr.type)) {
-        memcpy(slot->key.pubkey_data, data, data_length);
-    }
-    else {
-        memcpy(slot->key.data, data, data_length);
-    }
+    // if (PSA_KEY_TYPE_IS_ECC_PUBLIC_KEY(slot->attr.type)) {
+    //     memcpy(slot->key.pubkey_data, data, data_length);
+    // }
+    // else {
+    memcpy(slot->key.data, data, data_length);
+    // }
 
     return PSA_SUCCESS;
 }
@@ -1360,6 +1360,7 @@ psa_status_t psa_mac_compute(psa_key_id_t key,
     psa_key_slot_t *slot;
     size_t operation_mac_size = 0;
 
+    DEBUG("Mac Compute\n");
     if (!lib_initialized) {
         return PSA_ERROR_BAD_STATE;
     }

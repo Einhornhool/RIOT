@@ -366,6 +366,7 @@ psa_status_t atca_generate_mac( psa_drv_se_context_t *drv_context,
     ATCA_STATUS status;
     ATCADevice dev = (ATCADevice) drv_context->drv_data;
 
+    DEBUG("ATCA_SE_DRIVER\n");
     if (!PSA_ALG_IS_HMAC(alg)) {
         return PSA_ERROR_NOT_SUPPORTED;
     }
