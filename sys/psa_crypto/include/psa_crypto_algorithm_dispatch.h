@@ -69,8 +69,7 @@ psa_status_t psa_algorithm_dispatch_cipher_encrypt( const psa_key_attributes_t *
 
 psa_status_t psa_algorithm_dispatch_mac_compute(const psa_key_attributes_t * attributes,
                                                 psa_algorithm_t alg,
-                                                const uint8_t * key_buffer,
-                                                size_t key_buffer_size,
+                                                const psa_key_slot_t * slot,
                                                 const uint8_t * input,
                                                 size_t input_length,
                                                 uint8_t * mac,

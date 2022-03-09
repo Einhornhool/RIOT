@@ -54,7 +54,7 @@ psa_status_t psa_crypto_init(void)
 {
     lib_initialized = 1;
 
-#if PSA_KEY_SLOT_COUNT
+#if IS_ACTIVE(CONFIG_MODULE_PSA_KEY_SLOT_MGMT)
     psa_init_key_slots();
 #endif
     return PSA_SUCCESS;
@@ -1000,6 +1000,8 @@ psa_status_t psa_export_public_key(psa_key_id_t key,
     psa_status_t status = PSA_ERROR_CORRUPTION_DETECTED;
     psa_status_t unlock_status = PSA_ERROR_CORRUPTION_DETECTED;
     psa_key_slot_t *slot;
+    uint8_t * pubkey_data = NULL;
+    size_t * pubkey_bytes = NULL;
 
     if (!lib_initialized) {
         return PSA_ERROR_BAD_STATE;
@@ -1025,8 +1027,9 @@ psa_status_t psa_export_public_key(psa_key_id_t key,
         unlock_status = psa_unlock_key_slot(slot);
         return status;
     }
+    psa_get_public_key_data_from_key_slot(slot, &pubkey_data, &pubkey_bytes);
 
-    status = psa_builtin_export_public_key(slot->key.pubkey_data, slot->key.pubkey_bytes, data, data_size, data_length);
+    status = psa_builtin_export_public_key(pubkey_data, *pubkey_bytes, data, data_size, data_length);
 
     unlock_status = psa_unlock_key_slot(slot);
     return ((status == PSA_SUCCESS) ? unlock_status : status);
@@ -1136,8 +1139,8 @@ psa_status_t psa_get_key_attributes(psa_key_id_t key,
 
 psa_status_t psa_builtin_import_key(const psa_key_attributes_t *attributes,
                                     const uint8_t *data, size_t data_length,
-                                    uint8_t *key_buffer, size_t key_buffer_size,
-                                    size_t *key_buffer_length, size_t *bits)
+                                    uint8_t *key_buffer, size_t *key_buffer_length,
+                                    size_t *bits)
 {
     psa_status_t status = PSA_ERROR_CORRUPTION_DETECTED;
     psa_key_type_t type = attributes->type;
@@ -1159,7 +1162,6 @@ psa_status_t psa_builtin_import_key(const psa_key_attributes_t *attributes,
 
         memcpy(key_buffer, data, data_length);
         *key_buffer_length = data_length;
-        (void) key_buffer_size;
 
         return PSA_SUCCESS;
     }

@@ -162,6 +162,8 @@ psa_status_t psa_algorithm_dispatch_sign_hash(  const psa_key_attributes_t *attr
                                             size_t * signature_length)
 {
     psa_asymmetric_keytype_t asym_key = PSA_INVALID_OPERATION;
+    uint8_t * key_data = NULL;
+    size_t * key_bytes = NULL;
 
     if (PSA_KEY_TYPE_IS_ECC_KEY_PAIR(attributes->type)) {
         asym_key = PSA_ENCODE_ECC_KEY_TYPE(attributes->bits, PSA_KEY_TYPE_ECC_GET_CURVE(attributes->type));
@@ -171,14 +173,16 @@ psa_status_t psa_algorithm_dispatch_sign_hash(  const psa_key_attributes_t *attr
         }
     }
 
+    psa_get_key_data_from_key_slot(slot, &key_data, &key_bytes);
+
     switch(asym_key) {
 #if IS_ACTIVE(CONFIG_PSA_ECC_P192_DRIVER)
         case PSA_ECC_P192_R1:
-            return psa_ecc_p192r1_sign_hash(attributes, alg, slot->key.data, slot->key.bytes, hash, hash_length, signature, signature_size, signature_length);
+            return psa_ecc_p192r1_sign_hash(attributes, alg, key_data, *key_bytes, hash, hash_length, signature, signature_size, signature_length);
 #endif
 #if IS_ACTIVE(CONFIG_PSA_ECC_P256_DRIVER)
         case PSA_ECC_P256_R1:
-            return psa_ecc_p256r1_sign_hash(attributes, alg, slot->key.data, slot->key.bytes, hash, hash_length, signature, signature_size, signature_length);
+            return psa_ecc_p256r1_sign_hash(attributes, alg, key_data, *key_bytes, hash, hash_length, signature, signature_size, signature_length);
 #endif
         default:
             (void) alg;
@@ -201,6 +205,8 @@ psa_status_t psa_algorithm_dispatch_verify_hash(  const psa_key_attributes_t *at
                                             size_t signature_length)
 {
     psa_asymmetric_keytype_t asym_key = PSA_INVALID_OPERATION;
+    uint8_t * pubkey_data = NULL;
+    size_t * pubkey_bytes = NULL;
 
     if (PSA_KEY_TYPE_IS_ECC(attributes->type)) {
         asym_key = PSA_ENCODE_ECC_KEY_TYPE(attributes->bits, PSA_KEY_TYPE_ECC_GET_CURVE(attributes->type));
@@ -210,14 +216,16 @@ psa_status_t psa_algorithm_dispatch_verify_hash(  const psa_key_attributes_t *at
         }
     }
 
+    psa_get_public_key_data_from_key_slot(slot, &pubkey_data, &pubkey_bytes);
+
     switch(asym_key) {
 #if IS_ACTIVE(CONFIG_PSA_ECC_P192_DRIVER)
         case PSA_ECC_P192_R1:
-            return psa_ecc_p192r1_verify_hash(attributes, alg, slot->key.data, slot->key.bytes, hash, hash_length, signature, signature_length);
+            return psa_ecc_p192r1_verify_hash(attributes, alg, pubkey_data, *pubkey_bytes, hash, hash_length, signature, signature_length);
 #endif
 #if IS_ACTIVE(CONFIG_PSA_ECC_P256_DRIVER)
         case PSA_ECC_P256_R1:
-            return psa_ecc_p256r1_verify_hash(attributes, alg, slot->key.data, slot->key.bytes, hash, hash_length, signature, signature_length);
+            return psa_ecc_p256r1_verify_hash(attributes, alg, pubkey_data, *pubkey_bytes, hash, hash_length, signature, signature_length);
 #endif
         default:
             (void) alg;
@@ -234,10 +242,16 @@ psa_status_t psa_algorithm_dispatch_generate_key(   const psa_key_attributes_t *
                                                     psa_key_slot_t * slot)
 {
     psa_status_t status = PSA_ERROR_CORRUPTION_DETECTED;
+    uint8_t * key_data = NULL;
+    size_t * key_bytes = NULL;
+    psa_get_key_data_from_key_slot(slot, &key_data, &key_bytes);
 
     /* Only asymmetric key generation needs special key generation algorithms. Unstructured keys can be created by generating random bytes. */
     if (PSA_KEY_TYPE_IS_ASYMMETRIC(attributes->type)) {
         psa_asymmetric_keytype_t asym_key = PSA_INVALID_OPERATION;
+        uint8_t * pubkey_data = NULL;
+        size_t * pubkey_bytes = NULL;
+        psa_get_public_key_data_from_key_slot(slot, &pubkey_data, &pubkey_bytes);
 
         if (PSA_KEY_TYPE_IS_ECC_KEY_PAIR(attributes->type)) {
             asym_key = PSA_ENCODE_ECC_KEY_TYPE(attributes->bits, PSA_KEY_TYPE_ECC_GET_CURVE(attributes->type));
@@ -250,11 +264,11 @@ psa_status_t psa_algorithm_dispatch_generate_key(   const psa_key_attributes_t *
         switch(asym_key) {
 #if IS_ACTIVE(CONFIG_PSA_ECC_P192_DRIVER)
             case PSA_ECC_P192_R1:
-                return psa_generate_ecc_p192r1_key_pair(attributes, slot->key.data, slot->key.pubkey_data, &slot->key.bytes, &slot->key.pubkey_bytes);
+                return psa_generate_ecc_p192r1_key_pair(attributes, key_data, pubkey_data, key_bytes, pubkey_bytes);
 #endif
 #if IS_ACTIVE(CONFIG_PSA_ECC_P256_DRIVER)
             case PSA_ECC_P256_R1:
-                return psa_generate_ecc_p256r1_key_pair(attributes, slot->key.data, slot->key.pubkey_data, &slot->key.bytes, &slot->key.pubkey_bytes);
+                return psa_generate_ecc_p256r1_key_pair(attributes, key_data, pubkey_data, key_bytes, pubkey_bytes);
 #endif
             default:
             (void) status;
@@ -263,12 +277,12 @@ psa_status_t psa_algorithm_dispatch_generate_key(   const psa_key_attributes_t *
         }
     }
 
-    return psa_builtin_generate_key(attributes, slot->key.data, slot->key.bytes, &slot->key.bytes);
+    return psa_builtin_generate_key(attributes, key_data, *key_bytes, key_bytes);
 }
 
-psa_status_t psa_algorithm_dispatch_cipher_set_iv(  psa_cipher_operation_t *operation,
-                                                const uint8_t *iv,
-                                                size_t iv_length);
+// psa_status_t psa_algorithm_dispatch_cipher_set_iv(  psa_cipher_operation_t *operation,
+//                                                 const uint8_t *iv,
+//                                                 size_t iv_length);
 
 psa_status_t psa_algorithm_dispatch_cipher_encrypt( const psa_key_attributes_t * attributes,
                                                     psa_algorithm_t alg,
@@ -280,6 +294,10 @@ psa_status_t psa_algorithm_dispatch_cipher_encrypt( const psa_key_attributes_t *
                                                     size_t * output_length)
 {
     psa_cipher_op_t op = PSA_ENCODE_CIPHER_OPERATION(alg, attributes->bits, attributes->type);
+    uint8_t * key_data = NULL;
+    size_t * key_bytes = NULL;
+
+    psa_get_key_data_from_key_slot(slot, &key_data, &key_bytes);
 
     if (op == PSA_INVALID_OPERATION) {
         return PSA_ERROR_INVALID_ARGUMENT;
@@ -288,15 +306,15 @@ psa_status_t psa_algorithm_dispatch_cipher_encrypt( const psa_key_attributes_t *
     switch(op) {
 #if IS_ACTIVE(CONFIG_PSA_CIPHER_AES_128)
         case PSA_CBC_NO_PAD_AES_128:
-            return psa_cipher_cbc_aes_128_encrypt(attributes, slot->key.data, slot->key.bytes, alg, input, input_length, output, output_size, output_length);
+            return psa_cipher_cbc_aes_128_encrypt(attributes, key_data, *key_bytes, alg, input, input_length, output, output_size, output_length);
 #endif
 #if IS_ACTIVE(CONFIG_PSA_CIPHER_AES_192)
         case PSA_CBC_NO_PAD_AES_192:
-            return psa_cipher_cbc_aes_192_encrypt(attributes, slot->key.data, slot->key.bytes, alg, input, input_length, output, output_size, output_length);
+            return psa_cipher_cbc_aes_192_encrypt(attributes, key_data, *key_bytes, alg, input, input_length, output, output_size, output_length);
 #endif
 #if IS_ACTIVE(CONFIG_PSA_CIPHER_AES_256)
         case PSA_CBC_NO_PAD_AES_256:
-            return psa_cipher_cbc_aes_256_encrypt(attributes, slot->key.data, slot->key.bytes, alg, input, input_length, output, output_size, output_length);
+            return psa_cipher_cbc_aes_256_encrypt(attributes, key_data, *key_bytes, alg, input, input_length, output, output_size, output_length);
 #endif
         default:
             (void) slot;
@@ -311,8 +329,7 @@ psa_status_t psa_algorithm_dispatch_cipher_encrypt( const psa_key_attributes_t *
 
 psa_status_t psa_algorithm_dispatch_mac_compute(const psa_key_attributes_t * attributes,
                                                 psa_algorithm_t alg,
-                                                const uint8_t * key_buffer,
-                                                size_t key_buffer_size,
+                                                const psa_key_slot_t * slot,
                                                 const uint8_t * input,
                                                 size_t input_length,
                                                 uint8_t * mac,
@@ -320,11 +337,15 @@ psa_status_t psa_algorithm_dispatch_mac_compute(const psa_key_attributes_t * att
                                                 size_t * mac_length)
 {
     psa_status_t status = PSA_ERROR_NOT_SUPPORTED;
+    uint8_t * key_data = NULL;
+    size_t * key_bytes = NULL;
+
+    psa_get_key_data_from_key_slot(slot, &key_data, &key_bytes);
 
     switch(alg) {
     #if IS_ACTIVE(CONFIG_PSA_MAC_HMAC_SHA_256)
         case PSA_ALG_HMAC(PSA_ALG_SHA_256):
-            status = psa_mac_compute_hmac_sha256(attributes, key_buffer, key_buffer_size, input, input_length, mac, mac_size, mac_length);
+            status = psa_mac_compute_hmac_sha256(attributes, key_data, *key_bytes, input, input_length, mac, mac_size, mac_length);
             if (status != PSA_SUCCESS) {
                 return status;
             }
@@ -336,8 +357,6 @@ psa_status_t psa_algorithm_dispatch_mac_compute(const psa_key_attributes_t * att
     }
 
     (void) attributes;
-    (void) key_buffer;
-    (void) key_buffer_size;
     (void) input;
     (void) input_length;
     (void) mac;
