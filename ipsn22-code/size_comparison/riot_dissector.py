@@ -300,7 +300,7 @@ def plot_for_board(results, export_path=None):
             if key == 'flash':
                 percentage_offset = max_value[key] + 0.3
             else:
-                percentage_offset = max_value[key] * 0.07
+                percentage_offset = max_value[key] * 0.5
             for i, run in enumerate(runs):
                 # value = f'{int(psa_acc[key][i]*1024)}\n ({round(accumulated_percentage[key][i], 1)} \%)'
                 value = f'{int(psa_acc[key][i]*1024)} B'

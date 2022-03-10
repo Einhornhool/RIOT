@@ -758,11 +758,16 @@ static psa_status_t psa_copy_key_material_into_slot(psa_key_slot_t *slot, const 
         return PSA_ERROR_INVALID_ARGUMENT;
     }
 
+    uint8_t * key_data = NULL;
+    size_t * key_bytes = NULL;
+    psa_get_key_data_from_key_slot(slot, &key_data, &key_bytes);
+
     // if (PSA_KEY_TYPE_IS_ECC_PUBLIC_KEY(slot->attr.type)) {
     //     memcpy(slot->key.pubkey_data, data, data_length);
     // }
     // else {
-    memcpy(slot->key.data, data, data_length);
+    memcpy(key_data, data, data_length);
+    *key_bytes = data_length;
     // }
 
     return PSA_SUCCESS;
@@ -892,7 +897,7 @@ static psa_status_t psa_start_key_creation(psa_key_creation_method_t method, con
             return status;
         }
         /* TODO: Start transaction for persistent key storage */
-        status = psa_copy_key_material_into_slot(slot, (uint8_t*)(&slot_number), sizeof(slot_number));
+        status = psa_copy_key_material_into_slot(slot, (uint8_t*)(&slot_number), sizeof(psa_key_slot_number_t));
         if (status != PSA_SUCCESS) {
             return status;
         }
@@ -956,7 +961,7 @@ psa_status_t psa_destroy_key(psa_key_id_t key)
         return status;
     }
     if (slot->lock_count > 1) {
-        return PSA_ERROR_GENERIC_ERROR;
+        return PSA_ERROR_CORRUPTION_DETECTED;
     }
 
     return psa_wipe_key_slot(slot);

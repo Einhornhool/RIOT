@@ -43,7 +43,7 @@ profiles:
   all-backends:
     dir_path: "../backend-combination"
     config: "../backend-combination/app.config.test"
-    label: "Multiple Backends"
+    label: "Combined Backends"
     flags: ""
 
 groups:
@@ -151,6 +151,7 @@ groups:
   :
     modules:
       - ["sys", "psa_crypto", "psa_key_slot_mgmt"]
+      - ["core", "clist"]
 
     config:
       backend: False
@@ -168,7 +169,7 @@ groups:
       hatch: "/"
 
 
-  ? "PSA Crypto"
+  ? "PSA Crypto API"
   :
     modules:
       - ["sys", "psa_crypto", "psa_crypto"]

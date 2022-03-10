@@ -21,11 +21,8 @@
 #include "clist.h"
 #include "psa_crypto_slot_management.h"
 
-#define ENABLE_DEBUG    (1)
+#define ENABLE_DEBUG    (0)
 #include "debug.h"
-
-static psa_key_slot_t unstructured_key_slots[PSA_UNSTR_KEY_COUNT][sizeof(psa_key_slot_t)];
-static clist_node_t unstruct_list_empty;
 
 /**
  * @brief Structure for a protected key slot.
@@ -43,9 +40,6 @@ typedef struct {
         size_t pubkey_bytes;
     } key;
 } psa_prot_key_slot_t;
-
-static psa_prot_key_slot_t protected_key_slots[PSA_PROTECTED_KEY_COUNT][sizeof(psa_prot_key_slot_t)];
-static clist_node_t protected_list_empty;
 
 /**
  * @brief Structure for asymmetric key pairs.
@@ -65,7 +59,12 @@ typedef struct {
     } key;
 } psa_asym_key_slot_t;
 
-static psa_asym_key_slot_t asymmetric_key_slots[PSA_ASYMMETRIC_KEYPAIR_COUNT][sizeof(psa_asym_key_slot_t)];
+static psa_asym_key_slot_t asymmetric_key_slots[PSA_ASYMMETRIC_KEYPAIR_COUNT];
+static psa_prot_key_slot_t protected_key_slots[PSA_PROTECTED_KEY_COUNT];
+static psa_key_slot_t single_key_slots[PSA_SINGLE_KEY_COUNT];
+
+static clist_node_t single_key_list_empty;
+static clist_node_t protected_list_empty;
 static clist_node_t asymmetric_list_empty;
 
 /**
@@ -82,15 +81,16 @@ static psa_key_id_t key_id_count = PSA_KEY_ID_VOLATILE_MIN;
  * @brief Get the correct empty slot list, depending on the key type
  *
  * @param attr
- * @return clist_node_t*   Pointer to the list, the key is supposed to be stored in, according to its attributes
+ * @return clist_node_t*   Pointer to the list the key is supposed to be stored in,
+ *                         according to its attributes
  */
 static clist_node_t * psa_get_empty_key_slot_list(const psa_key_attributes_t * attr)
 {
-    if (PSA_KEY_LIFETIME_GET_LOCATION(attr->lifetime) == PSA_KEY_LOCATION_LOCAL_STORAGE) {
+    if (!psa_key_lifetime_is_external(attr->lifetime)) {
         if (PSA_KEY_TYPE_IS_KEY_PAIR(attr->type)) {
             return &asymmetric_list_empty;
         }
-        return &unstruct_list_empty;
+        return &single_key_list_empty;
     }
     return &protected_list_empty;
 }
@@ -103,44 +103,27 @@ void psa_init_key_slots(void)
 {
     memset(protected_key_slots, 0, sizeof(protected_key_slots));
     memset(asymmetric_key_slots, 0, sizeof(asymmetric_key_slots));
-    memset(unstructured_key_slots, 0, sizeof(unstructured_key_slots));
+    memset(single_key_slots, 0, sizeof(single_key_slots));
 
     /* Create empty lists to abstract key slot buffer */
+#if PSA_PROTECTED_KEY_COUNT
     for (size_t i = 0; i < PSA_PROTECTED_KEY_COUNT; i++) {
-        clist_rpush(&protected_list_empty, &protected_key_slots[i]->node);
+        clist_rpush(&protected_list_empty, &protected_key_slots[i].node);
     }
+#endif
 
+#if PSA_ASYMMETRIC_KEYPAIR_COUNT
     for (size_t i = 0; i < PSA_ASYMMETRIC_KEYPAIR_COUNT; i++) {
-        clist_rpush(&asymmetric_list_empty, &asymmetric_key_slots[i]->node);
+        clist_rpush(&asymmetric_list_empty, &asymmetric_key_slots[i].node);
     }
+#endif
 
-    for (size_t i = 0; i < PSA_UNSTR_KEY_COUNT; i++) {
-        clist_rpush(&unstruct_list_empty, &unstructured_key_slots[i]->node);
+#if PSA_SINGLE_KEY_COUNT
+    for (size_t i = 0; i < PSA_SINGLE_KEY_COUNT; i++) {
+        clist_rpush(&single_key_list_empty, &single_key_slots[i].node);
     }
-}
-
-/**
- * @brief Check if provided key ID is either a valid user ID or vendor ID
- *
- * @param id
- * @param vendor_ok
- * @return int          1 if valid
- *                      0 if invalid
- */
-int psa_is_valid_key_id(psa_key_id_t id, int vendor_ok)
-{
-    if ((PSA_KEY_ID_USER_MIN <= id) &&
-        (id <= PSA_KEY_ID_USER_MAX)) {
-        return 1;
-    }
-
-    if (vendor_ok
-        && (PSA_KEY_ID_VENDOR_MIN <= id)
-        && (id <= PSA_KEY_ID_VENDOR_MAX)) {
-        return 1;
-    }
-
-    return 0;
+#endif
+    DEBUG("Init: \nUnstr Key Slots: %d\nAsym Key Slots: %d\nProt Key Slots: %d\n", clist_count(&single_key_list_empty), clist_count(&asymmetric_list_empty), clist_count(&protected_list_empty));
 }
 
 /**
@@ -152,16 +135,16 @@ static void psa_wipe_real_slot_type(psa_key_slot_t * slot)
 {
     psa_key_attributes_t attr = slot->attr;
 
-    if (PSA_KEY_LIFETIME_GET_LOCATION(attr.lifetime) == PSA_KEY_LOCATION_LOCAL_STORAGE) {
+    if (!psa_key_lifetime_is_external(attr.lifetime)) {
         if (PSA_KEY_TYPE_IS_KEY_PAIR(attr.type)) {
-            memset(slot, 0, sizeof(psa_asym_key_slot_t));
+            memset((psa_asym_key_slot_t *) slot, 0, sizeof(psa_asym_key_slot_t));
         }
         else {
             memset(slot, 0, sizeof(psa_key_slot_t));
         }
     }
     else {
-        memset(slot, 0, sizeof(psa_prot_key_slot_t));
+        memset((psa_prot_key_slot_t *) slot, 0, sizeof(psa_prot_key_slot_t));
     }
 }
 
@@ -170,13 +153,19 @@ psa_status_t psa_wipe_key_slot(psa_key_slot_t *slot)
     /* Get list the slot is stored in */
     clist_node_t * empty_list = psa_get_empty_key_slot_list(&slot->attr);
 
-    /* Remove node from list and add back to empty list to free node */
-    clist_node_t * node = clist_remove(&key_slot_list, &slot->node);
-    clist_rpush(empty_list, node);
+    /* Get node to remove from key slot list */
+    clist_node_t * n = clist_remove(&key_slot_list, &slot->node);
+    if (n == NULL) {
+        return PSA_ERROR_DOES_NOT_EXIST;
+    }
 
-    /* Wipe slot */
-    psa_wipe_real_slot_type(slot);
+    psa_key_slot_t * tmp = container_of(n, psa_key_slot_t, node);
 
+    /* Wipe slot associated with node */
+    psa_wipe_real_slot_type(tmp);
+
+    /* Append node to empty list for later reuse */
+    clist_rpush(empty_list, n);
     return PSA_SUCCESS;
 }
 
@@ -186,7 +175,10 @@ void psa_wipe_all_key_slots(void)
     while (!clist_is_empty(&key_slot_list)) {
         clist_node_t * to_remove = clist_rpop(&key_slot_list);
         psa_key_slot_t * slot = container_of(to_remove, psa_key_slot_t, node);
-        psa_wipe_key_slot(slot);
+        clist_node_t * empty_list = psa_get_empty_key_slot_list(&slot->attr);
+
+        psa_wipe_real_slot_type(slot);
+        clist_rpush(empty_list, to_remove);
     };
 }
 
@@ -355,11 +347,27 @@ psa_status_t psa_validate_key_persistence(psa_key_lifetime_t lifetime)
     return PSA_ERROR_NOT_SUPPORTED;
 }
 
+int psa_is_valid_key_id(psa_key_id_t id, int vendor)
+{
+    if ((PSA_KEY_ID_USER_MIN <= id) &&
+        (id <= PSA_KEY_ID_USER_MAX)) {
+        return 1;
+    }
+
+    if (vendor
+        && (PSA_KEY_ID_VENDOR_MIN <= id)
+        && (id <= PSA_KEY_ID_VENDOR_MAX)) {
+        return 1;
+    }
+
+    return 0;
+}
+
 void psa_get_key_data_from_key_slot(const psa_key_slot_t * slot, uint8_t ** key_data, size_t ** key_bytes)
 {
     psa_key_attributes_t attr = slot->attr;
 
-    if (PSA_KEY_LIFETIME_GET_LOCATION(attr.lifetime) == PSA_KEY_LOCATION_LOCAL_STORAGE) {
+    if (!psa_key_lifetime_is_external(attr.lifetime)) {
         if (PSA_KEY_TYPE_IS_KEY_PAIR(attr.type)) {
             *key_data = ((psa_asym_key_slot_t *)slot)->key.data;
             *key_bytes = &((psa_asym_key_slot_t *)slot)->key.bytes;
@@ -385,7 +393,7 @@ void psa_get_public_key_data_from_key_slot(const psa_key_slot_t * slot, uint8_t 
         return;
     }
 
-    if (PSA_KEY_LIFETIME_GET_LOCATION(attr.lifetime) == PSA_KEY_LOCATION_LOCAL_STORAGE) {
+    if (!psa_key_lifetime_is_external(attr.lifetime)) {
         if (PSA_KEY_TYPE_IS_KEY_PAIR(attr.type)) {
             *pubkey_data = ((psa_asym_key_slot_t *)slot)->key.pubkey_data;
             *pubkey_bytes = &((psa_asym_key_slot_t *)slot)->key.pubkey_bytes;

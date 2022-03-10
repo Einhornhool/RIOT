@@ -90,7 +90,7 @@ static void cipher_aes_128(void)
 int main(void)
 {
     _test_init();
-    for (int i = 0; i < 100; i++) {
+    for (int i = 0; i < 1; i++) {
         cipher_aes_128();
     }
 

@@ -43,6 +43,8 @@ psa_status_t psa_location_dispatch_generate_key(const psa_key_attributes_t *attr
     psa_get_key_data_from_key_slot(slot, &key_data, &key_bytes);
     psa_get_public_key_data_from_key_slot(slot, &pubkey_data, &pubkey_bytes);
 
+    DEBUG("Key Bytes: %d, Pubkey Bytes: %d\n", *key_bytes, *pubkey_bytes);
+
     if (psa_get_se_driver(attributes->lifetime, &drv, &drv_context)) {
         if (drv->key_management == NULL || drv->key_management->p_generate == NULL) {
             return PSA_ERROR_NOT_SUPPORTED;

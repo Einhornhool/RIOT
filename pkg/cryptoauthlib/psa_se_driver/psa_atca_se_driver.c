@@ -250,7 +250,7 @@ psa_status_t atca_generate_key( psa_drv_se_context_t *drv_context,
     /* Set first byte of pubkey buffer to 0x04 to encode public key uncompressed binary format */
     pubkey[0] = 0x04;
     *pubkey_length = PSA_EXPORT_PUBLIC_KEY_OUTPUT_SIZE(attributes->type, attributes->bits);
-
+    DEBUG("ATCA Pubkey Length: %d\n", *pubkey_length);
     return PSA_SUCCESS;
 }
 

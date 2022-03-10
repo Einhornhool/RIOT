@@ -25,7 +25,17 @@ config PSA_MAX_KEY_SIZE
     default 16 if PSA_KEY_SIZE_128
     default 0
 
-config PSA_KEY_SLOT_COUNT
+config PSA_PROTECTED_KEY_COUNT
+    int "Specifies number of allocated key slots in local memory"
+    default 5 if PSA_SECURE_ELEMENT
+    default 0
+
+config PSA_ASYMMETRIC_KEYPAIR_COUNT
+    int "Specifies number of allocated key slots in local memory"
+    default 5 if PSA_ASYMMETRIC
+    default 0
+
+config PSA_SINGLE_KEY_COUNT
     int "Specifies number of allocated key slots in local memory"
     default 5 if PSA_MAX_KEY_SIZE != 0
     default 0
