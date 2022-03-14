@@ -17,9 +17,9 @@ psa_status_t psa_ecc_p256r1_sign_hash(  const psa_key_attributes_t *attributes,
                                         uint8_t * signature, size_t signature_size,
                                         size_t * signature_length)
 {
-    CRYS_ECPKI_HASH_OpMode_t hash_mode = MAP_PSA_HASH_TO_CRYS_HASH(PSA_ALG_GET_HASH(alg));
-    (void) signature_size;
     (void) key_buffer_size;
+    CRYS_ECPKI_HASH_OpMode_t hash_mode = MAP_PSA_HASH_TO_CRYS_HASH(PSA_ALG_GET_HASH(alg));
+    *signature_length = signature_size;
     return periph_common_ecc_sign_hash(key_buffer, PSA_BITS_TO_BYTES(attributes->bits), hash, hash_length, signature, signature_length, hash_mode, CRYS_ECPKI_DomainID_secp256r1);
 }
 
@@ -29,8 +29,6 @@ psa_status_t psa_ecc_p256r1_verify_hash(const psa_key_attributes_t *attributes,
                                         const uint8_t *hash, size_t hash_length,
                                         const uint8_t *signature, size_t signature_length)
 {
-
-
     CRYS_ECPKI_HASH_OpMode_t hash_mode = MAP_PSA_HASH_TO_CRYS_HASH(PSA_ALG_GET_HASH(alg));
 
     (void) attributes;

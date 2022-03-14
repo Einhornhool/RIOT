@@ -296,11 +296,11 @@ def plot_for_board(results, export_path=None):
 
     # draw percentage of total size
     for key, ax in axs.items():
-        if key != 'f_low' and key != 'r_low':
+        if key != 'f_low' and key != 'r_low' and key != 'flash':
             if key == 'flash':
                 percentage_offset = max_value[key] + 0.3
             else:
-                percentage_offset = max_value[key] * 0.5
+                percentage_offset = max_value[key] + 0.05
             for i, run in enumerate(runs):
                 # value = f'{int(psa_acc[key][i]*1024)}\n ({round(accumulated_percentage[key][i], 1)} \%)'
                 value = f'{int(psa_acc[key][i]*1024)} B'

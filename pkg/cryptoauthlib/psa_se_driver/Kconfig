@@ -5,7 +5,12 @@
 # directory for more details.
 #
 
-config PSA_CRYPTOAUTHLIB_SE_DRIVER
+config MODULE_PSA_SE_DRIVER
     bool
     depends on PACKAGE_CRYPTOAUTHLIB
-    depends on MODULE_PSA_CRYPTO
+    default y if MODULE_PSA_CRYPTO
+
+config PSA_SECURE_ELEMENT_ECC
+    bool "Use Cryptoauthlib Elliptic Curve"
+    select PSA_KEY_SIZE_256
+    select PSA_SECURE_ELEMENT_ASYMMETRIC

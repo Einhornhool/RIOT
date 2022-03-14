@@ -93,10 +93,10 @@ psa_drv_se_context_t *psa_get_se_drv_context(psa_se_drv_data_t *driver)
     return &driver->u.context;
 }
 
-psa_status_t psa_find_free_se_slot( const psa_key_attributes_t *attributes,
+psa_status_t psa_find_free_se_slot( const psa_key_attributes_t * attributes,
                                     psa_key_creation_method_t method,
-                                    psa_se_drv_data_t *driver,
-                                    psa_key_slot_number_t *slot_number)
+                                    psa_se_drv_data_t * driver,
+                                    psa_key_slot_number_t * slot_number)
 {
     psa_status_t status;
     psa_key_location_t key_location = PSA_KEY_LIFETIME_GET_LOCATION(psa_get_key_lifetime(attributes));
@@ -105,16 +105,12 @@ psa_status_t psa_find_free_se_slot( const psa_key_attributes_t *attributes,
         return PSA_ERROR_CORRUPTION_DETECTED;
     }
 
-    if (driver->methods->key_management == NULL) {
+    if (driver->methods->key_management == NULL ||
+        driver->methods->key_management->p_allocate == NULL) {
         return PSA_ERROR_NOT_SUPPORTED;
     }
 
-    psa_drv_se_allocate_key_t p_allocate = driver->methods->key_management->p_allocate;
-
-    if (p_allocate == NULL) {
-        return PSA_ERROR_NOT_SUPPORTED;
-    }
-    status = p_allocate(&driver->u.context, driver->u.internal.persistent_data, attributes, method, slot_number);
+    status = driver->methods->key_management->p_allocate(&driver->u.context, driver->u.internal.persistent_data, attributes, method, slot_number);
 
     return status;
 }

@@ -65,10 +65,7 @@ static inline int psa_is_key_slot_locked(psa_key_slot_t *slot)
  * @param slot                      Pointer to the slot containing the protected slot number
  * @return psa_key_slot_number_t    Key slot number stored in the input slot
  */
-static inline psa_key_slot_number_t psa_key_slot_get_slot_number(psa_key_slot_t *slot)
-{
-    return *((psa_key_slot_number_t *)(slot->key.data));
-}
+psa_key_slot_number_t * psa_key_slot_get_slot_number(const psa_key_slot_t *slot);
 
 /**
  * @brief Check whether a key is stored on an external device

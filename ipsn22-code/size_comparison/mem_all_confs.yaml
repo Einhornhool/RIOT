@@ -2,8 +2,8 @@
 meta:
   title: "PSA Memory Overhead"
   export: "comb-psa-mem.png"
-  ylim_rom: 7
-  ylim_ram: 7
+  ylim_rom: 7.5
+  ylim_ram: 7.5
   cols: 3
 
 boards:
@@ -22,9 +22,9 @@ profiles:
     flags: "-DSOFTWARE"
   ecdsa-psa-se:
     dir_path: "../ecdsa-se"
-    config: "../ecdsa-se/app.config.test ../ecdsa-se/app.config.test.multiple"
+    config: "../ecdsa-se/app.config.test"
     label: "ECDSA ATECC608A"
-    flags: "-DUSE_MULTIPLE_BACKENDS"
+    flags: ""
   ecdsa-psa-cc:
     dir_path: "../ecdsa_periph"
     config: "../ecdsa_periph/app.config.test"
@@ -117,7 +117,7 @@ groups:
   #     hatch: "\\"
 
 
-  ? "PSA Crypto Glue Code"
+  ? "Glue Code"
   :
     modules:
       - ["cpu", "nrf52", "periph", "aes_cbc"]
@@ -125,9 +125,12 @@ groups:
       - ["cpu", "nrf52", "periph", "psa_error"]
       - ["pkg", "cryptoauthlib", "psa_se_driver"]
       - ["sys", "crypto", "psa_riot_cipher"]
-      - ["sys", "nrf52", "periph", "ecc_common"]
-      - ["sys", "nrf52", "periph", "ecc_p256"]
-      - ["sys", "nrf52", "periph", "hmac"]
+      - ["sys", "hashes", "psa_riot_hashes"]
+      - ["cpu", "nrf52", "periph", "ecc_common"]
+      - ["cpu", "nrf52", "periph", "ecc_p256"]
+      - ["cpu", "nrf52", "periph", "hashes_common"]
+      - ["cpu", "nrf52", "periph", "hashes_sha256"]
+      - ["cpu", "nrf52", "periph", "hmac"]
 
     config:
       backend: False
@@ -135,7 +138,7 @@ groups:
       hatch: "X"
 
 
-  ? "PSA Crypto Dispatcher"
+  ? "Location/Algorithm Dispatcher"
   :
     modules:
       - ["sys", "psa_crypto", "psa_crypto_algorithm_dispatch"]
@@ -147,7 +150,7 @@ groups:
       hatch: "+"
 
 
-  ? "PSA Crypto Key Slot Management"
+  ? "Key Slot Management"
   :
     modules:
       - ["sys", "psa_crypto", "psa_key_slot_mgmt"]
@@ -158,7 +161,7 @@ groups:
       color: [0.7450980392156863, 0.7294117647058823, 0.8549019607843137]
       hatch: "\\"
 
-  ? "PSA Crypto SE Management"
+  ? "Secure Element Management"
   :
     modules:
       - ["sys", "psa_crypto", "psa_se_mgmt"]

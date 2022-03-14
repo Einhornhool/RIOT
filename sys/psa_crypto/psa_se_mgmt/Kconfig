@@ -19,9 +19,6 @@ config MODULE_PSA_SE_MGMT
 config PSA_SE_ATECCX08A
     bool "Microchip Cryptoauthlib Driver"
     select PACKAGE_CRYPTOAUTHLIB
-    select MODULE_PSA_SE_DRIVER
-    select PSA_SECURE_ELEMENT_ECC
-    select PSA_KEY_SIZE_256
 
 config PSA_MULTIPLE_SECURE_ELEMENTS
     bool "Use multiple secure elements"
@@ -31,9 +28,9 @@ config PSA_MAX_SE_COUNT
     default 2 if PSA_MULTIPLE_SECURE_ELEMENTS
     default 1
 
-config PSA_SECURE_ELEMENT_ECC
+config PSA_SECURE_ELEMENT_ASYMMETRIC
     bool
     help
-        Indicate that an ECC Curve Algorithm on a Secure Element is present
+        Indicate that an asymmetric operation is used
 
 endif # PSA_SECURE_ELEMENT

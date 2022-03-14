@@ -28,12 +28,16 @@ static void ecdsa_periph(void)
 {
     psa_key_id_t privkey_id;
     psa_key_attributes_t privkey_attr = psa_key_attributes_init();
+    psa_key_id_t pubkey_id;
+    psa_key_attributes_t pubkey_attr = psa_key_attributes_init();
 
     psa_key_usage_t usage = PSA_KEY_USAGE_SIGN_HASH | PSA_KEY_USAGE_VERIFY_HASH;
     psa_key_type_t type = PSA_KEY_TYPE_ECC_KEY_PAIR(PSA_ECC_FAMILY_SECP_R1);
     psa_algorithm_t alg =  PSA_ALG_ECDSA(PSA_ALG_SHA_256);
     psa_key_bits_t bits = ECC_KEY_SIZE;
 
+    uint8_t public_key[PSA_EXPORT_PUBLIC_KEY_OUTPUT_SIZE(PSA_KEY_TYPE_ECC_KEY_PAIR(PSA_ECC_FAMILY_SECP_R1), ECC_KEY_SIZE)] = { 0 };
+    size_t pubkey_length;
     uint8_t signature[PSA_SIGN_OUTPUT_SIZE(type, bits, alg)];
     size_t sig_length;
     uint8_t msg[ECDSA_MESSAGE_SIZE] = { 0x0b };
@@ -70,9 +74,28 @@ static void ecdsa_periph(void)
         return;
     }
 
+    status = psa_export_public_key(privkey_id, public_key, sizeof(public_key), &pubkey_length);
+    if (status != PSA_SUCCESS) {
+        printf("Secondary SE Export Public Key failed: %ld\n", status);
+        return;
+    }
+
     status = psa_hash_compute(PSA_ALG_SHA_256, msg, sizeof(msg), hash, sizeof(hash), &hash_length);
     if (status != PSA_SUCCESS) {
         printf("Hash Generation failed: %ld\n", status);
+        return;
+    }
+
+    uint8_t bytes = PSA_EXPORT_PUBLIC_KEY_OUTPUT_SIZE(PSA_KEY_TYPE_ECC_KEY_PAIR(PSA_ECC_FAMILY_SECP_R1), bits);
+
+    psa_set_key_algorithm(&pubkey_attr, alg);
+    psa_set_key_usage_flags(&pubkey_attr, PSA_KEY_USAGE_VERIFY_HASH);
+    psa_set_key_bits(&pubkey_attr, PSA_BYTES_TO_BITS(bytes));
+    psa_set_key_type(&pubkey_attr, PSA_KEY_TYPE_ECC_PUBLIC_KEY(PSA_ECC_FAMILY_SECP_R1));
+
+    status = psa_import_key(&pubkey_attr, public_key, pubkey_length, &pubkey_id);
+    if (status != PSA_SUCCESS) {
+        printf("PSA Import Public Key failed: %ld\n", status);
         return;
     }
 
@@ -82,13 +105,14 @@ static void ecdsa_periph(void)
         return;
     }
 
-    status = psa_verify_hash(privkey_id, alg, hash, sizeof(hash), signature, sig_length);
+    status = psa_verify_hash(pubkey_id, alg, hash, sizeof(hash), signature, sig_length);
     if (status != PSA_SUCCESS) {
         printf("Periph Verify hash failed: %ld\n", status);
         return;
     }
 #endif
     psa_destroy_key(privkey_id);
+    psa_destroy_key(pubkey_id);
 }
 
 int main(void)

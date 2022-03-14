@@ -751,29 +751,6 @@ psa_status_t psa_hash_compute(psa_algorithm_t alg,
 }
 
 /* Key Management */
-#if IS_ACTIVE(CONFIG_PSA_SECURE_ELEMENT)
-static psa_status_t psa_copy_key_material_into_slot(psa_key_slot_t *slot, const uint8_t *data, size_t data_length)
-{
-    if (data_length > PSA_MAX_KEY_DATA_SIZE) {
-        return PSA_ERROR_INVALID_ARGUMENT;
-    }
-
-    uint8_t * key_data = NULL;
-    size_t * key_bytes = NULL;
-    psa_get_key_data_from_key_slot(slot, &key_data, &key_bytes);
-
-    // if (PSA_KEY_TYPE_IS_ECC_PUBLIC_KEY(slot->attr.type)) {
-    //     memcpy(slot->key.pubkey_data, data, data_length);
-    // }
-    // else {
-    memcpy(key_data, data, data_length);
-    *key_bytes = data_length;
-    // }
-
-    return PSA_SUCCESS;
-}
-#endif
-
 static psa_status_t psa_validate_key_policy(const psa_key_policy_t *policy)
 {
     if ((policy->usage & ~( PSA_KEY_USAGE_EXPORT |
@@ -891,16 +868,12 @@ static psa_status_t psa_start_key_creation(psa_key_creation_method_t method, con
 #if IS_ACTIVE(CONFIG_PSA_SECURE_ELEMENT)
     /* Find a free slot on a secure element and store SE slot number in key_data */
     if (*p_drv != NULL) {
-        psa_key_slot_number_t slot_number;
-        status = psa_find_free_se_slot(attributes, method, *p_drv, &slot_number);
+        psa_key_slot_number_t * slot_number = psa_key_slot_get_slot_number(slot);
+        status = psa_find_free_se_slot(attributes, method, *p_drv, slot_number);
         if (status != PSA_SUCCESS) {
             return status;
         }
         /* TODO: Start transaction for persistent key storage */
-        status = psa_copy_key_material_into_slot(slot, (uint8_t*)(&slot_number), sizeof(psa_key_slot_number_t));
-        if (status != PSA_SUCCESS) {
-            return status;
-        }
     }
     if (*p_drv == NULL && method == PSA_KEY_CREATION_REGISTER) {
         return PSA_ERROR_INVALID_ARGUMENT;
@@ -979,7 +952,7 @@ psa_status_t psa_export_key(psa_key_id_t key,
     return PSA_ERROR_NOT_SUPPORTED;
 }
 
-#if IS_ACTIVE(CONFIG_PSA_ASYMMETRIC) || IS_ACTIVE(CONFIG_PSA_SECURE_ELEMENT_ECC)
+#if IS_ACTIVE(CONFIG_PSA_ASYMMETRIC) || IS_ACTIVE(CONFIG_PSA_SECURE_ELEMENT_ASYMMETRIC)
 static psa_status_t psa_builtin_export_public_key( const uint8_t *key_buffer,
                                             size_t key_buffer_size,
                                             uint8_t * data,

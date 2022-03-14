@@ -35,24 +35,20 @@ psa_status_t psa_location_dispatch_generate_key(const psa_key_attributes_t *attr
 #if IS_ACTIVE(CONFIG_PSA_SECURE_ELEMENT)
     const psa_drv_se_t *drv;
     psa_drv_se_context_t *drv_context;
-    uint8_t * key_data = NULL;
+    psa_key_slot_number_t * slot_number = psa_key_slot_get_slot_number(slot);
+
     uint8_t * pubkey_data = NULL;
-    size_t * key_bytes = NULL;
     size_t * pubkey_bytes = NULL;
 
-    psa_get_key_data_from_key_slot(slot, &key_data, &key_bytes);
     psa_get_public_key_data_from_key_slot(slot, &pubkey_data, &pubkey_bytes);
-
-    DEBUG("Key Bytes: %d, Pubkey Bytes: %d\n", *key_bytes, *pubkey_bytes);
 
     if (psa_get_se_driver(attributes->lifetime, &drv, &drv_context)) {
         if (drv->key_management == NULL || drv->key_management->p_generate == NULL) {
             return PSA_ERROR_NOT_SUPPORTED;
         }
 
-        return drv->key_management->p_generate(drv_context, *((psa_key_slot_number_t*) key_data), attributes, pubkey_data, *pubkey_bytes, pubkey_bytes);
+        return drv->key_management->p_generate(drv_context, *slot_number, attributes, pubkey_data, *pubkey_bytes, pubkey_bytes);
     }
-    (void) key_bytes;
 #endif /* CONFIG_PSA_SECURE_ELEMENT */
 
     return psa_algorithm_dispatch_generate_key(attributes, slot);
@@ -71,13 +67,15 @@ psa_status_t psa_location_dispatch_import_key( const psa_key_attributes_t *attri
 #if IS_ACTIVE(CONFIG_PSA_SECURE_ELEMENT)
     const psa_drv_se_t *drv;
     psa_drv_se_context_t *drv_context;
+    psa_key_slot_number_t * slot_number = psa_key_slot_get_slot_number(slot);
+
     if (psa_get_se_driver(attributes->lifetime, &drv, &drv_context)) {
         if (drv->key_management == NULL || drv->key_management->p_import == NULL) {
             return PSA_ERROR_NOT_SUPPORTED;
         }
         *bits = 0;
 
-        status = drv->key_management->p_import(drv_context, *((psa_key_slot_number_t*)key_data), attributes, data, data_length, bits);
+        status = drv->key_management->p_import(drv_context, *slot_number, attributes, data, data_length, bits);
         if (status != PSA_SUCCESS) {
             return status;
         }
@@ -108,6 +106,8 @@ psa_status_t psa_location_dispatch_cipher_encrypt_setup(   psa_cipher_operation_
         const psa_drv_se_t *drv;
         psa_drv_se_context_t *drv_context;
         psa_status_t status = PSA_ERROR_CORRUPTION_DETECTED;
+        psa_key_slot_number_t * slot_number = psa_key_slot_get_slot_number(slot);
+
         uint8_t * key_data = NULL;
         size_t * key_bytes = NULL;
         psa_get_key_data_from_key_slot(slot, &key_data, &key_bytes);
@@ -117,7 +117,7 @@ psa_status_t psa_location_dispatch_cipher_encrypt_setup(   psa_cipher_operation_
                 return PSA_ERROR_NOT_SUPPORTED;
             }
 
-            status = drv->cipher->p_setup(drv_context, &operation->ctx, *((psa_key_slot_number_t*) key_data), attributes->policy.alg, PSA_CRYPTO_DRIVER_ENCRYPT);
+            status = drv->cipher->p_setup(drv_context, &operation->ctx, *slot_number, attributes->policy.alg, PSA_CRYPTO_DRIVER_ENCRYPT);
             if (status != PSA_SUCCESS) {
                 return status;
             }
@@ -158,6 +158,8 @@ psa_status_t psa_location_dispatch_cipher_encrypt(  const psa_key_attributes_t *
     psa_status_t status = PSA_ERROR_CORRUPTION_DETECTED;
     const psa_drv_se_t *drv;
     psa_drv_se_context_t *drv_context;
+    psa_key_slot_number_t * slot_number = psa_key_slot_get_slot_number(slot);
+
     uint8_t * key_data = NULL;
     size_t * key_bytes = NULL;
     psa_get_key_data_from_key_slot(slot, &key_data, &key_bytes);
@@ -169,7 +171,7 @@ psa_status_t psa_location_dispatch_cipher_encrypt(  const psa_key_attributes_t *
         if (drv->cipher == NULL || drv->cipher->p_ecb == NULL) {
             return PSA_ERROR_NOT_SUPPORTED;
         }
-        status = drv->cipher->p_ecb(drv_context, *((psa_key_slot_number_t *) key_data), alg, PSA_CRYPTO_DRIVER_ENCRYPT, input, input_length, output, output_size);
+        status = drv->cipher->p_ecb(drv_context, *slot_number, alg, PSA_CRYPTO_DRIVER_ENCRYPT, input, input_length, output, output_size);
         if (status != PSA_SUCCESS) {
             return status;
         }
@@ -194,6 +196,8 @@ psa_status_t psa_location_dispatch_sign_hash(  const psa_key_attributes_t *attri
 #if IS_ACTIVE(CONFIG_PSA_SECURE_ELEMENT)
     const psa_drv_se_t *drv;
     psa_drv_se_context_t *drv_context;
+    psa_key_slot_number_t * slot_number = psa_key_slot_get_slot_number(slot);
+
     uint8_t * key_data = NULL;
     size_t * key_bytes = NULL;
     psa_get_key_data_from_key_slot(slot, &key_data, &key_bytes);
@@ -202,7 +206,7 @@ psa_status_t psa_location_dispatch_sign_hash(  const psa_key_attributes_t *attri
         if (drv->asymmetric == NULL || drv->asymmetric->p_sign == NULL) {
             return PSA_ERROR_NOT_SUPPORTED;
         }
-        return drv->asymmetric->p_sign(drv_context, *((psa_key_slot_number_t*)key_data), alg, hash, hash_length, signature, signature_size, signature_length);
+        return drv->asymmetric->p_sign(drv_context, *slot_number, alg, hash, hash_length, signature, signature_size, signature_length);
     }
 
     (void) key_bytes;
@@ -222,6 +226,8 @@ psa_status_t psa_location_dispatch_verify_hash(const psa_key_attributes_t *attri
 #if IS_ACTIVE(CONFIG_PSA_SECURE_ELEMENT)
     const psa_drv_se_t *drv;
     psa_drv_se_context_t *drv_context;
+    psa_key_slot_number_t * slot_number = psa_key_slot_get_slot_number(slot);
+
     uint8_t * key_data = NULL;
     size_t * key_bytes = NULL;
     psa_get_key_data_from_key_slot(slot, &key_data, &key_bytes);
@@ -230,7 +236,7 @@ psa_status_t psa_location_dispatch_verify_hash(const psa_key_attributes_t *attri
         if (drv->asymmetric == NULL || drv->asymmetric->p_verify == NULL) {
             return PSA_ERROR_NOT_SUPPORTED;
         }
-        return drv->asymmetric->p_verify(drv_context, *((psa_key_slot_number_t *)key_data), alg, hash, hash_length, signature, signature_length);
+        return drv->asymmetric->p_verify(drv_context, *slot_number, alg, hash, hash_length, signature, signature_length);
     }
 
     (void) key_bytes;
@@ -251,6 +257,8 @@ psa_status_t psa_location_dispatch_mac_compute(const psa_key_attributes_t *attri
 #if IS_ACTIVE(CONFIG_PSA_SECURE_ELEMENT)
     const psa_drv_se_t *drv;
     psa_drv_se_context_t *drv_context;
+    psa_key_slot_number_t * slot_number = psa_key_slot_get_slot_number(slot);
+
     uint8_t * key_data = NULL;
     size_t * key_bytes = NULL;
     psa_get_key_data_from_key_slot(slot, &key_data, &key_bytes);
@@ -260,7 +268,7 @@ psa_status_t psa_location_dispatch_mac_compute(const psa_key_attributes_t *attri
             return PSA_ERROR_NOT_SUPPORTED;
         }
         DEBUG("Mac Compute SE\n");
-        return drv->mac->p_mac(drv_context, input, input_length, *((psa_key_slot_number_t *)key_data), alg, mac, mac_size, mac_length);
+        return drv->mac->p_mac(drv_context, input, input_length, *slot_number, alg, mac, mac_size, mac_length);
     }
 
     (void) key_bytes;
