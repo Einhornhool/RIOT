@@ -83,16 +83,20 @@ static void cipher_aes_128(void)
         printf("Destroy Key failed: %ld\n", status);
         return;
     }
-    puts("AES 128 CBC Done");
 }
 
 
 int main(void)
 {
     _test_init();
-    for (int i = 0; i < 1; i++) {
+#if TEST_TIME
+    for (int i = 0; i < 100; i++) {
         cipher_aes_128();
     }
+#else
+    cipher_aes_128();
+#endif
 
+    puts("AES 128 CBC Done");
     return 0;
 }

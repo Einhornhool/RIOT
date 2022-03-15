@@ -84,9 +84,14 @@ int main(void)
 {
     _test_init();
 
+#if TEST_TIME
     for (int i = 0; i < 100; i++) {
         psa_hmac_sha256();
     }
+#else
+    psa_hmac_sha256();
+#endif
+
     puts("SE MAC Compute Done");
     return 0;
 }

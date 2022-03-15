@@ -35,6 +35,7 @@ static void ecdsa_periph(void)
     psa_key_type_t type = PSA_KEY_TYPE_ECC_KEY_PAIR(PSA_ECC_FAMILY_SECP_R1);
     psa_algorithm_t alg =  PSA_ALG_ECDSA(PSA_ALG_SHA_256);
     psa_key_bits_t bits = ECC_KEY_SIZE;
+    uint8_t bytes = PSA_EXPORT_PUBLIC_KEY_OUTPUT_SIZE(PSA_KEY_TYPE_ECC_KEY_PAIR(PSA_ECC_FAMILY_SECP_R1), bits);
 
     uint8_t public_key[PSA_EXPORT_PUBLIC_KEY_OUTPUT_SIZE(PSA_KEY_TYPE_ECC_KEY_PAIR(PSA_ECC_FAMILY_SECP_R1), ECC_KEY_SIZE)] = { 0 };
     size_t pubkey_length;
@@ -55,7 +56,20 @@ static void ecdsa_periph(void)
     gpio_set(external_gpio);
 
     gpio_clear(external_gpio);
+    psa_export_public_key(privkey_id, public_key, sizeof(public_key), &pubkey_length);
+    gpio_set(external_gpio);
+
+    gpio_clear(external_gpio);
     psa_hash_compute(PSA_ALG_SHA_256, msg, sizeof(msg), hash, sizeof(hash), &hash_length);
+    gpio_set(external_gpio);
+
+    psa_set_key_algorithm(&pubkey_attr, alg);
+    psa_set_key_usage_flags(&pubkey_attr, PSA_KEY_USAGE_VERIFY_HASH);
+    psa_set_key_bits(&pubkey_attr, PSA_BYTES_TO_BITS(bytes));
+    psa_set_key_type(&pubkey_attr, PSA_KEY_TYPE_ECC_PUBLIC_KEY(PSA_ECC_FAMILY_SECP_R1));
+
+    gpio_clear(external_gpio);
+    psa_import_key(&pubkey_attr, public_key, pubkey_length, &pubkey_id);
     gpio_set(external_gpio);
 
     gpio_clear(external_gpio);
@@ -85,8 +99,6 @@ static void ecdsa_periph(void)
         printf("Hash Generation failed: %ld\n", status);
         return;
     }
-
-    uint8_t bytes = PSA_EXPORT_PUBLIC_KEY_OUTPUT_SIZE(PSA_KEY_TYPE_ECC_KEY_PAIR(PSA_ECC_FAMILY_SECP_R1), bits);
 
     psa_set_key_algorithm(&pubkey_attr, alg);
     psa_set_key_usage_flags(&pubkey_attr, PSA_KEY_USAGE_VERIFY_HASH);
@@ -118,10 +130,14 @@ static void ecdsa_periph(void)
 int main(void)
 {
     _test_init();
-    for (int i = 0; i < 1; i++) {
+
+#if TEST_TIME
+    for (int i = 0; i < 100; i++) {
         ecdsa_periph();
     }
-
+#else
+    ecdsa_periph();
+#endif
     puts("ECDSA Periph Done");
     return 0;
 }

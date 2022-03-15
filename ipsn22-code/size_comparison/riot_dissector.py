@@ -322,8 +322,8 @@ def plot_for_board(results, export_path=None):
     axs['r_low'].set_ylim(y_min['ram'], -0.5)
 
     # set labels and legends
-    axs['flash'].set_ylabel('ROM [KiB]')
-    axs['ram'].set_ylabel('RAM [KiB]')
+    axs['flash'].set_ylabel('ROM [KiB]', y=0.35)
+    axs['ram'].set_ylabel('RAM [KiB]', y=0.35)
 
     # hide the spines between flash and f_low
     axs['flash'].spines.bottom.set_visible(False)

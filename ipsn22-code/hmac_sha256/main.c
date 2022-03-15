@@ -124,9 +124,13 @@ int main(void)
 {
     _test_init();
 
-    for (int i = 0; i < 1; i++) {
+#if TEST_TIME
+    for (int i = 0; i < 100; i++) {
         psa_hmac_sha256();
     }
+#else
+    psa_hmac_sha256();
+#endif
 
 #ifdef MULTIPLE_BACKENDS
     psa_hmac_sha256_se();
