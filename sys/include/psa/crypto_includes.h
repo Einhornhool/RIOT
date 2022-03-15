@@ -23,4 +23,8 @@
 #include "psa_tc_ctx.h"
 #endif
 
+#if IS_ACTIVE(CONFIG_PSA_SE_ATECCX08A)
+#include "atca.h"
+#endif
+
 #endif /* CRYPTO_INCLUDES_H */

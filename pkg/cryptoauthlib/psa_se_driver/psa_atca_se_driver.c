@@ -10,12 +10,14 @@
 extern gpio_t internal_gpio;
 #endif
 
-#define AES_ECB_128_BLOCK_SIZE  (16)
+#define AES_128_BLOCK_SIZE      (16)
 #define AES_128_KEY_SIZE        (16)
 #define ECC_P256_PUB_KEY_SIZE   (64)
+#define ATCA_MAX_IV_LEN         (16)
 
 #define ALG_IS_SUPPORTED(alg)   \
     (   (alg == PSA_ALG_ECB_NO_PADDING) || \
+        (alg == PSA_ALG_CBC_NO_PADDING) || \
         (alg == PSA_ALG_ECDSA(PSA_ALG_SHA_256)) || \
         (alg == PSA_ALG_HMAC(PSA_ALG_SHA_256)))
 
@@ -61,12 +63,15 @@ static psa_status_t atca_to_psa_error(ATCA_STATUS error)
 /* Secure Element Cipher Functions */
 
 psa_status_t atca_cipher_setup( psa_drv_se_context_t *drv_context,
-                                void *op_context,
+                                void * op_context,
                                 psa_key_slot_number_t key_slot,
                                 psa_algorithm_t algorithm,
                                 psa_encrypt_or_decrypt_t direction)
 {
+    ATCA_STATUS status;
     ATCADevice dev = (ATCADevice) drv_context->drv_data;
+    psa_atca_cipher_context_t * ctx = (psa_atca_cipher_context_t *) op_context;
+    atca_aes_cbc_ctx_t * aes_cbc = ctx->aes_ctx.aes_cbc;
 
     /* Only device type ATECC608 supports AES operations */
     if (dev->mIface.mIfaceCFG->devtype != ATECC608) {
@@ -74,13 +79,60 @@ psa_status_t atca_cipher_setup( psa_drv_se_context_t *drv_context,
     }
 
     /* This implementation is for demonstration and currently only supports AES ECB encryption */
-    if (algorithm != PSA_ALG_ECB_NO_PADDING || direction != PSA_CRYPTO_DRIVER_ENCRYPT) {
+    if (!ALG_IS_SUPPORTED(algorithm)) {
         return PSA_ERROR_NOT_SUPPORTED;
     }
 
-    /* Store key slot number in operation context for key access in cipher operations */
-    ((psa_cipher_context_t*) op_context)->se_key_slot = key_slot;
+    status = atcab_aes_cbc_init_ext(dev, aes_cbc, key_slot, 0, ctx->iv);
+    if (status != ATCA_SUCCESS) {
+        DEBUG("ATCA Error: %d\n", status);
+        return atca_to_psa_error(status);
+    }
 
+    ctx->direction = direction;
+
+    return PSA_SUCCESS;
+}
+
+psa_status_t atca_cipher_update(void *op_context,
+                                const uint8_t *p_input,
+                                size_t input_size,
+                                uint8_t *p_output,
+                                size_t output_size,
+                                size_t *p_output_length)
+{
+    psa_atca_cipher_context_t * ctx = (psa_atca_cipher_context_t *) op_context;
+    atca_aes_cbc_ctx_t * aes_cbc = &ctx->aes_ctx.aes_cbc;
+    ATCA_STATUS status;
+
+    for (size_t data_block = 0; data_block < (input_size / AES_128_BLOCK_SIZE); data_block++) {
+        if (ctx->direction == PSA_CRYPTO_DRIVER_ENCRYPT)
+            status = atcab_aes_cbc_encrypt_block(aes_cbc, p_input[data_block * AES_128_BLOCK_SIZE], p_output);
+        else {
+            status = atcab_aes_cbc_decrypt_block(aes_cbc, p_input[data_block * AES_128_BLOCK_SIZE], p_output);
+        }
+
+        if (status != ATCA_SUCCESS) {
+            DEBUG("ATCA Error: %d\n", status);
+            return atca_to_psa_error(status);
+        }
+    }
+
+    return PSA_SUCCESS;
+}
+
+psa_status_t atca_cipher_finish(void *op_context,
+                                uint8_t *p_output,
+                                size_t output_size,
+                                size_t *p_output_length)
+{
+    psa_atca_cipher_context_t * ctx = (psa_atca_cipher_context_t *) op_context;
+    atca_aes_cbc_ctx_t * aes_cbc = &ctx->aes_ctx.aes_cbc;
+
+    memcpy(p_output, ctx->iv, ATCA_MAX_IV_LEN);
+    memcpy(output + ATCA_MAX_IV_LEN, aes_cbc->ciphertext, output_size);
+
+    *p_output_length = output_size;
     return PSA_SUCCESS;
 }
 
@@ -105,7 +157,7 @@ psa_status_t atca_cipher_ecb(   psa_drv_se_context_t *drv_context,
         return PSA_ERROR_NOT_SUPPORTED;
     }
 
-    if (input_size % AES_ECB_128_BLOCK_SIZE != 0) {
+    if (input_size % AES_128_BLOCK_SIZE != 0) {
         return PSA_ERROR_INVALID_ARGUMENT;
     }
 
@@ -117,7 +169,7 @@ psa_status_t atca_cipher_ecb(   psa_drv_se_context_t *drv_context,
             return atca_to_psa_error(status);
         }
 
-        offset += AES_ECB_128_BLOCK_SIZE;
+        offset += AES_128_BLOCK_SIZE;
     } while (offset < input_size);
 
     (void) output_size;
@@ -406,8 +458,8 @@ static psa_drv_se_cipher_t atca_cipher = {
     .context_size = 0,
     .p_setup = atca_cipher_setup,
     .p_set_iv = NULL,
-    .p_update = NULL,
-    .p_finish = NULL,
+    .p_update = atca_cipher_update,
+    .p_finish = atca_cipher_finish,
     .p_abort = NULL,
     .p_ecb = atca_cipher_ecb
 };

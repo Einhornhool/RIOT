@@ -514,6 +514,7 @@ psa_status_t psa_cipher_generate_iv(psa_cipher_operation_t * operation,
         return status;
     }
 
+    operation->iv_set = 1;
     *iv_length = operation->default_iv_length;
 
     return status;

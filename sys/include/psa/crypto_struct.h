@@ -69,7 +69,12 @@ struct psa_cipher_operation_s
     uint8_t iv_set : 1;
     uint8_t default_iv_length;
     psa_algorithm_t alg;
-    psa_cipher_context_t ctx;
+    union context {
+        psa_cipher_context_t ctx;
+#if IS_ACTIVE(CONFIG_PSA_SE_ATECCX08A)
+        psa_atca_cipher_context_t atca_cipher_context;
+#endif
+    } ctx;
 };
 
 #define PSA_CIPHER_OPERATION_INIT {0}

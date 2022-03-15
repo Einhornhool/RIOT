@@ -46,9 +46,6 @@ typedef union {
 
 typedef union {
     unsigned dummy;
-#if IS_ACTIVE(CONFIG_PSA_SECURE_ELEMENT)
-    uint64_t se_key_slot;
-#endif
 #if IS_ACTIVE(CONFIG_PSA_CIPHER_AES_128)
     psa_cipher_aes_128_ctx_t aes_128;
 #endif
