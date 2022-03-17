@@ -347,12 +347,12 @@ psa_status_t psa_cipher_abort(psa_cipher_operation_t * operation)
 static psa_status_t psa_cipher_setup(   psa_cipher_operation_t * operation,
                                         psa_key_id_t key,
                                         psa_algorithm_t alg,
-                                        cipher_operation_t cipher_operation)
+                                        psa_encrypt_or_decrypt_t direction)
 {
     psa_status_t status = PSA_ERROR_CORRUPTION_DETECTED;
     psa_status_t unlock_status = PSA_ERROR_CORRUPTION_DETECTED;
     psa_key_slot_t *slot;
-    psa_key_usage_t usage = (   cipher_operation == PSA_CIPHER_ENCRYPT ?
+    psa_key_usage_t usage = (   direction == PSA_CRYPTO_DRIVER_ENCRYPT ?
                                 PSA_KEY_USAGE_ENCRYPT :
                                 PSA_KEY_USAGE_DECRYPT );
 
@@ -382,10 +382,10 @@ static psa_status_t psa_cipher_setup(   psa_cipher_operation_t * operation,
 
     psa_key_attributes_t attr = slot->attr;
 
-    if (cipher_operation == PSA_CIPHER_ENCRYPT) {
+    if (direction == PSA_CRYPTO_DRIVER_ENCRYPT) {
         status = psa_location_dispatch_cipher_encrypt_setup(operation, &attr, slot, alg);
     }
-    else if (cipher_operation == PSA_CIPHER_DECRYPT) {
+    else if (direction == PSA_CRYPTO_DRIVER_DECRYPT) {
         status = psa_location_dispatch_cipher_decrypt_setup(operation, &attr, slot, alg);
     }
 
@@ -397,6 +397,58 @@ static psa_status_t psa_cipher_setup(   psa_cipher_operation_t * operation,
     return ((status == PSA_SUCCESS) ? unlock_status : status);
 }
 
+static psa_status_t psa_cipher_encrypt_decrypt( psa_key_id_t key,
+                                                psa_algorithm_t alg,
+                                                const uint8_t * input,
+                                                size_t input_length,
+                                                uint8_t * output,
+                                                size_t output_size,
+                                                size_t * output_length,
+                                                psa_encrypt_or_decrypt_t direction)
+{
+    psa_status_t status = PSA_ERROR_CORRUPTION_DETECTED;
+    psa_status_t unlock_status = PSA_ERROR_CORRUPTION_DETECTED;
+    psa_key_slot_t *slot;
+
+    psa_key_usage_t usage = (   direction == PSA_CRYPTO_DRIVER_ENCRYPT ?
+                                PSA_KEY_USAGE_ENCRYPT :
+                                PSA_KEY_USAGE_DECRYPT );
+
+    if (!lib_initialized) {
+        return PSA_ERROR_BAD_STATE;
+    }
+
+    if (!PSA_ALG_IS_CIPHER(alg)) {
+        return PSA_ERROR_INVALID_ARGUMENT;
+    }
+
+    status = psa_get_and_lock_key_slot_with_policy(key, &slot, usage, alg);
+    if (status != PSA_SUCCESS) {
+        unlock_status = psa_unlock_key_slot(slot);
+        if (unlock_status != PSA_SUCCESS) {
+            status = unlock_status;
+        }
+        return status;
+    }
+
+    if  (((alg == PSA_ALG_CBC_NO_PADDING) || (alg == PSA_ALG_ECB_NO_PADDING)) &&
+        (output_size % PSA_BLOCK_CIPHER_BLOCK_LENGTH(slot->attr.type))) {
+        return PSA_ERROR_INVALID_ARGUMENT;
+    }
+
+    if (direction == PSA_CRYPTO_DRIVER_ENCRYPT) {
+        status = psa_location_dispatch_cipher_encrypt(&slot->attr, alg, slot, input, input_length, output, output_size, output_length);
+    }
+    else {
+        status = psa_location_dispatch_cipher_decrypt(&slot->attr, alg, slot, input, input_length, output, output_size, output_length);
+    }
+
+
+    unlock_status = psa_unlock_key_slot(slot);
+    return ((status == PSA_SUCCESS) ? unlock_status : status);
+    return PSA_ERROR_NOT_SUPPORTED;
+}
+
 psa_status_t psa_cipher_decrypt(psa_key_id_t key,
                                 psa_algorithm_t alg,
                                 const uint8_t * input,
@@ -405,21 +457,14 @@ psa_status_t psa_cipher_decrypt(psa_key_id_t key,
                                 size_t output_size,
                                 size_t * output_length)
 {
-    (void) key;
-    (void) alg;
-    (void) input;
-    (void) input_length;
-    (void) output;
-    (void) output_size;
-    (void) output_length;
-    return PSA_ERROR_NOT_SUPPORTED;
+    return psa_cipher_encrypt_decrypt(key, alg, input, input_length, output, output_size, output_length, PSA_CRYPTO_DRIVER_DECRYPT);
 }
 
 psa_status_t psa_cipher_decrypt_setup(psa_cipher_operation_t * operation,
                                       psa_key_id_t key,
                                       psa_algorithm_t alg)
 {
-    return psa_cipher_setup(operation, key, alg, PSA_CIPHER_DECRYPT);
+    return psa_cipher_setup(operation, key, alg, PSA_CRYPTO_DRIVER_DECRYPT);
 }
 
 psa_status_t psa_cipher_encrypt(psa_key_id_t key,
@@ -430,49 +475,14 @@ psa_status_t psa_cipher_encrypt(psa_key_id_t key,
                                 size_t output_size,
                                 size_t * output_length)
 {
-    psa_status_t status = PSA_ERROR_CORRUPTION_DETECTED;
-#if TEST_TIME
-    gpio_set(internal_gpio);
-    psa_key_attributes_t attr = psa_key_attributes_init();
-    gpio_clear(internal_gpio);
-#else
-    psa_key_attributes_t attr = psa_key_attributes_init();
-#endif
-    psa_status_t unlock_status = PSA_ERROR_CORRUPTION_DETECTED;
-    psa_key_slot_t *slot;
-
-    if (!lib_initialized) {
-        return PSA_ERROR_BAD_STATE;
-    }
-
-    if (!PSA_ALG_IS_CIPHER(alg)) {
-        return PSA_ERROR_INVALID_ARGUMENT;
-    }
-
-    status = psa_get_key_attributes(key, &attr);
-    if (status != PSA_SUCCESS) {
-        return PSA_ERROR_INVALID_HANDLE;
-    }
-    status = psa_get_and_lock_key_slot_with_policy(key, &slot, attr.policy.usage, alg);
-    if (status != PSA_SUCCESS) {
-        unlock_status = psa_unlock_key_slot(slot);
-        if (unlock_status != PSA_SUCCESS) {
-            status = unlock_status;
-        }
-        return status;
-    }
-
-    status = psa_location_dispatch_cipher_encrypt(&slot->attr, alg, slot, input, input_length, output, output_size, output_length);
-
-    unlock_status = psa_unlock_key_slot(slot);
-    return ((status == PSA_SUCCESS) ? unlock_status : status);
+    return psa_cipher_encrypt_decrypt(key, alg, input, input_length, output, output_size, output_length, PSA_CRYPTO_DRIVER_ENCRYPT);
 }
 
 psa_status_t psa_cipher_encrypt_setup(psa_cipher_operation_t * operation,
                                       psa_key_id_t key,
                                       psa_algorithm_t alg)
 {
-    return psa_cipher_setup(operation, key, alg, PSA_CIPHER_ENCRYPT);
+    return psa_cipher_setup(operation, key, alg, PSA_CRYPTO_DRIVER_ENCRYPT);
 }
 
 psa_status_t psa_cipher_finish(psa_cipher_operation_t * operation,

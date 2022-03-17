@@ -45,14 +45,14 @@ psa_status_t psa_cipher_cbc_aes_128_encrypt(const psa_key_attributes_t *attribut
     }
 
     gpio_set(internal_gpio);
-    status = common_aes_setup((SaSiAesUserContext_t *) &operation.ctx.aes_128, SASI_AES_ENCRYPT, SASI_AES_MODE_CBC, padding, output, key_buffer, key_buffer_size);
+    status = common_aes_setup((SaSiAesUserContext_t *) &operation.ctx.c_ctx.aes_128, SASI_AES_ENCRYPT, SASI_AES_MODE_CBC, padding, output, key_buffer, key_buffer_size);
     gpio_clear(internal_gpio);
     if (status != PSA_SUCCESS) {
         return status;
     }
 
     gpio_set(internal_gpio);
-    status = common_aes_encrypt((SaSiAesUserContext_t *) &operation.ctx.aes_128, input, input_length, output + operation.default_iv_length, output_size, output_length);
+    status = common_aes_encrypt((SaSiAesUserContext_t *) &operation.ctx.c_ctx.aes_128, input, input_length, output + operation.default_iv_length, output_size, output_length);
     gpio_clear(internal_gpio);
     if (status != PSA_SUCCESS) {
         return status;
@@ -89,12 +89,12 @@ psa_status_t psa_cipher_cbc_aes_128_encrypt(const psa_key_attributes_t *attribut
         return status;
     }
 
-    status = common_aes_setup((SaSiAesUserContext_t *) &operation.ctx.aes_128, SASI_AES_ENCRYPT, SASI_AES_MODE_CBC, padding, output, key_buffer, key_buffer_size);
+    status = common_aes_setup((SaSiAesUserContext_t *) &operation.ctx.c_ctx.aes_128, SASI_AES_ENCRYPT, SASI_AES_MODE_CBC, padding, output, key_buffer, key_buffer_size);
     if (status != PSA_SUCCESS) {
         return status;
     }
 
-    status = common_aes_encrypt((SaSiAesUserContext_t *) &operation.ctx.aes_128, input, input_length, output + operation.default_iv_length, output_size, output_length);
+    status = common_aes_encrypt((SaSiAesUserContext_t *) &operation.ctx.c_ctx.aes_128, input, input_length, output + operation.default_iv_length, output_size, output_length);
     if (status != PSA_SUCCESS) {
         return status;
     }

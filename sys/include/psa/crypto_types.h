@@ -23,10 +23,12 @@
 
 #include <stdint.h>
 
+/** For encrypt-decrypt functions, whether the operation is an encryption
+ * or a decryption. */
 typedef enum {
-    PSA_CIPHER_ENCRYPT,
-    PSA_CIPHER_DECRYPT
-} cipher_operation_t;
+    PSA_CRYPTO_DRIVER_DECRYPT,
+    PSA_CRYPTO_DRIVER_ENCRYPT
+} psa_encrypt_or_decrypt_t;
 
 /* These are all temporarily defined as some numeric type to prevent errors at compile time.*/
 

@@ -70,6 +70,167 @@
 /** Maximum size of a MAC. */
 #define PSA_MAC_MAX_SIZE (PSA_HASH_MAX_SIZE)
 
+/**
+ * @brief The block size of a block cipher.
+ *
+ * @note    It is possible to build stream cipher algorithms on top of a block cipher,
+ *          for example CTR mode (PSA_ALG_CTR). This macro only takes the key type into account,
+ *          so it cannot be used to determine the size of the data that psa_cipher_update() might
+ *          buffer for future processing in general.
+ *
+ * @note This macro expression is a compile-time constant if type is a compile-time constant.
+ *
+ * @warning This macro is permitted to evaluate its argument multiple times.
+ *
+ * @param type  A cipher key type (value of type #psa_key_type_t).
+ *
+ * @return      The block size for a block cipher, or 1 for a stream cipher.
+ *              The return value is undefined if type is not a supported
+ *              cipher key type.
+ *
+ */
+#define PSA_BLOCK_CIPHER_BLOCK_LENGTH(type)                                     \
+    (1u << (((type) >> 8) & 7))
+
+#define PSA_BLOCK_CIPHER_BLOCK_MAX_SIZE /* implementation-defined value */
+#define PSA_CIPHER_DECRYPT_OUTPUT_MAX_SIZE(input_length) \
+/* implementation-defined value */
+
+/**
+ * @brief   The maximum size of the output of psa_cipher_decrypt(), in bytes.
+ *
+ *          If the size of the output buffer is at least this large, it is guaranteed
+ *          that psa_cipher_decrypt() will not fail due to an insufficient buffer size.
+ *          Depending on the algorithm, the actual size of the output might be smaller.
+ *
+ *          See also PSA_CIPHER_DECRYPT_OUTPUT_MAX_SIZE.
+ *
+ * @param key_type A symmetric key type that is compatible with algorithm alg.
+ * @param alg A cipher algorithm (PSA_ALG_XXX value such that PSA_ALG_IS_CIPHER(alg) is true).
+ * @param input_length Size of the input in bytes.
+ *
+ * @return  A sufficient output size for the specified key type and algorithm. If the key
+ *          type or cipher algorithm is not recognized, or the parameters are incompatible,
+ *          return 0. An implementation can return either 0 or a correct size for a key type
+ *          and cipher algorithm that it recognizes, but does not support.
+ */
+#define PSA_CIPHER_DECRYPT_OUTPUT_SIZE(key_type, alg, input_length) \
+    ((PSA_BLOCK_CIPHER_BLOCK_LENGTH(key_type) > 1) ? \
+        (input_length + (input_length % PSA_BLOCK_CIPHER_BLOCK_LENGTH(key_type))) : \
+        input_length)
+
+/**
+ * @brief   A sufficient output buffer size for psa_cipher_encrypt(), for any of the supported
+ *          key types and cipher algorithms.
+ *
+ *          If the size of the output buffer is at least this large, it is guaranteed that
+ *          psa_cipher_encrypt() will not fail due to an insufficient buffer size.
+ *
+ *          See also PSA_CIPHER_ENCRYPT_OUTPUT_SIZE().
+ *
+ * @param input_length Size of the input in bytes.
+ */
+#define PSA_CIPHER_ENCRYPT_OUTPUT_MAX_SIZE(input_length) \
+/* implementation-defined value */
+
+/**
+ * @brief   The maximum size of the output of psa_cipher_encrypt(), in bytes.
+ *
+ *          If the size of the output buffer is at least this large, it is guaranteed
+ *          that psa_cipher_encrypt() will not fail due to an insufficient buffer size.
+ *          Depending on the algorithm, the actual size of the output might be smaller.
+ *
+ *          See also PSA_CIPHER_ENCRYPT_OUTPUT_MAX_SIZE.
+ *
+ * @param key_type A symmetric key type that is compatible with algorithm alg.
+ * @param alg A cipher algorithm (PSA_ALG_XXX value such that PSA_ALG_IS_CIPHER(alg) is true).
+ * @param input_length Size of the input in bytes.
+ *
+ * @return  A sufficient output size for the specified key type and algorithm. If the key
+ *          type or cipher algorithm is not recognized, or the parameters are incompatible,
+ *          return 0. An implementation can return either 0 or a correct size for a key type
+ *          and cipher algorithm that it recognizes, but does not support.
+ *
+ */
+#define PSA_CIPHER_ENCRYPT_OUTPUT_SIZE(key_type, alg, input_length) \
+        (input_length + PSA_CIPHER_IV_LENGTH(key_type, alg))
+
+#define PSA_CIPHER_FINISH_OUTPUT_MAX_SIZE /* implementation-defined value */
+#define PSA_CIPHER_FINISH_OUTPUT_SIZE(key_type, alg) \
+/* implementation-defined value */
+
+/**
+ * @brief The default IV size for a cipher algorithm, in bytes.
+ *
+ * The IV that is generated as part of a call to #psa_cipher_encrypt() is always
+ * the default IV length for the algorithm.
+ *
+ * This macro can be used to allocate a buffer of sufficient size to
+ * store the IV output from #psa_cipher_generate_iv() when using
+ * a multi-part cipher operation.
+ *
+ * See also #PSA_CIPHER_IV_MAX_SIZE.
+ *
+ * @warning This macro may evaluate its arguments multiple times or
+ *          zero times, so you should not pass arguments that contain
+ *          side effects.
+ *
+ * @param key_type  A symmetric key type that is compatible with algorithm alg.
+ *
+ * @param alg       A cipher algorithm (PSA_ALG_XXX value such that #PSA_ALG_IS_CIPHER(alg) is true)
+ *
+ * @return The default IV size for the specified key type and algorithm.
+ *         0, if the algorithm does not use an IV, if key type or cipher
+ *         algorithm are not recognized or if the parameters are not compatible.
+ *
+ */
+#define PSA_CIPHER_IV_LENGTH(key_type, alg) \
+        (PSA_BLOCK_CIPHER_BLOCK_LENGTH(key_type) > 1 && \
+            ((alg) == PSA_ALG_CBC_NO_PADDING) ? 16 : 0)
+
+/**
+ * @brief The maximum IV size for all supported cipher algorithms, in bytes.
+ */
+#define PSA_CIPHER_IV_MAX_SIZE /* implementation-defined value */
+
+/**
+ * @brief   A sufficient output buffer size for psa_cipher_update(),
+ *          for any of the supported key types and cipher algorithms.
+ *
+ *          If the size of the output buffer is at least this large,
+ *          it is guaranteed that psa_cipher_update() will not fail
+ *          due to an insufficient buffer size.
+ *
+ *          See also PSA_CIPHER_UPDATE_OUTPUT_SIZE().
+ *
+ * @param input_length  Size of the input in bytes.
+ */
+#define PSA_CIPHER_UPDATE_OUTPUT_MAX_SIZE(input_length) \
+/* implementation-defined value */
+
+/**
+ * @brief   A sufficient output buffer size for psa_cipher_update().
+ *
+ *          If the size of the output buffer is at least this large,
+ *          it is guaranteed that psa_cipher_update() will not fail
+ *          due to an insufficient buffer size. The actual size of the
+ *          output might be smaller in any given call.
+ *
+ *          See also PSA_CIPHER_UPDATE_OUTPUT_MAX_SIZE.
+ *
+ * @param key_type A symmetric key type that is compatible with algorithm alg.
+ * @param alg A cipher algorithm (PSA_ALG_XXX value such that PSA_ALG_IS_CIPHER(alg) is true).
+ * @param input_length Size of the input in bytes.
+ *
+ * @return  A sufficient output size for the specified key type and algorithm.
+ *          If the key type or cipher algorithm is not recognized, or the parameters
+ *          are incompatible, return 0. An implementation can return either 0 or a
+ *          correct size for a key type and cipher algorithm that it recognizes,
+ *          but does not support.
+ */
+#define PSA_CIPHER_UPDATE_OUTPUT_SIZE(key_type, alg, input_length) \
+/* implementation-defined value */
+
 #define PSA_ECC_KEY_SIZE_IS_VALID(bits)     \
         (   bits == 128 || \
             bits == 192 || \

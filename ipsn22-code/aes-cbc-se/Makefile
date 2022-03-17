@@ -1,0 +1,19 @@
+# This has to be the absolute path to the RIOT base directory:
+RIOTBASE ?= $(CURDIR)/../..
+
+APPLICATION = aes-cbc-se
+
+# CFLAGS += -DTHREAD_STACKSIZE_MAIN=\(200*THREAD_STACKSIZE_DEFAULT\)
+
+ifeq (1, $(SOFTWARE))
+	KCONFIG_ADD_CONFIG += $(APPDIR)/app.config.test.software
+endif
+
+ifeq (1, $(TEST_TIME))
+	CFLAGS += -DTEST_TIME
+endif
+
+export TEST_KCONFIG ?= 1
+DEVELHELP ?= 1
+
+include $(RIOTBASE)/Makefile.include

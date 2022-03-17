@@ -24,6 +24,7 @@
 #endif
 
 #if IS_ACTIVE(CONFIG_PSA_SE_ATECCX08A)
+#include "atca_params.h"
 #include "atca.h"
 #endif
 

@@ -864,6 +864,8 @@ psa_status_t psa_asymmetric_decrypt(psa_key_id_t key,
                                     size_t * output_length);
 
 psa_status_t psa_cipher_abort(psa_cipher_operation_t * operation);
+
+
 psa_status_t psa_cipher_decrypt(psa_key_id_t key,
                                 psa_algorithm_t alg,
                                 const uint8_t * input,

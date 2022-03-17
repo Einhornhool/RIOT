@@ -9,13 +9,6 @@
 
 #define PSA_MAX_PERSISTENT_DATA_SIZE    (16)
 
-/** For encrypt-decrypt functions, whether the operation is an encryption
- * or a decryption. */
-typedef enum {
-    PSA_CRYPTO_DRIVER_DECRYPT,
-    PSA_CRYPTO_DRIVER_ENCRYPT
-} psa_encrypt_or_decrypt_t;
-
 typedef struct
 {
     const uint8_t persistent_data[PSA_MAX_PERSISTENT_DATA_SIZE];

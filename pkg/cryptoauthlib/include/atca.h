@@ -22,6 +22,7 @@
 
 #include "periph/i2c.h"
 #include "cryptoauthlib.h"
+#include "psa/crypto_types.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -42,7 +43,7 @@ extern "C" {
 typedef struct {
     uint8_t iv[16];
     psa_encrypt_or_decrypt_t direction;
-    union context {
+    union atca_context {
         atca_aes_cbc_ctx_t aes_cbc;
     } aes_ctx;
 } psa_atca_cipher_context_t;

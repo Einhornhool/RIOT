@@ -123,7 +123,7 @@ psa_status_t psa_cipher_cbc_aes_128_encrypt(const psa_key_attributes_t *attribut
         return status;
     }
 
-    status = cbc_aes_common(&operation.ctx.aes_128, key_buffer, key_buffer_size, output, input, input_length, output + operation.default_iv_length, output_length);
+    status = cbc_aes_common(&operation.ctx.c_ctx.aes_128, key_buffer, key_buffer_size, output, input, input_length, output + operation.default_iv_length, output_length);
 
     (void) output_size;
     return status;
