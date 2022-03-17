@@ -22,9 +22,14 @@ static psa_status_t cipher_to_psa_error(int error)
 }
 
 #if TEST_TIME
-static psa_status_t cbc_aes_common( cipher_t * ctx, const uint8_t * key_buffer, size_t key_buffer_size,
-                                uint8_t * iv, const uint8_t * input, size_t input_length,
-                                uint8_t * output, size_t * output_length)
+static psa_status_t cbc_aes_common( cipher_t * ctx,
+                                    const uint8_t * key_buffer,
+                                    size_t key_buffer_size,
+                                    uint8_t * iv,
+                                    const uint8_t * input,
+                                    size_t input_length,
+                                    uint8_t * output,
+                                    size_t * output_length)
 {
     int ret = 0;
     gpio_set(internal_gpio);
@@ -43,9 +48,14 @@ static psa_status_t cbc_aes_common( cipher_t * ctx, const uint8_t * key_buffer, 
     return PSA_SUCCESS;
 }
 #else
-static psa_status_t cbc_aes_common( cipher_t * ctx, const uint8_t * key_buffer, size_t key_buffer_size,
-                                uint8_t * iv, const uint8_t * input, size_t input_length,
-                                uint8_t * output, size_t * output_length)
+static psa_status_t cbc_aes_common( cipher_t * ctx,
+                                    const uint8_t * key_buffer,
+                                    size_t key_buffer_size,
+                                    uint8_t * iv,
+                                    const uint8_t * input,
+                                    size_t input_length,
+                                    uint8_t * output,
+                                    size_t * output_length)
 {
     int ret = 0;
     ret = cipher_init(ctx, CIPHER_AES, key_buffer, key_buffer_size);
@@ -93,7 +103,7 @@ psa_status_t psa_cipher_cbc_aes_128_encrypt(const psa_key_attributes_t *attribut
         return status;
     }
 
-    status = cbc_aes_common(&operation.ctx.aes_128, key_buffer, key_buffer_size, output, input, input_length, output + operation.default_iv_length, output_length);
+    status = cbc_aes_common(&operation.backend_ctx.cipher_ctx.aes_128, key_buffer, key_buffer_size, output, input, input_length, output + operation.default_iv_length, output_length);
 
     (void) output_size;
     return status;
@@ -123,7 +133,7 @@ psa_status_t psa_cipher_cbc_aes_128_encrypt(const psa_key_attributes_t *attribut
         return status;
     }
 
-    status = cbc_aes_common(&operation.ctx.c_ctx.aes_128, key_buffer, key_buffer_size, output, input, input_length, output + operation.default_iv_length, output_length);
+    status = cbc_aes_common(&operation.backend_ctx.cipher_ctx.aes_128, key_buffer, key_buffer_size, output, input, input_length, output + operation.default_iv_length, output_length);
 
     (void) output_size;
     return status;
@@ -154,7 +164,7 @@ psa_status_t psa_cipher_cbc_aes_256_encrypt(const psa_key_attributes_t *attribut
     if (status != PSA_SUCCESS) {
         return status;
     }
-    status = cbc_aes_common(&operation.ctx.aes_256, key_buffer, key_buffer_size, output, input, input_length, output + operation.default_iv_length, output_length);
+    status = cbc_aes_common(&operation.backend_ctx.cipher_ctx.aes_256, key_buffer, key_buffer_size, output, input, input_length, output + operation.default_iv_length, output_length);
     (void) output_size;
     return status;
 }

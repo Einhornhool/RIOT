@@ -70,11 +70,11 @@ struct psa_cipher_operation_s
     uint8_t default_iv_length;
     psa_algorithm_t alg;
     union cipher_context {
-        psa_cipher_context_t c_ctx;
+        psa_cipher_context_t cipher_ctx;
 #if IS_ACTIVE(CONFIG_PSA_SE_ATECCX08A)
-        psa_atca_cipher_context_t atca_cipher_context;
+        psa_se_cipher_context_t se_ctx;
 #endif
-    } ctx;
+    } backend_ctx;
 };
 
 #define PSA_CIPHER_OPERATION_INIT {0}

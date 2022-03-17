@@ -117,7 +117,7 @@ psa_status_t psa_location_dispatch_cipher_encrypt_setup(   psa_cipher_operation_
                 return PSA_ERROR_NOT_SUPPORTED;
             }
 
-            status = drv->cipher->p_setup(drv_context, &operation->ctx, *slot_number, attributes->policy.alg, PSA_CRYPTO_DRIVER_ENCRYPT);
+            status = drv->cipher->p_setup(drv_context, &operation->backend_ctx.se_ctx, *slot_number, attributes->policy.alg, PSA_CRYPTO_DRIVER_ENCRYPT);
             if (status != PSA_SUCCESS) {
                 return status;
             }
@@ -145,7 +145,6 @@ psa_status_t psa_location_dispatch_cipher_decrypt_setup(psa_cipher_operation_t *
 }
 
 #if IS_ACTIVE(CONFIG_PSA_SECURE_ELEMENT)
-
 static psa_status_t psa_se_cipher_encrypt_decrypt(  const psa_drv_se_t *drv,
                                             psa_drv_se_context_t *drv_context,
                                             const psa_key_attributes_t * attributes,
@@ -160,49 +159,57 @@ static psa_status_t psa_se_cipher_encrypt_decrypt(  const psa_drv_se_t *drv,
 {
     psa_status_t status;
     psa_cipher_operation_t operation = psa_cipher_operation_init();
-    psa_atca_cipher_context_t * ctx = &operation.ctx.atca_cipher_context;
-
-    const uint8_t * input_text = input;
-    size_t input_size = input_length;
-
-    size_t iv_length = 0;
+    psa_se_cipher_context_t * se_ctx = &operation.backend_ctx.se_ctx;
+    size_t input_offset = 0;
+    size_t output_offset = 0;
+    *output_length = 0;
 
     if (drv->cipher == NULL ||
         drv->cipher->p_setup == NULL ||
+        drv->cipher->p_set_iv == NULL ||
         drv->cipher->p_update == NULL ||
         drv->cipher->p_finish == NULL) {
         return PSA_ERROR_NOT_SUPPORTED;
     }
 
+    status = drv->cipher->p_setup(drv_context, se_ctx, slot, alg, direction);
+    if (status != PSA_SUCCESS) {
+        return status;
+    }
+
     if (alg == PSA_ALG_CBC_NO_PADDING) {
+        operation.iv_required = 1;
+        operation.default_iv_length = PSA_CIPHER_IV_LENGTH(psa_get_key_type(attributes), alg);
+
         if (direction == PSA_CRYPTO_DRIVER_ENCRYPT) {
-            operation.iv_required = 1;
-            operation.default_iv_length = PSA_CIPHER_IV_LENGTH(psa_get_key_type(attributes), alg);
+            /* In case of encryption, we need to generate and set an IV. The IV will be written into the first 16 bytes of the output buffer. */
+            size_t iv_length = 0;
+            status = psa_cipher_generate_iv(&operation, output, operation.default_iv_length, &iv_length);
 
-            status = psa_cipher_generate_iv(&operation, ctx->iv, operation.default_iv_length, &iv_length);
-
+            status = drv->cipher->p_set_iv(se_ctx, output, iv_length);
+            if (status != PSA_SUCCESS) {
+                return status;
+            }
+            /* Increase output buffer offset to IV length to write ciphertext to buffer after IV */
+            output_offset += iv_length;
+            *output_length += iv_length;
         }
         else {
-            operation.iv_required = 1;
-            operation.default_iv_length = PSA_CIPHER_IV_LENGTH(psa_get_key_type(attributes), alg);
-            memcpy(ctx->iv, input, operation.default_iv_length);
+            /* In case of decryption the IV to be used must be provided by the caller and is contained in the first 16 Bytes of the input buffer.  */
+            status = drv->cipher->p_set_iv(se_ctx, input, operation.default_iv_length);
 
-            input_text += operation.default_iv_length;
+            /* Increase input buffer offset to IV length to start decryption
+            with actual cipher text */
+            input_offset += operation.default_iv_length;
         }
     }
 
-    status = drv->cipher->p_setup(drv_context, ctx, slot, alg, direction);
+    status = drv->cipher->p_update(se_ctx, input + input_offset, input_length - input_offset, output + output_offset, output_size - output_offset, output_length);
     if (status != PSA_SUCCESS) {
         return status;
     }
 
-    status = drv->cipher->p_update(ctx, input_text, input_size, output, output_size, output_length);
-    if (status != PSA_SUCCESS) {
-        return status;
-    }
-
-
-    status = drv->cipher->p_finish(ctx, output, output_size, output_length);
+    status = drv->cipher->p_finish(se_ctx, output, output_size, output_length);
     if (status != PSA_SUCCESS) {
         return status;
     }
@@ -236,6 +243,9 @@ psa_status_t psa_location_dispatch_cipher_encrypt(  const psa_key_attributes_t *
                 return status;
             }
         }
+
+        /* The SE interface does not support single part functions for other algorithms than ECB,
+        so we need to build one ourselves */
         status = psa_se_cipher_encrypt_decrypt(drv, drv_context, attributes, alg, PSA_CRYPTO_DRIVER_ENCRYPT, *slot_number, input, input_length, output, output_size, output_length);
 
         return status;

@@ -93,7 +93,7 @@ static void cipher_aes_128(void)
     }
 
     if (memcmp(PLAINTEXT, plain, PLAINTEXT_LEN)) {
-        printf("Failure: Plaintext is incorrect\n");
+        printf("Failure: Plaintext is incorrect:\n");
         for (size_t i = 0; i < sizeof(plain); i++) {
             printf("0x%02x ", plain[i]);
         }

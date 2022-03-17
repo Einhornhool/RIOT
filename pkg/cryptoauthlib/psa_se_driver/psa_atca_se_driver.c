@@ -61,14 +61,14 @@ static psa_status_t atca_to_psa_error(ATCA_STATUS error)
 }
 
 /* Secure Element Cipher Functions */
-// static void atca_setup_cbc( atca_aes_cbc_ctx_t * ctx,
-//                             ATCADevice dev,
-//                             psa_key_slot_number_t key_slot)
-// {
-//     ctx->device = dev;
-//     ctx->key_id = key_slot;
-//     ctx->key_block = 0;
-// }
+static void atca_cbc_setup( atca_aes_cbc_ctx_t * ctx,
+                            ATCADevice dev,
+                            psa_key_slot_number_t key_slot)
+{
+    ctx->device = dev;
+    ctx->key_id = key_slot;
+    ctx->key_block = 0;
+}
 
 
 psa_status_t atca_cipher_setup( psa_drv_se_context_t *drv_context,
@@ -77,12 +77,8 @@ psa_status_t atca_cipher_setup( psa_drv_se_context_t *drv_context,
                                 psa_algorithm_t algorithm,
                                 psa_encrypt_or_decrypt_t direction)
 {
-    ATCA_STATUS status;
     ATCADevice dev = (ATCADevice) drv_context->drv_data;
-    // psa_cipher_operation_t * op = (psa_cipher_operation_t *) op_context;
-    // psa_atca_cipher_context_t * ctx = op->ctx.atca_cipher_context;
-    psa_atca_cipher_context_t * ctx = (psa_atca_cipher_context_t *) op_context;
-    atca_aes_cbc_ctx_t * aes_cbc = &ctx->aes_ctx.aes_cbc;
+    psa_se_cipher_context_t * ctx = (psa_se_cipher_context_t *) op_context;
 
     /* Only device type ATECC608 supports AES operations */
     if (dev->mIface.mIfaceCFG->devtype != ATECC608) {
@@ -94,19 +90,30 @@ psa_status_t atca_cipher_setup( psa_drv_se_context_t *drv_context,
         return PSA_ERROR_NOT_SUPPORTED;
     }
 
-    status = atcab_aes_cbc_init_ext(dev, aes_cbc, key_slot, 0, ctx->iv);
-    if (status != ATCA_SUCCESS) {
-        DEBUG("ATCA Error: %d\n", status);
-        return atca_to_psa_error(status);
+    switch(algorithm) {
+        case PSA_ALG_CBC_NO_PADDING:
+            atca_cbc_setup(&ctx->drv_ctx.atca_aes_cbc, dev, key_slot);
+            break;
+        default:
+            return PSA_ERROR_NOT_SUPPORTED;
+    }
+    ctx->direction = direction;
+
+    return PSA_SUCCESS;
+}
+
+psa_status_t atca_cipher_set_iv(void *op_context,
+                                const uint8_t *p_iv,
+                                size_t iv_length)
+{
+
+    atca_aes_cbc_ctx_t * ctx = &((psa_se_cipher_context_t *) op_context)->drv_ctx.atca_aes_cbc;
+
+    if (iv_length != ATCA_MAX_IV_LEN) {
+        return PSA_ERROR_INVALID_ARGUMENT;
     }
 
-    // switch(algorithm) {
-    //     case PSA_ALG_CBC_NO_PADDING:
-    //         atca_setup_cbc(ctx->)
-    // }
-
-
-    ctx->direction = direction;
+    memcpy(ctx->ciphertext, p_iv, iv_length);
 
     return PSA_SUCCESS;
 }
@@ -118,30 +125,30 @@ psa_status_t atca_cipher_update(void *op_context,
                                 size_t output_size,
                                 size_t *p_output_length)
 {
-    psa_atca_cipher_context_t * ctx = (psa_atca_cipher_context_t *) op_context;
-    atca_aes_cbc_ctx_t * aes_cbc = &ctx->aes_ctx.aes_cbc;
-    ATCA_STATUS status;
-
-    size_t offset = 0;
+    psa_se_cipher_context_t * ctx = (psa_se_cipher_context_t *) op_context;
+    ATCA_STATUS status = ATCA_EXECUTION_ERROR;
+    size_t input_offset = 0;
+    size_t output_offset = 0;
 
     for (size_t data_block = 0; data_block < (input_size / AES_128_BLOCK_SIZE); data_block++) {
-        offset += data_block * AES_128_BLOCK_SIZE;
+        output_offset += data_block * AES_128_BLOCK_SIZE;
+        input_offset += data_block * AES_128_BLOCK_SIZE;
         if (ctx->direction == PSA_CRYPTO_DRIVER_ENCRYPT){
-            status = atcab_aes_cbc_encrypt_block(aes_cbc, &p_input[data_block * AES_128_BLOCK_SIZE], p_output + offset + ATCA_MAX_IV_LEN);
+            status = atcab_aes_cbc_encrypt_block(&ctx->drv_ctx.atca_aes_cbc, p_input + input_offset, p_output + output_offset);
         }
         else {
-            status = atcab_aes_cbc_decrypt_block(aes_cbc, &p_input[data_block * AES_128_BLOCK_SIZE], p_output + offset);
-        }
-
-        if (status != ATCA_SUCCESS) {
-            DEBUG("ATCA Error: %d\n", status);
-            return atca_to_psa_error(status);
+            status = atcab_aes_cbc_decrypt_block(&ctx->drv_ctx.atca_aes_cbc, p_input + input_offset, p_output + output_offset);
         }
     }
 
-    (void) output_size;
-    (void) p_output_length;
+    if (status != ATCA_SUCCESS) {
+        DEBUG("ATCA Error: %d\n", status);
+        return atca_to_psa_error(status);
+    }
 
+    *p_output_length += input_size;
+
+    (void) output_size;
     return PSA_SUCCESS;
 }
 
@@ -150,17 +157,10 @@ psa_status_t atca_cipher_finish(void *op_context,
                                 size_t output_size,
                                 size_t *p_output_length)
 {
-    psa_atca_cipher_context_t * ctx = (psa_atca_cipher_context_t *) op_context;
-    // atca_aes_cbc_ctx_t * aes_cbc = &ctx->aes_ctx.aes_cbc;
-
-    if (ctx->direction == PSA_CRYPTO_DRIVER_ENCRYPT) {
-        memcpy(p_output, ctx->iv, ATCA_MAX_IV_LEN);
-        *p_output_length = output_size - ATCA_MAX_IV_LEN;
-    }
-    else {
-        *p_output_length = output_size;
-    }
-
+    (void) op_context;
+    (void) p_output;
+    (void) output_size;
+    (void) p_output_length;
     return PSA_SUCCESS;
 }
 
@@ -485,7 +485,7 @@ static psa_drv_se_mac_t atca_mac = {
 static psa_drv_se_cipher_t atca_cipher = {
     .context_size = 0,
     .p_setup = atca_cipher_setup,
-    .p_set_iv = NULL,
+    .p_set_iv = atca_cipher_set_iv,
     .p_update = atca_cipher_update,
     .p_finish = atca_cipher_finish,
     .p_abort = NULL,

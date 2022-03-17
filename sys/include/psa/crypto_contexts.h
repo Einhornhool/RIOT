@@ -57,4 +57,13 @@ typedef union {
 #endif
 } psa_cipher_context_t;
 
+typedef struct {
+    psa_encrypt_or_decrypt_t direction;
+    union driver_context {
+        unsigned dummy;
+    #if IS_ACTIVE(CONFIG_PSA_SE_ATECCX08A)
+        atca_aes_cbc_ctx_t atca_aes_cbc;
+    #endif
+    } drv_ctx;
+} psa_se_cipher_context_t;
 #endif /* CRYPTO_CONTEXT_H */

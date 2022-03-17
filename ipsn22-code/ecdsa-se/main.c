@@ -2,7 +2,6 @@
 #include <stdint.h>
 
 #include "psa/crypto.h"
-#include "atca_params.h"
 
 #if TEST_TIME
 #include "periph/gpio.h"
