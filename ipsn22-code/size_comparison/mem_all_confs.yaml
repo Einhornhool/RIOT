@@ -2,8 +2,8 @@
 meta:
   title: "PSA Memory Overhead"
   export: "comb-psa-mem.png"
-  ylim_rom: 7.5
-  ylim_ram: 7.5
+  ylim_rom: 8
+  ylim_ram: 0.8
   cols: 3
 
 boards:

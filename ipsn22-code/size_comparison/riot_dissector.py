@@ -68,8 +68,20 @@ LATEX_TEXT_WIDTH_PT = 505.89
 LATEX_FIG_HEIGHT_PT = 250
 LATEX_FIG_HEIGHT_PT_SMALL = 180
 
+def transparent_formater_ram(a, b):
+    if a == 0:
+        return 0
+    res = f"{a*-1:.1f}" if a < 0 else f"{a:.1f}"
+    return res
+
+def transparent_formater_r_low(a, b):
+    if a == 0:
+        return 0
+    res = f"{a*-1:.0f}"
+    return res
+
 def transparent_formater(a, b):
-    res = f"{a:.0f}"
+    res = f"{a*-1:.0f}" if a < 0 else f"{a:.0f}"
     return res
 
 def pt2inch(pt):
@@ -176,7 +188,7 @@ def plot_for_board(results, export_path=None):
     #                                        figsize=(pt2inch(3*LATEX_COLUM_WIDTH_PT),
     #                                                 pt2inch(5*LATEX_FIG_HEIGHT_PT)))
 
-    gs_kw = dict(width_ratios=[1, 1], height_ratios=[3, 1])
+    gs_kw = dict(width_ratios=[1, 1], height_ratios=[5, 1])
     # fig, [flash_ax, low, ram_ax] = plt.subplots(nrows=3, ncols=1, gridspec_kw={'height_ratios': [2, 1,2]}, figsize=(pt2inch(3*LATEX_COLUM_WIDTH_PT), pt2inch(3*LATEX_FIG_HEIGHT_PT)))
     fig, axes = plt.subplot_mosaic([['flash_ax', 'ram_ax'],
                                     ['f_low', 'r_low']], gridspec_kw=gs_kw, figsize=(pt2inch(3*LATEX_COLUM_WIDTH_PT), pt2inch(1.6*LATEX_FIG_HEIGHT_PT)), constrained_layout=True)
@@ -295,17 +307,17 @@ def plot_for_board(results, export_path=None):
     }
 
     # draw percentage of total size
-    for key, ax in axs.items():
-        if key != 'f_low' and key != 'r_low' and key != 'flash':
-            if key == 'flash':
-                percentage_offset = max_value[key] + 0.3
-            else:
-                percentage_offset = max_value[key] + 0.05
-            for i, run in enumerate(runs):
-                # value = f'{int(psa_acc[key][i]*1024)}\n ({round(accumulated_percentage[key][i], 1)} \%)'
-                value = f'{int(psa_acc[key][i]*1024)} B'
-                axs[key].text(run, psa_acc[key][i] + percentage_offset, value, ha='center',
-                            backgroundcolor='white', fontsize='small')
+    # for key, ax in axs.items():
+    #     if key != 'f_low' and key != 'r_low' and key != 'flash':
+    #         if key == 'flash':
+    #             percentage_offset = max_value[key] + 0.3
+    #         else:
+    #             percentage_offset = max_value[key] + 0.05
+    #         for i, run in enumerate(runs):
+    #             # value = f'{int(psa_acc[key][i]*1024)}\n ({round(accumulated_percentage[key][i], 1)} \%)'
+    #             value = f'{int(psa_acc[key][i]*1024)} B'
+    #             axs[key].text(run, psa_acc[key][i] + percentage_offset, value, ha='center',
+    #                         backgroundcolor='white', fontsize='small')
 
     # set the minimum to the base
     if get_plot_configuration('base/offset', False):
@@ -316,10 +328,10 @@ def plot_for_board(results, export_path=None):
     y_min['ram'] = np.min(np.subtract(backend_acc['ram'], 1))
 
     # set maximum and minimum values for Y axis
-    axs['flash'].set_ylim(-0.5, CONFIG['meta']['ylim_rom'])
-    axs['f_low'].set_ylim(y_min['flash'] - 1, -0.5)
-    axs['ram'].set_ylim(-0.5, CONFIG['meta']['ylim_ram'])
-    axs['r_low'].set_ylim(y_min['ram'], -0.5)
+    axs['flash'].set_ylim(-2.5, CONFIG['meta']['ylim_rom'])
+    axs['f_low'].set_ylim(y_min['flash'] - 1, -4)
+    axs['ram'].set_ylim(-0.25, CONFIG['meta']['ylim_ram'])
+    axs['r_low'].set_ylim(y_min['ram'], -2)
 
     # set labels and legends
     axs['flash'].set_ylabel('ROM [KiB]', y=0.35)
@@ -340,8 +352,8 @@ def plot_for_board(results, export_path=None):
     axs['r_low'].xaxis.tick_bottom()
 
     axs['flash'].yaxis.set_major_locator(MultipleLocator(2))
-    axs['f_low'].yaxis.set_major_locator(MultipleLocator(12))
-    axs['ram'].yaxis.set_major_locator(MultipleLocator(2))
+    axs['f_low'].yaxis.set_major_locator(MultipleLocator(24))
+    axs['ram'].yaxis.set_major_locator(MultipleLocator(0.2))
     axs['r_low'].yaxis.set_major_locator(MultipleLocator(6))
 
     # auto-locate minor tick
@@ -373,9 +385,14 @@ def plot_for_board(results, export_path=None):
     axs['r_low'].margins(x=0.08)
 
     # set a formatter to avoid serif tabels
-    for ax in axs.values():
-        ax.xaxis.set_major_formatter(FuncFormatter(transparent_formater))
-        ax.yaxis.set_major_formatter(FuncFormatter(transparent_formater))
+    for key in axs.keys():
+        if key == 'ram':
+            axs[key].yaxis.set_major_formatter(FuncFormatter(transparent_formater_ram))
+        elif key == 'r_low':
+            axs[key].yaxis.set_major_formatter(FuncFormatter(transparent_formater_r_low))
+        else:
+            axs[key].xaxis.set_major_formatter(FuncFormatter(transparent_formater))
+            axs[key].yaxis.set_major_formatter(FuncFormatter(transparent_formater))
 
     handles, labels = axs['flash'].get_legend_handles_labels()
 

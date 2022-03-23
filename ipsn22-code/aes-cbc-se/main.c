@@ -47,12 +47,8 @@ static void cipher_aes_128(void)
     psa_key_lifetime_t lifetime = PSA_KEY_LIFETIME_FROM_PERSISTENCE_AND_LOCATION(PSA_KEY_LIFETIME_VOLATILE, PSA_ATCA_LOCATION_DEV0);
 
     size_t encr_output_size = PSA_CIPHER_ENCRYPT_OUTPUT_SIZE(PSA_KEY_TYPE_AES, PSA_ALG_CBC_NO_PADDING, PLAINTEXT_LEN);
-    size_t decr_output_size = PSA_CIPHER_DECRYPT_OUTPUT_SIZE(PSA_KEY_TYPE_AES, PSA_ALG_CBC_NO_PADDING, PLAINTEXT_LEN);
-
     uint8_t ciphertext[encr_output_size];
-    uint8_t plain[decr_output_size];
     size_t cipher_len = 0;
-    size_t plain_len = 0;
 
     psa_set_key_lifetime(&attr, lifetime);
     psa_set_key_algorithm(&attr, PSA_ALG_CBC_NO_PADDING);
@@ -68,11 +64,12 @@ static void cipher_aes_128(void)
     gpio_clear(external_gpio);
     psa_cipher_encrypt(key_id, PSA_ALG_CBC_NO_PADDING, PLAINTEXT, PLAINTEXT_LEN, ciphertext, encr_output_size, &cipher_len);
     gpio_set(external_gpio);
-
-    gpio_clear(external_gpio);
-    status = psa_cipher_decrypt(key_id, PSA_ALG_CBC_NO_PADDING, ciphertext, cipher_len, plain, sizeof(plain), &plain_len);
-    gpio_set(external_gpio);
 #else
+
+    size_t decr_output_size = PSA_CIPHER_DECRYPT_OUTPUT_SIZE(PSA_KEY_TYPE_AES, PSA_ALG_CBC_NO_PADDING, PLAINTEXT_LEN);
+    uint8_t plain[decr_output_size];
+    size_t plain_len = 0;
+
     status = psa_import_key(&attr, KEY_128, AES_128_KEY_SIZE, &key_id);
     if (status != PSA_SUCCESS) {
         printf("AES 128 Key Import failed: %ld\n", status);
