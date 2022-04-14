@@ -262,8 +262,13 @@ psa_status_t atca_import (  psa_drv_se_context_t *drv_context,
     if (key_slot == ATCA_TEMPKEY_KEYID) {
         /* This implementation only uses the device's TEMPKEY Register for key import, which only accepts input sizes of 32 or 64 Bytes, so we copy a smaller key into a 32 Byte buffer that is padded with zeros */
         memcpy(buf_in, data, data_length);
+#if TEST_TIME
+        gpio_set(internal_gpio);
         status = calib_nonce_load(dev, NONCE_MODE_TARGET_TEMPKEY, buf_in, sizeof(buf_in));
-
+        gpio_clear(internal_gpio);
+#else
+        status = calib_nonce_load(dev, NONCE_MODE_TARGET_TEMPKEY, buf_in, sizeof(buf_in));
+#endif
         if (status != ATCA_SUCCESS) {
             DEBUG("ATCA Error: %d\n", status);
             return atca_to_psa_error(status);

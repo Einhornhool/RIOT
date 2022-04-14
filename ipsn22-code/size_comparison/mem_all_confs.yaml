@@ -1,7 +1,7 @@
 # configuration file for run.py
 meta:
   title: "PSA Memory Overhead"
-  export: "comb-psa-mem.png"
+  export: "comb-psa-mem.pdf"
   ylim_rom: 8
   ylim_ram: 0.8
   cols: 3
