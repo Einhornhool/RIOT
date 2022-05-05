@@ -80,16 +80,73 @@ static void psa_hmac_sha256(void)
     psa_destroy_key(key_id);
 }
 
+#if MULTIPLE_BACKENDS
+static void psa_hmac_sha256_sec_se(void)
+{
+    psa_key_attributes_t attr = psa_key_attributes_init();
+    psa_key_id_t key_id = 0;
+    psa_key_usage_t usage = PSA_KEY_USAGE_SIGN_MESSAGE;
+    psa_key_lifetime_t lifetime = PSA_KEY_LIFETIME_FROM_PERSISTENCE_AND_LOCATION(PSA_KEY_LIFETIME_VOLATILE, PSA_ATCA_LOCATION_DEV1);
+
+    size_t digest_size = PSA_MAC_LENGTH(PSA_KEY_TYPE_HMAC, HMAC_KEY_LEN, PSA_ALG_HMAC(PSA_ALG_SHA_256));
+    uint8_t digest[digest_size];
+    size_t output_len = 0;
+
+    psa_set_key_lifetime(&attr, lifetime);
+    psa_set_key_algorithm(&attr, PSA_ALG_HMAC(PSA_ALG_SHA_256));
+    psa_set_key_usage_flags(&attr, usage);
+    psa_set_key_bits(&attr, PSA_BYTES_TO_BITS(HMAC_KEY_LEN));
+    psa_set_key_type(&attr, PSA_KEY_TYPE_HMAC);
+
+#if TEST_TIME
+    gpio_clear(external_gpio);
+    psa_import_key(&attr, HMAC_KEY, HMAC_KEY_LEN, &key_id);
+    gpio_set(external_gpio);
+
+    gpio_clear(external_gpio);
+    psa_mac_compute(key_id, PSA_ALG_HMAC(PSA_ALG_SHA_256), HMAC_MSG, HMAC_MSG_LEN, digest, digest_size, &output_len);
+    gpio_set(external_gpio);
+#else
+    psa_status_t status = PSA_ERROR_DOES_NOT_EXIST;
+    status = psa_import_key(&attr, HMAC_KEY, HMAC_KEY_LEN, &key_id);
+    if (status != PSA_SUCCESS) {
+        printf("MAC Key Import failed: %ld\n", status);
+        return;
+    }
+
+    status = psa_mac_compute(key_id, PSA_ALG_HMAC(PSA_ALG_SHA_256), HMAC_MSG, HMAC_MSG_LEN, digest, digest_size, &output_len);
+    if (status != PSA_SUCCESS) {
+        printf("MAC Compute failed: %ld\n", status);
+        return;
+    }
+    puts("Secendary SE Success");
+#endif
+    psa_destroy_key(key_id);
+}
+#endif
+
 int main(void)
 {
     _test_init();
 
 #if TEST_TIME
-    for (int i = 0; i < 100; i++) {
+    for (int i = 0; i < 1000; i++) {
+#if MULTIPLE_BACKENDS
+        if (i % 2) {
+            psa_hmac_sha256();
+        }
+        else {
+            psa_hmac_sha256_sec_se();
+        }
+#else
         psa_hmac_sha256();
+#endif
     }
 #else
     psa_hmac_sha256();
+#if MULTIPLE_BACKENDS
+        psa_hmac_sha256_sec_se();
+#endif
 #endif
 
     puts("SE MAC Compute Done");

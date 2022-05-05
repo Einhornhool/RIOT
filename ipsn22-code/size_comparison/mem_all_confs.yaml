@@ -13,23 +13,13 @@ profiles:
   aes-cbc-psa-cc:
     dir_path: "../aes-cbc"
     config: "../aes-cbc/app.config.test"
-    label: "AES CryptoCell"
+    label: "AES\nCryptoCell"
     flags: ""
   aes-cbc-psa-riot:
     dir_path: "../aes-cbc"
     config: "../aes-cbc/app.config.test ../aes-cbc/app.config.test.software"
     label: "AES RIOT Cipher"
     flags: "-DSOFTWARE"
-  ecdsa-psa-se:
-    dir_path: "../ecdsa-se"
-    config: "../ecdsa-se/app.config.test"
-    label: "ECDSA ATECC608A"
-    flags: ""
-  ecdsa-psa-cc:
-    dir_path: "../ecdsa_periph"
-    config: "../ecdsa_periph/app.config.test"
-    label: "ECDSA CryptoCell"
-    flags: ""
   hmac-psa-se:
     dir_path: "../hmac_sha256_se"
     config: "../hmac_sha256_se/app.config.test"
@@ -39,6 +29,16 @@ profiles:
     dir_path: "../hmac_sha256"
     config: "../hmac_sha256/app.config.test"
     label: "HMAC SHA-256 CryptoCell"
+    flags: ""
+  ecdsa-psa-se:
+    dir_path: "../ecdsa-se"
+    config: "../ecdsa-se/app.config.test"
+    label: "ECDSA ATECC608A"
+    flags: ""
+  ecdsa-psa-cc:
+    dir_path: "../ecdsa_periph"
+    config: "../ecdsa_periph/app.config.test"
+    label: "ECDSA CryptoCell"
     flags: ""
   all-backends:
     dir_path: "../backend-combination"
@@ -66,56 +66,6 @@ groups:
       backend: True
       color: [0.8509803921568627, 0.8509803921568627, 0.8509803921568627]
       hatch: ""
-
-
-  # ? "CryptoCell Library"
-  # :
-  #   modules:
-  #     - ["cpu", "nrf52", "periph", "cryptocell_setup"]
-  #     - ["cpu", "nrf52", "periph", "cryptocell_util"]
-  #     - ["cpu", "nrf52", "cryptocell_lib"]
-
-  #   config:
-  #     backend: True
-  #     color: [0.8509803921568627, 0.8509803921568627, 0.8509803921568627]
-  #     hatch: "."
-
-  # ? "Cryptoauth Library"
-  # :
-  #   modules:
-  #     - ["pkg", "cryptoauthlib", "contrib"]
-  #     - ["sys", "auto_init", "auto_init_security", "auto_init_atca"]
-  #     - ["pkg", "cryptoauthlib"]
-  #     - ["~", "pkg", "cryptoauthlib", "psa_se_driver"]
-
-  #   config:
-  #     backend: True
-  #     color: [0.8509803921568627, 0.8509803921568627, 0.8509803921568627]
-  #     hatch: "\\"
-
-
-  # ? "RIOT Cipher Module"
-  # :
-  #   modules:
-  #     - ["sys", "crypto"]
-  #     - ["~", "sys", "crypto", "psa_riot_cipher"]
-
-  #   config:
-  #     backend: True
-  #     color: [0.7411764705882353, 0.7411764705882353, 0.7411764705882353]
-  #     hatch: "-"
-
-  # ? "RIOT Random"
-  # :
-  #   modules:
-  #     - ["sys", "random"]
-  #     - ["sys", "hashes"]
-
-  #   config:
-  #     backend: True
-  #     color: [0.5882352941176471, 0.5882352941176471, 0.5882352941176471]
-  #     hatch: "\\"
-
 
   ? "Glue Code"
   :
@@ -188,4 +138,4 @@ plots:
     hatch:
       linewidth: 0.2
     label:
-      width: 14
+      width: 13

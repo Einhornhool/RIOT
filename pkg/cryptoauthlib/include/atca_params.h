@@ -117,11 +117,6 @@ static const atca_params_t atca_params[] =
         .cfg = ATCA_PARAMS_DEV1
     },
 #endif
-#if defined(SE_ECDSA)
-    {
-        .cfg = ATCA_PARAMS_DEV1
-    },
-#endif
     {
 #if IS_ACTIVE(CONFIG_PSA_SE_ATECCX08A)
         .atca_loc = PSA_ATCA_LOCATION_DEV0,

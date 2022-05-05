@@ -21,7 +21,7 @@
 #include "atca_params.h"
 #include "kernel_defines.h"
 
-#define ENABLE_DEBUG 1
+#define ENABLE_DEBUG 0
 #include "debug.h"
 
 #if IS_ACTIVE(CONFIG_MODULE_PSA_CRYPTO)
@@ -36,7 +36,7 @@ static ATCADevice atca_devs[ATCA_NUMOF];
 
 void auto_init_atca(void)
 {
-    DEBUG("Auto Init ATCA");
+    DEBUG("Auto Init ATCA\n");
     for (unsigned i = 0; i < ATCA_NUMOF; i++) {
         atca_devs[i] = NULL;
         if (atcab_init_ext(&atca_devs[i], (ATCAIfaceCfg *)&atca_params[i].cfg) != ATCA_SUCCESS) {
@@ -45,12 +45,12 @@ void auto_init_atca(void)
         }
 
 #if IS_ACTIVE(CONFIG_MODULE_PSA_CRYPTO)
-        DEBUG("Registering Driver");
         if (i >= PSA_MAX_SE_COUNT) {
             LOG_ERROR("[auto_init_atca] PSA Crypto – too many secure elements #%u\n", i + 1);
             continue;
         }
 
+        DEBUG("Registering Driver with location: %lx\n", atca_params[i].atca_loc);
         if (psa_register_secure_element(atca_params[i].atca_loc, &atca_methods, atca_devs[i]) != PSA_SUCCESS) {
             LOG_ERROR("[auto_init_atca] error registering cryptoauth PSA driver for device #%u\n", i);
             continue;

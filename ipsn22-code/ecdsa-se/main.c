@@ -125,6 +125,7 @@ static void ecdsa_prim_se(void)
         printf("Primary SE Verify hash failed: %ld\n", status);
         return;
     }
+    puts("ECDSA Primary SE Success");
 #endif
     psa_destroy_key(privkey_id);
     psa_destroy_key(pubkey_id);
@@ -133,8 +134,6 @@ static void ecdsa_prim_se(void)
 #ifdef MULTIPLE_BACKENDS
 static void ecdsa_sec_se(void)
 {
-    psa_status_t status = PSA_ERROR_DOES_NOT_EXIST;
-
     psa_key_id_t privkey_id;
     psa_key_attributes_t privkey_attr = psa_key_attributes_init();
     psa_key_id_t pubkey_id;
@@ -162,6 +161,38 @@ static void ecdsa_sec_se(void)
     psa_set_key_type(&privkey_attr, type);
     psa_set_key_bits(&privkey_attr, bits);
 
+#if TEST_TIME
+    gpio_clear(external_gpio);
+    psa_generate_key(&privkey_attr, &privkey_id);
+    gpio_set(external_gpio);
+
+    gpio_clear(external_gpio);
+    psa_export_public_key(privkey_id, public_key, sizeof(public_key), &pubkey_length);
+    gpio_set(external_gpio);
+
+    gpio_clear(external_gpio);
+    psa_hash_compute(PSA_ALG_SHA_256, msg, sizeof(msg), hash, sizeof(hash), &hash_length);
+    gpio_set(external_gpio);
+
+    psa_set_key_lifetime(&pubkey_attr, lifetime);
+    psa_set_key_algorithm(&pubkey_attr, alg);
+    psa_set_key_usage_flags(&pubkey_attr, PSA_KEY_USAGE_VERIFY_HASH);
+    psa_set_key_bits(&pubkey_attr, PSA_BYTES_TO_BITS(bytes));
+    psa_set_key_type(&pubkey_attr, PSA_KEY_TYPE_ECC_PUBLIC_KEY(PSA_ECC_FAMILY_SECP_R1));
+
+    gpio_clear(external_gpio);
+    psa_import_key(&pubkey_attr, public_key, pubkey_length, &pubkey_id);
+    gpio_set(external_gpio);
+
+    gpio_clear(external_gpio);
+    psa_sign_hash(privkey_id, alg, hash, sizeof(hash), signature, sizeof(signature), &sig_length);
+    gpio_set(external_gpio);
+
+    gpio_clear(external_gpio);
+    psa_verify_hash(pubkey_id, alg, hash, sizeof(hash), signature, sig_length);
+    gpio_set(external_gpio);
+#else
+    psa_status_t status = PSA_ERROR_DOES_NOT_EXIST;
     status = psa_generate_key(&privkey_attr, &privkey_id);
     if (status != PSA_SUCCESS) {
         printf("Secondary SE Generate Key failed: %ld\n", status);
@@ -205,6 +236,9 @@ static void ecdsa_sec_se(void)
     }
 
     puts("ECDSA Secondary SE Success");
+#endif /* TEST_TIME */
+    psa_destroy_key(privkey_id);
+    psa_destroy_key(pubkey_id);
 }
 #endif
 
@@ -213,15 +247,23 @@ int main(void)
     _test_init();
 
 #if TEST_TIME
-    for (int i = 0; i < 100; i++) {
+    for (int i = 0; i < 1000; i++) {
+#ifdef MULTIPLE_BACKENDS
+        if (i % 2) {
+            ecdsa_sec_se();
+        }
+        else {
+            ecdsa_prim_se();
+        }
+#else
         ecdsa_prim_se();
+#endif
     }
 #else
     ecdsa_prim_se();
-#endif
-
-#ifdef MULTIPLE_BACKENDS
+#if defined(MULTIPLE_BACKENDS) && !defined(TEST_TIME)
     ecdsa_sec_se();
+#endif
 #endif
 
     puts("ECDSA Primary SE Done");

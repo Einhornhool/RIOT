@@ -104,16 +104,95 @@ static void cipher_aes_128(void)
     }
 }
 
+#ifdef MULTIPLE_BACKENDS
+static void cipher_aes_128_sec_se(void)
+{
+    psa_status_t status = PSA_ERROR_DOES_NOT_EXIST;
+    psa_key_id_t key_id = 0;
+    psa_key_attributes_t attr = psa_key_attributes_init();
+    psa_key_usage_t usage = PSA_KEY_USAGE_ENCRYPT | PSA_KEY_USAGE_DECRYPT;
+    psa_key_lifetime_t lifetime = PSA_KEY_LIFETIME_FROM_PERSISTENCE_AND_LOCATION(PSA_KEY_LIFETIME_VOLATILE, PSA_ATCA_LOCATION_DEV1);
+
+    size_t encr_output_size = PSA_CIPHER_ENCRYPT_OUTPUT_SIZE(PSA_KEY_TYPE_AES, PSA_ALG_CBC_NO_PADDING, PLAINTEXT_LEN);
+    uint8_t ciphertext[encr_output_size];
+    size_t cipher_len = 0;
+
+    psa_set_key_lifetime(&attr, lifetime);
+    psa_set_key_algorithm(&attr, PSA_ALG_CBC_NO_PADDING);
+    psa_set_key_usage_flags(&attr, usage);
+    psa_set_key_bits(&attr, 128);
+    psa_set_key_type(&attr, PSA_KEY_TYPE_AES);
+
+#if TEST_TIME
+    gpio_clear(external_gpio);
+    psa_import_key(&attr, KEY_128, AES_128_KEY_SIZE, &key_id);
+    gpio_set(external_gpio);
+
+    gpio_clear(external_gpio);
+    psa_cipher_encrypt(key_id, PSA_ALG_CBC_NO_PADDING, PLAINTEXT, PLAINTEXT_LEN, ciphertext, encr_output_size, &cipher_len);
+    gpio_set(external_gpio);
+#else
+
+    size_t decr_output_size = PSA_CIPHER_DECRYPT_OUTPUT_SIZE(PSA_KEY_TYPE_AES, PSA_ALG_CBC_NO_PADDING, PLAINTEXT_LEN);
+    uint8_t plain[decr_output_size];
+    size_t plain_len = 0;
+
+    status = psa_import_key(&attr, KEY_128, AES_128_KEY_SIZE, &key_id);
+    if (status != PSA_SUCCESS) {
+        printf("AES 128 Key Import failed: %ld\n", status);
+        return;
+    }
+
+    status = psa_cipher_encrypt(key_id, PSA_ALG_CBC_NO_PADDING, PLAINTEXT, PLAINTEXT_LEN, ciphertext, encr_output_size, &cipher_len);
+    if (status != PSA_SUCCESS) {
+        printf("AES 128 CBC Encrypt failed: %ld\n", status);
+        return;
+    }
+
+    status = psa_cipher_decrypt(key_id, PSA_ALG_CBC_NO_PADDING, ciphertext, cipher_len, plain, sizeof(plain), &plain_len);
+
+    if (status != PSA_SUCCESS) {
+        printf("AES 128 CBC Decrypt failed: %ld\n", status);
+        return;
+    }
+
+    if (memcmp(PLAINTEXT, plain, PLAINTEXT_LEN)) {
+        printf("Failure: Plaintext is incorrect:\n");
+        for (size_t i = 0; i < sizeof(plain); i++) {
+            printf("0x%02x ", plain[i]);
+        }
+        printf("\n");
+    }
+#endif
+    status = psa_destroy_key(key_id);
+    if (status != PSA_SUCCESS) {
+        printf("Secondary Destroy Key failed: %ld\n", status);
+        return;
+    }
+}
+#endif
 
 int main(void)
 {
     _test_init();
 #if TEST_TIME
-    for (int i = 0; i < 100; i++) {
+    for (int i = 0; i < 1000; i++) {
+#ifdef MULTIPLE_BACKENDS
+        if (i % 2) {
+            cipher_aes_128_sec_se();
+        }
+        else {
+            cipher_aes_128();
+        }
+#else
         cipher_aes_128();
+#endif
     }
 #else
     cipher_aes_128();
+#ifdef MULTIPLE_BACKENDS
+    cipher_aes_128_sec_se();
+#endif
 #endif
 
     puts("AES 128 CBC Done");
