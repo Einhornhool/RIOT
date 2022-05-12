@@ -53,6 +53,7 @@
 #include <stddef.h>
 
 #include "hashes/sha2xx_common.h"
+#include "kernel_defines.h"
 
 #ifdef __cplusplus
 extern "C" {

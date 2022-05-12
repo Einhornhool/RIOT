@@ -38,7 +38,7 @@ extern "C" {
 #define ATCA_IDLE_ADDR   (0x02) /**< Word address to write to for idle mode */
 #define ATCA_DATA_ADDR   (0x03) /**< Word address to read and write to data area */
 
-// #if IS_ACTIVE(CONFIG_PSA_SE_ATECCX08A)
+#if IS_ACTIVE(CONFIG_PSA_SE_ATECCX08A)
 
 typedef struct {
     uint8_t iv[16];
@@ -48,7 +48,7 @@ typedef struct {
     } aes_ctx;
 } psa_atca_cipher_context_t;
 
-// #endif
+#endif
 
 #ifdef __cplusplus
 }

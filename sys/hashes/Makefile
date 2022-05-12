@@ -1,9 +1,8 @@
 BASE_MODULE := hashes
 
-# enable submodules
-SUBMODULES := 1
-
 ifneq (,$(filter psa_riot_hashes_%,$(USEMODULE)))
+  # enable submodules
+  SUBMODULES := 1
   DIRS += psa_riot_hashes
 endif
 
