@@ -25,6 +25,7 @@ config CPU_FAM_NRF52
     select HAS_PERIPH_CIPHER_AES_128_CBC
     select HAS_PERIPH_ECC_P192
     select HAS_PERIPH_ECC_P256
+    select PACKAGE_DRIVER_CRYPTOCELL if PSA_CRYPTO
 
 ## CPU Models
 config CPU_MODEL_NRF52805XXAA
@@ -99,7 +100,7 @@ config HAS_CPU_NRF52
         Indicates that the current cpu is 'nrf52'.
 
 rsource "periph/Kconfig"
-rsource "cryptocell_lib/Kconfig"
+#rsource "cryptocell_lib/Kconfig"
 rsource "vectors/Kconfig"
 
 source "$(RIOTCPU)/nrf5x_common/Kconfig"

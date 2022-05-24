@@ -1,6 +1,6 @@
 #include "psa_periph_error.h"
 #include "psa_periph_aes_common.h"
-#include "cryptocell_incl/ssi_aes.h"
+#include "ssi_aes.h"
 
 #define ENABLE_DEBUG    (0)
 #include "debug.h"

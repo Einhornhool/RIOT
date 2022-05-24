@@ -3,11 +3,11 @@
 
 #include "psa/crypto.h"
 
-#include "cryptocell_incl/sns_silib.h"
-#include "cryptocell_incl/crys_ecpki_build.h"
-#include "cryptocell_incl/crys_ecpki_ecdsa.h"
-#include "cryptocell_incl/crys_ecpki_kg.h"
-#include "cryptocell_incl/crys_ecpki_domain.h"
+#include "sns_silib.h"
+#include "crys_ecpki_build.h"
+#include "crys_ecpki_ecdsa.h"
+#include "crys_ecpki_kg.h"
+#include "crys_ecpki_domain.h"
 
 #define MAP_PSA_HASH_TO_CRYS_HASH(hash) \
         ((hash == PSA_ALG_SHA_1) ? CRYS_ECPKI_AFTER_HASH_SHA1_mode : \

@@ -19,7 +19,7 @@
 
 #include <stdio.h>
 #include "vendor/nrf52840.h"
-#include "cryptocell_incl/sns_silib.h"
+#include "sns_silib.h"
 
 void cryptocell_enable(void)
 {

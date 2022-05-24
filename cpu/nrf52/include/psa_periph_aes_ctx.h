@@ -1,7 +1,7 @@
 #ifndef PSA_PERIPH_AES_CTX_H
 #define PSA_PERIPH_AES_CTX_H
 
-#include "cryptocell_incl/ssi_aes.h"
+#include "ssi_aes.h"
 #include "kernel_defines.h"
 
 #if IS_ACTIVE(CONFIG_PERIPH_CIPHER_AES_128_CBC)

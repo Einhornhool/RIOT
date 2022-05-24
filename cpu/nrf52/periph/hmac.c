@@ -22,8 +22,8 @@
 #include "psa/crypto.h"
 #include "psa_periph_error.h"
 
-#include "cryptocell_incl/crys_hmac.h"
-#include "cryptocell_incl/crys_hmac_error.h"
+#include "crys_hmac.h"
+#include "crys_hmac_error.h"
 
 #define ENABLE_DEBUG    (0)
 #include "debug.h"

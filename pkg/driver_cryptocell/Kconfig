@@ -5,9 +5,7 @@
 # directory for more details.
 #
 
-config MODULE_LIB_CRYPTOCELL
+config PACKAGE_DRIVER_CRYPTOCELL
     bool "CryptoCell Library"
     depends on CPU_FAM_NRF52
     depends on TEST_KCONFIG
-    select MODULE_PERIPH_CRYPTOCELL_SETUP
-    select MODULE_PERIPH_CRYPTOCELL_UTIL

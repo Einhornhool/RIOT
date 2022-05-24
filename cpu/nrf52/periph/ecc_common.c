@@ -2,7 +2,7 @@
 #include "psa_periph_ecc_common.h"
 #include "cryptocell_util.h"
 
-#define ENABLE_DEBUG    (0)
+#define ENABLE_DEBUG    (1)
 #include "debug.h"
 
 #if TEST_TIME

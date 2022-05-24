@@ -24,7 +24,7 @@
 
 #include <stdlib.h>
 
-#include "cryptocell_incl/crys_hash.h"
+#include "crys_hash.h"
 
 #if IS_ACTIVE(CONFIG_PERIPH_HASHES_SHA1)
 typedef CRYS_HASHUserContext_t psa_hashes_sha1_ctx_t;

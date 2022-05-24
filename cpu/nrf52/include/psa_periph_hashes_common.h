@@ -2,7 +2,7 @@
 #define PSA_PERIPH_HASHES_COMMON_H
 
 #include "psa/crypto.h"
-#include "cryptocell_incl/crys_hash.h"
+#include "crys_hash.h"
 
 psa_status_t common_hash_setup( CRYS_HASHUserContext_t * ctx,
                                 CRYS_HASH_OperationMode_t mode);

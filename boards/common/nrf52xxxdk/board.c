@@ -21,7 +21,7 @@
 #include "cpu.h"
 #include "board.h"
 #include "kernel_defines.h"
-#if IS_ACTIVE(CONFIG_MODULE_LIB_CRYPTOCELL)
+#if IS_ACTIVE(CONFIG_PACKAGE_DRIVER_CRYPTOCELL)
 #include "periph_cryptocell_setup.h"
 #endif
 
@@ -31,7 +31,7 @@ void board_init(void)
     LED_PORT->DIRSET = (LED_MASK);
     LED_PORT->OUTSET = (LED_MASK);
 
-#if IS_ACTIVE(CONFIG_MODULE_LIB_CRYPTOCELL)
+#if IS_ACTIVE(CONFIG_PACKAGE_DRIVER_CRYPTOCELL)
     cryptocell_setup();
 #endif
 }

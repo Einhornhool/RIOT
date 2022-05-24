@@ -1,7 +1,7 @@
 #include "psa/crypto.h"
 #include "vendor/nrf52840.h"
-#include "cryptocell_incl/ssi_aes.h"
-#include "cryptocell_incl/sns_silib.h"
+#include "ssi_aes.h"
+#include "sns_silib.h"
 #include "psa_periph_error.h"
 #include "cryptocell_util.h"
 

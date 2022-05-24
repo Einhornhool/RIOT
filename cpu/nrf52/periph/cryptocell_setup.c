@@ -18,10 +18,9 @@
  */
 #include "kernel_defines.h"
 
-// #if IS_ACTIVE(CONFIG_MODULE_LIB_CRYPTOCELL)
 #include <stdio.h>
 #include "vendor/nrf52840.h"
-#include "cryptocell_incl/sns_silib.h"
+#include "sns_silib.h"
 
 CRYS_RND_WorkBuff_t*  rndWorkBuff_ptr;
 CRYS_RND_State_t*     rndState_ptr;
@@ -69,4 +68,3 @@ void cryptocell_terminate(void)
         printf("CRYS_RND_UnInstatiation failed: 0x%x\n", ret);
     }
 }
-// #endif /* CONFIG_PERIPH_HASHES */

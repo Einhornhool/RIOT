@@ -1,7 +1,7 @@
 #include "psa/crypto.h"
 #include "psa_periph_error.h"
 #include "cryptocell_util.h"
-#include "cryptocell_incl/crys_hash.h"
+#include "crys_hash.h"
 
 #define ENABLE_DEBUG    (0)
 #include "debug.h"

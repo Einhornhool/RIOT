@@ -24,11 +24,13 @@ config MODULE_SAUL_NRF_VDDH
 # CryptoCell Related Symbols
 config MODULE_PERIPH_CRYPTOCELL_SETUP
     bool
+    default y if PACKAGE_DRIVER_CRYPTOCELL
     help
         Build setup functions for CryptoCell Library
 
 config MODULE_PERIPH_CRYPTOCELL_UTIL
     bool
+    default y if PACKAGE_DRIVER_CRYPTOCELL
     help
         Build utility functions for CryptoCell Library
 
@@ -40,7 +42,7 @@ config MODULE_PERIPH_PSA_ERROR
 # Hash Related Symbols
 config PERIPH_HASHES
     bool
-    select MODULE_LIB_CRYPTOCELL
+    select PACKAGE_DRIVER_CRYPTOCELL
     select MODULE_PERIPH_HASHES
     select MODULE_PERIPH_HASHES_COMMON
     select MODULE_PERIPH_PSA_ERROR
@@ -68,7 +70,7 @@ config MODULE_PERIPH_HASHES_SHA512
 # HMAC Related Symbols
 config PERIPH_HMAC
     bool
-    select MODULE_LIB_CRYPTOCELL
+    select PACKAGE_DRIVER_CRYPTOCELL
     select MODULE_PERIPH_HMAC
     select MODULE_PERIPH_PSA_ERROR
 
@@ -78,14 +80,14 @@ config MODULE_PERIPH_HMAC
 #Cipher Related Symbols
 config PERIPH_CIPHER_MODE_CBC
     bool
-    select MODULE_LIB_CRYPTOCELL
+    select PACKAGE_DRIVER_CRYPTOCELL
     select MODULE_PERIPH_AES_CBC
     select MODULE_PERIPH_AES_COMMON
     select MODULE_PERIPH_PSA_ERROR
 
 config PERIPH_CIPHER_AES
     bool
-    select MODULE_LIB_CRYPTOCELL
+    select PACKAGE_DRIVER_CRYPTOCELL
 
 config MODULE_PERIPH_AES_CBC
     bool
@@ -98,14 +100,14 @@ config MODULE_PERIPH_AES_COMMON
 # Asymmetric Crypto Related Symbols
 config PERIPH_ECC_P192
     bool
-    select MODULE_LIB_CRYPTOCELL
+    select PACKAGE_DRIVER_CRYPTOCELL
     select MODULE_PERIPH_ECC_P192
     select MODULE_PERIPH_PSA_ERROR
     select MODULE_PERIPH_ECC_COMMON
 
 config PERIPH_ECC_P256
     bool
-    select MODULE_LIB_CRYPTOCELL
+    select PACKAGE_DRIVER_CRYPTOCELL
     select MODULE_PERIPH_ECC_P256
     select MODULE_PERIPH_PSA_ERROR
     select MODULE_PERIPH_ECC_COMMON

@@ -1,0 +1,4 @@
+PKG_SOURCE_DIR ?= $(PKGDIRBASE)/driver_cryptocell
+INCLUDES += -I$(PKG_SOURCE_DIR)/include
+
+ARCHIVES += $(PKG_SOURCE_DIR)/lib/libnrf_cc310_0.9.12.a
