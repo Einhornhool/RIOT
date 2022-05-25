@@ -217,7 +217,11 @@ psa_status_t atca_allocate (
         return PSA_ERROR_NOT_SUPPORTED;
     }
 
-    /* TODO: Look for empty key slot that can be used for desired algorithm -> utilize driver persistent data */
+    /* TODO: This function needs to be implemented correctly:
+                - Read device config zone during registration, store info in persistent data
+                - Read persistent data to find a free, correctly configured key slot
+                - Return slot number and mark key slot as used
+    */
 
     if (attributes->type == PSA_KEY_TYPE_ECC_KEY_PAIR(PSA_ECC_FAMILY_SECP_R1)) {
         /* At the time of the implementation we are using an SE in which key slot 1 is configured for ECC private keys, so we return key slot nr. 1 */
@@ -228,7 +232,7 @@ psa_status_t atca_allocate (
         *key_slot = (psa_key_slot_number_t) 9;
     }
     else {
-        /* Returns the device's TEMPKEY-Register ID for AES and temporary ECC Public Key import.  */
+        /* Returns the device's TEMPKEY-Register ID for AES and HMAC key import.  */
         *key_slot = (psa_key_slot_number_t) ATCA_TEMPKEY_KEYID;
     }
 
