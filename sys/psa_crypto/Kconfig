@@ -12,11 +12,11 @@ menuconfig MODULE_PSA_CRYPTO
 
 if MODULE_PSA_CRYPTO
 
-rsource "Kconfig.mac"
-rsource "Kconfig.hashes"
-rsource "Kconfig.ciphers"
 rsource "Kconfig.asymmetric"
+rsource "Kconfig.ciphers"
+rsource "Kconfig.hashes"
 rsource "Kconfig.keys"
+rsource "Kconfig.mac"
 
 rsource "psa_se_mgmt/Kconfig"
 rsource "psa_key_slot_mgmt/Kconfig"

@@ -57,6 +57,7 @@ psa_status_t psa_crypto_init(void)
 #if IS_ACTIVE(CONFIG_MODULE_PSA_KEY_SLOT_MGMT)
     psa_init_key_slots();
 #endif
+
     return PSA_SUCCESS;
 }
 

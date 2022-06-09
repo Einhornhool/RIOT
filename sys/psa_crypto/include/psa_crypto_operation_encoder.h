@@ -14,10 +14,20 @@ typedef enum {
 } psa_cipher_op_t;
 
 typedef enum {
+    PSA_ECC_P160_K1,
+    PSA_ECC_P160_R1,
+    PSA_ECC_P160_R2,
+    PSA_ECC_P192_K1,
     PSA_ECC_P192_R1,
+    PSA_ECC_P224_K1,
+    PSA_ECC_P224_R1,
+    PSA_ECC_P256_K1,
     PSA_ECC_P256_R1,
     PSA_ECC_P384_R1,
-    PSA_ECC_P521_R1
+    PSA_ECC_P521_R1,
+    PSA_ECC_FRP,
+    PSA_ECMONT_255,
+    PSA_ECMONT_448
 } psa_asymmetric_keytype_t;
 
 #define GET_ECC_KEY_TYPE_192(curve) \

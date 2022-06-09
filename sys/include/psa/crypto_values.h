@@ -43,39 +43,361 @@
 #define PSA_ALG_CATEGORY_KEY_DERIVATION         ((psa_algorithm_t)0x08000000)
 #define PSA_ALG_CATEGORY_KEY_AGREEMENT          ((psa_algorithm_t)0x09000000)
 
+/**
+ * @brief A sufficient plaintext buffer size for @ref psa_aead_decrypt(),
+ * for any of the supported key types and AEAD algorithms.
+ *
+ * If the size of the plaintext buffer is at least this large,
+ * it is guaranteed that @ref psa_aead_decrypt() will not fail due
+ * to an insufficient buffer size.
+ *
+ * See also @ref PSA_AEAD_DECRYPT_OUTPUT_SIZE().
+ *
+ * @param ciphertext_length     Size of the ciphertext in bytes.
+ */
 #define PSA_AEAD_DECRYPT_OUTPUT_MAX_SIZE(ciphertext_length) \
 /* implementation-defined value */
+
+/**
+ * @brief A sufficient plaintext buffer size for @ref psa_aead_decrypt(), in bytes.
+ *
+ * If the size of the plaintext buffer is at least this large, it is guaranteed that
+ * @ref psa_aead_decrypt() will not fail due to an insufficient buffer size. Depending on the
+ * algorithm, the actual size of the plaintext might be smaller.
+ *
+ * See also @ref PSA_AEAD_DECRYPT_OUTPUT_MAX_SIZE.
+ *
+ * @param key_type  A symmetric key type that is compatible with algorithm alg.
+ * @param alg       An AEAD algorithm: a value of type @ref psa_algorithm_t
+ *                  such that @ref PSA_ALG_IS_AEAD(alg) is true.
+ * @param ciphertext_length Size of the ciphertext in bytes.
+ *
+ * @return The AEAD plaintext size for the specified key type and algorithm.
+ * If the key type or AEAD algorithm is not recognized, or the parameters are incompatible,
+ * return 0. An implementation can return either 0 or a correct size for a key type and AEAD
+ * algorithm that it recognizes, but does not support.
+ */
 #define PSA_AEAD_DECRYPT_OUTPUT_SIZE(key_type, alg, ciphertext_length) \
 /* implementation-defined value */
+
+/**
+ * @brief A sufficient ciphertext buffer size for @ref psa_aead_encrypt(),
+ * for any of the supported key types and AEAD algorithms.
+ *
+ * If the size of the ciphertext buffer is at least this large,
+ * it is guaranteed that @ref psa_aead_encrypt() will not fail due to an insufficient buffer size.
+ *
+ * See also @ref PSA_AEAD_ENCRYPT_OUTPUT_SIZE().
+ *
+ * @param plaintext_length Size of the plaintext in bytes.
+ */
 #define PSA_AEAD_ENCRYPT_OUTPUT_MAX_SIZE(plaintext_length) \
 /* implementation-defined value */
+
+/**
+ * @brief A sufficient ciphertext buffer size for @ref psa_aead_encrypt(), in bytes.
+ *
+ * If the size of the ciphertext buffer is at least this large, it is guaranteed that
+ * @ref psa_aead_encrypt() will not fail due to an insufficient buffer size. Depending on the
+ * algorithm, the actual size of the ciphertext might be smaller.
+ *
+ * See also @ref PSA_AEAD_ENCRYPT_OUTPUT_MAX_SIZE.
+ *
+ * @param key_type A symmetric key type that is compatible with algorithm alg.
+ * @param alg An AEAD algorithm: a value of type @ref psa_algorithm_t such that
+ * @ref PSA_ALG_IS_AEAD(alg) is true.
+ * @param plaintext_length Size of the plaintext in bytes.
+ *
+ * @return The AEAD ciphertext size for the specified key type and algorithm.
+ * If the key type or AEAD algorithm is not recognized, or the parameters are incompatible,
+ * return 0. An implementation can return either 0 or a correct size for a key type and AEAD
+ * algorithm that it recognizes, but does not support.
+ */
 #define PSA_AEAD_ENCRYPT_OUTPUT_SIZE(key_type, alg, plaintext_length) \
 /* implementation-defined value */
+
+/**
+ * @brief A sufficient ciphertext buffer size for @ref psa_aead_finish(),
+ * for any of the supported key types and AEAD algorithms.
+ *
+ * If the size of the ciphertext buffer is at least this large, it is guaranteed that
+ * @ref psa_aead_finish() will not fail due to an insufficient ciphertext buffer size.
+ *
+ * See also @ref PSA_AEAD_FINISH_OUTPUT_SIZE().
+ */
 #define PSA_AEAD_FINISH_OUTPUT_MAX_SIZE /* implementation-defined value */
+
+/**
+ * @brief A sufficient ciphertext buffer size for psa_aead_finish().
+ *
+ * If the size of the ciphertext buffer is at least this large, it is guaranteed that
+ * @ref psa_aead_finish() will not fail due to an insufficient ciphertext buffer size. The actual
+ * size of the output might be smaller in any given call.
+ *
+ * See also @ref PSA_AEAD_FINISH_OUTPUT_MAX_SIZE.
+ *
+ * @param key_type A symmetric key type that is compatible with algorithm alg.
+ * @param alg An AEAD algorithm: a value of type @ref psa_algorithm_t such that
+ * @ref PSA_ALG_IS_AEAD(alg) is true.
+ *
+ * @return A sufficient ciphertext buffer size for the specified key type and algorithm.
+ * If the key type or AEAD algorithm is not recognized, or the parameters are incompatible,
+ * return 0. An implementation can return either 0 or a correct size for a key type and AEAD
+ * algorithm that it recognizes, but does not support.
+ */
 #define PSA_AEAD_FINISH_OUTPUT_SIZE(key_type, alg) \
 /* implementation-defined value */
+
+/**
+ * @brief The default nonce size for an AEAD algorithm, in bytes.
+ *
+ * If the size of the nonce buffer is at least this large, it is guaranteed that
+ * @ref psa_aead_generate_nonce() will not fail due to an insufficient buffer size.
+ *
+ * For most AEAD algorithms, @ref PSA_AEAD_NONCE_LENGTH() evaluates to the exact size of
+ * the nonce generated by @ref psa_aead_generate_nonce().
+ *
+ * See also @ref PSA_AEAD_NONCE_MAX_SIZE.
+ *
+ * @param key_type A symmetric key type that is compatible with algorithm alg.
+ * @param alg An AEAD algorithm: a value of type @ref psa_algorithm_t such that
+ * @ref PSA_ALG_IS_AEAD(alg) is true.
+ *
+ * @return The default nonce size for the specified key type and algorithm. If the key type or AEAD
+ * algorithm is not recognized, or the parameters are incompatible, return 0. An implementation can
+ * return either 0 or a correct size for a key type and AEAD algorithm that it recognizes, but does
+ * not support.
+ */
 #define PSA_AEAD_NONCE_LENGTH(key_type, alg) /* implementation-defined value */
+
+/**
+ * @brief A sufficient buffer size for storing the nonce generated by
+ * @ref psa_aead_generate_nonce(), for any of the supported key types and AEAD algorithms.
+ *
+ * If the size of the nonce buffer is at least this large, it is guaranteed that
+ * @ref psa_aead_generate_nonce() will not fail due to an insufficient buffer size.
+ *
+ * See also @ref PSA_AEAD_NONCE_LENGTH().
+ */
 #define PSA_AEAD_NONCE_MAX_SIZE /* implementation-defined value */
+
+/**
+ * @brief This macro returns a suitable initializer for an AEAD operation object of type
+ * @ref psa_aead_operation_t.
+ */
 #define PSA_AEAD_OPERATION_INIT /* implementation-defined value */
+
+/**
+ * @brief The length of a tag for an AEAD algorithm, in bytes.
+ *
+ * This is the size of the tag output from @ref psa_aead_finish().
+ * If the size of the tag buffer is at least this large, it is guaranteed that
+ * @ref psa_aead_finish() will not fail due to an insufficient tag buffer size.
+ *
+ * See also @ref PSA_AEAD_TAG_MAX_SIZE.
+ *
+ * @param key_type The type of the AEAD key.
+ * @param key_bits The size of the AEAD key in bits.
+ * @param alg An AEAD algorithm: a value of type @ref psa_algorithm_t such that
+ * @ref PSA_ALG_IS_AEAD(alg) is true.
+ *
+ * @return The tag length for the specified algorithm and key. If the AEAD algorithm does not have
+ * an identified tag that can be distinguished from the rest of the ciphertext, return 0. If the
+ * AEAD algorithm is not recognized, return 0. An implementation can return either 0 or a correct
+ * size for an AEAD algorithm that it recognizes, but does not support.
+ */
 #define PSA_AEAD_TAG_LENGTH(key_type, key_bits, alg) \
 /* implementation-defined value */
+
+/**
+ * @brief A sufficient buffer size for storing the tag output by @ref psa_aead_finish(),
+ * for any of the supported key types and AEAD algorithms.
+ *
+ * If the size of the tag buffer is at least this large, it is guaranteed that
+ * @ref psa_aead_finish() will not fail due to an insufficient buffer size.
+ *
+ * See also @ref PSA_AEAD_TAG_LENGTH().
+ */
 #define PSA_AEAD_TAG_MAX_SIZE /* implementation-defined value */
+
+/**
+ * @brief A sufficient output buffer size for @ref psa_aead_update(), for any of the supported key
+ * types and AEAD algorithms.
+ *
+ * If the size of the output buffer is at least this large, it is guaranteed that
+ * @ref psa_aead_update() will not fail due to an insufficient buffer size.
+ *
+ * See also @ref PSA_AEAD_UPDATE_OUTPUT_SIZE().
+ *
+ * @param input_length Size of the input in bytes.
+ */
 #define PSA_AEAD_UPDATE_OUTPUT_MAX_SIZE(input_length) \
 /* implementation-defined value */
+
+/**
+ * @brief A sufficient output buffer size for @ref psa_aead_update().
+ *
+ * If the size of the output buffer is at least this large, it is guaranteed that
+ * @ref psa_aead_update() will not fail due to an insufficient buffer size. The actual size of the
+ * output might be smaller in any given call.
+ *
+ * See also @ref PSA_AEAD_UPDATE_OUTPUT_MAX_SIZE.
+ *
+ * @param key_type A symmetric key type that is compatible with algorithm alg.
+ * @param alg An AEAD algorithm: a value of type @ref psa_algorithm_t such that
+ * @ref PSA_ALG_IS_AEAD(alg) is true.
+ * @param input_length Size of the input in bytes.
+ *
+ * @return A sufficient output buffer size for the specified key type and algorithm. If the key
+ * type or AEAD algorithm is not recognized, or the parameters are incompatible, return 0. An
+ * implementation can return either 0 or a correct size for a key type and AEAD algorithm that it
+ * recognizes, but does not support.
+ */
 #define PSA_AEAD_UPDATE_OUTPUT_SIZE(key_type, alg, input_length) \
 /* implementation-defined value */
+
+/**
+ * @brief A sufficient output buffer size for @ref psa_aead_update(), for any of the supported key
+ * types and AEAD algorithms.
+ *
+ * If the size of the output buffer is at least this large, it is guaranteed that
+ * @ref psa_aead_update() will not fail due to an insufficient buffer size.
+ *
+ * See also @ref PSA_AEAD_UPDATE_OUTPUT_SIZE().
+ *
+ * @param input_length Size of the input in bytes.
+ */
 #define PSA_AEAD_VERIFY_OUTPUT_MAX_SIZE /* implementation-defined value */
+
+/**
+ * @brief A sufficient plaintext buffer size for @ref psa_aead_verify(), in bytes.
+ *
+ * If the size of the plaintext buffer is at least this large, it is guaranteed that
+ * @ref psa_aead_verify() will not fail due to an insufficient plaintext buffer size. The actual
+ * size of the output might be smaller in any given call.
+ *
+ * See also @ref PSA_AEAD_VERIFY_OUTPUT_MAX_SIZE.
+ *
+ * @param key_type A symmetric key type that is compatible with algorithm alg.
+ * @param alg An AEAD algorithm: a value of type @ref psa_algorithm_t such that
+ * @ref PSA_ALG_IS_AEAD(alg) is true.
+ *
+ * @return A sufficient plaintext buffer size for the specified key type and algorithm. If the key
+ * type or AEAD algorithm is not recognized, or the parameters are incompatible, return 0. An
+ * implementation can return either 0 or a correct size for a key type and AEAD algorithm that it
+ * recognizes, but does not support.
+ */
 #define PSA_AEAD_VERIFY_OUTPUT_SIZE(key_type, alg) \
 /* implementation-defined value */
 
+/**
+ * @brief Macro to build an AEAD minimum-tag-length wildcard algorithm.
+ *
+ * A key with a minimum-tag-length AEAD wildcard algorithm as permitted algorithm policy can be
+ * used with all AEAD algorithms sharing the same base algorithm, and where the tag length of the
+ * specific algorithm is equal to or larger then the minimum tag length specified by the wildcard
+ * algorithm.
+ *
+ * @note
+ * When setting the minimum required tag length to less than the smallest tag length allowed by the
+ * base algorithm, this effectively becomes an ‘any-tag-length-allowed’ policy for that base
+ * algorithm.
+ *
+ * The AEAD algorithm with a default length tag can be recovered using
+ * @ref PSA_ALG_AEAD_WITH_DEFAULT_LENGTH_TAG().
+ *
+ * @param aead_alg  An AEAD algorithm: a value of type @ref psa_algorithm_t such that
+ *                  @ref PSA_ALG_IS_AEAD(aead_alg) is true.
+ * @param min_tag_length    Desired minimum length of the authentication tag in bytes. This must be
+ *                          at least 1 and at most the largest allowed tag length of the algorithm.
+ * @return  The corresponding AEAD wildcard algorithm with the specified minimum tag length
+ *          Unspecified if @c aead_alg is not a supported AEAD algorithm or if @c min_tag_length is
+ *          less than 1 or too large for the specified AEAD algorithm.
+ */
+#define PSA_ALG_AEAD_WITH_AT_LEAST_THIS_LENGTH_TAG(aead_alg, min_tag_length) \
+    /* specification-defined value */
+
+/**
+ * @brief An AEAD algorithm with the default tag length.
+ *
+ * This macro can be used to construct the AEAD algorithm with default tag length from an
+ * AEAD algorithm with a shortened tag. See also @ref PSA_ALG_AEAD_WITH_SHORTENED_TAG().
+ *
+ * Compatible key types:
+ * The resulting AEAD algorithm is compatible with the same key types as the
+ * AEAD algorithm used to construct it.
+ */
 #define PSA_ALG_AEAD_WITH_DEFAULT_LENGTH_TAG(aead_alg) \
     ((((aead_alg) & ~0x003f0000) == 0x05400100) ? PSA_ALG_CCM : \
      (((aead_alg) & ~0x003f0000) == 0x05400200) ? PSA_ALG_GCM : \
      (((aead_alg) & ~0x003f0000) == 0x05000500) ? PSA_ALG_CHACHA20_POLY1305 : \
      PSA_ALG_NONE)
 
+/**
+ * @brief Macro to build a AEAD algorithm with a shortened tag.
+ *
+ * An AEAD algorithm with a shortened tag is similar to the corresponding AEAD algorithm, but has
+ * an authentication tag that consists of fewer bytes. Depending on the algorithm, the tag length
+ * might affect the calculation of the ciphertext.
+ *
+ * The AEAD algorithm with a default length tag can be recovered using
+ * @ref PSA_ALG_AEAD_WITH_DEFAULT_LENGTH_TAG().
+ *
+ * Compatible key types:
+ * The resulting AEAD algorithm is compatible with the same key types as the AEAD algorithm used to
+ * construct it.
+ *
+ * @param aead_alg      An AEAD algorithm: a value of type @ref psa_algorithm_t such that
+ *                      @ref PSA_ALG_IS_AEAD(aead_alg) is true.
+ * @param tag_length    Desired length of the authentication tag in bytes.
+ *
+ * @return  The corresponding AEAD algorithm with the specified tag length.
+ *          Unspecified if @c aead_alg is not a supported AEAD algorithm or if @c tag_length is not
+ *          valid for the specified AEAD algorithm.
+ */
 #define PSA_ALG_AEAD_WITH_SHORTENED_TAG(aead_alg, tag_length) \
     ((psa_algorithm_t) (((aead_alg) & ~0x003f0000) | (((tag_length) & 0x3f) << 16)))
+
+/**
+ * @brief When setting a hash-and-sign algorithm in a key policy, permit any hash algorithm.
+ *
+ * This value can be used to form the permitted algorithm attribute of a key policy for a signature
+ * algorithm that is parametrized by a hash. A key with this policy can then be used to perform
+ * operations using the same signature algorithm parametrized with any supported hash. A signature
+ * algorithm created using this macro is a wildcard algorithm, and @ref PSA_ALG_IS_WILDCARD() will
+ * return true.
+ *
+ * This value must not be used to build other algorithms that are parametrized over a hash. For any
+ * valid use of this macro to build an algorithm alg, @ref PSA_ALG_IS_HASH_AND_SIGN(alg) is true.
+ * This value must not be used to build an algorithm specification to perform an operation. It is
+ * only valid for setting the permitted algorithm in a key policy.
+ *
+ * Usage:
+ * For example, suppose that @c PSA_xxx_SIGNATURE is one of the following macros:
+ * - @ref PSA_ALG_RSA_PKCS1V15_SIGN
+ * - @ref PSA_ALG_RSA_PSS
+ * - @ref PSA_ALG_RSA_PSS_ANY_SALT
+ * - @ref PSA_ALG_ECDSA
+ * - @ref PSA_ALG_DETERMINISTIC_ECDSA
+ *
+ * The following sequence of operations shows how @ref PSA_ALG_ANY_HASH can be used in a key policy:
+ *
+ * -#   Set the key usage flags using @ref PSA_ALG_ANY_HASH, for example:
+ *      @code
+ *      psa_set_key_usage_flags(&attributes, PSA_KEY_USAGE_SIGN_MESSAGE); // or VERIFY_MESSAGE
+ *      psa_set_key_algorithm(&attributes, PSA_xxx_SIGNATURE(PSA_ALG_ANY_HASH));
+ *      @endcode
+ * -#   Import or generate key material.
+ * -#   Call @ref psa_sign_message() or @ref psa_verify_message(), passing an algorithm built from
+ *      @c PSA_xxx_SIGNATURE and a specific hash. Each call to sign or verify a message can use a
+ *      different hash algorithm.
+ *      @code
+ *      psa_sign_message(key, PSA_xxx_SIGNATURE(PSA_ALG_SHA_256), ...);
+ *      psa_sign_message(key, PSA_xxx_SIGNATURE(PSA_ALG_SHA_512), ...);
+ *      psa_sign_message(key, PSA_xxx_SIGNATURE(PSA_ALG_SHA3_256), ...);
+ *      @endcode
+ */
+#define PSA_ALG_ANY_HASH ((psa_algorithm_t)0x020000ff)
 
 #define PSA_ALG_DETERMINISTIC_ECDSA(hash_alg) \
     ((psa_algorithm_t) (0x06000700 | ((hash_alg) & 0x000000ff)))
@@ -253,9 +575,9 @@
  * of the base point of the curve in octets. Each value is represented
  * in big-endian order (most significant octet first).
  *
- * @param hash_alg      A hash algorithm (PSA_ALG_XXX value such that
- *                      #PSA_ALG_IS_HASH(hash_alg) is true).
- *                      This includes #PSA_ALG_ANY_HASH
+ * @param hash_alg      A hash algorithm (@c PSA_ALG_XXX value such that
+ *                      @ref PSA_ALG_IS_HASH(hash_alg) is true).
+ *                      This includes @ref PSA_ALG_ANY_HASH
  *                      when specifying the algorithm in a usage policy.
  *
  * @return              The corresponding ECDSA signature algorithm.
