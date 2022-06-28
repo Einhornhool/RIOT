@@ -39,7 +39,16 @@ extern gpio_t internal_gpio;
 
 static uint8_t lib_initialized = 0;
 
-/* constant-time buffer comparison */
+/**
+ * @brief Compares the content of two same-sized buffers while maintaining constant processing time
+ *
+ * @param[in]   a Buffer A to compare with B
+ * @param[in]   b Buffer B to compare with A
+ * @param       n Size of the input buffers
+ *
+ * @return      0 if buffer contents are the same
+ *              1 if buffer contents differ
+ */
 static inline int safer_memcmp(const uint8_t *a, const uint8_t *b, size_t n)
 {
     uint8_t diff = 0;
@@ -67,17 +76,17 @@ psa_status_t psa_aead_abort(psa_aead_operation_t * operation)
     return PSA_ERROR_NOT_SUPPORTED;
 }
 
-psa_status_t psa_aead_decrypt(psa_key_id_t key,
-                              psa_algorithm_t alg,
-                              const uint8_t * nonce,
-                              size_t nonce_length,
-                              const uint8_t * additional_data,
-                              size_t additional_data_length,
-                              const uint8_t * ciphertext,
-                              size_t ciphertext_length,
-                              uint8_t * plaintext,
-                              size_t plaintext_size,
-                              size_t * plaintext_length)
+psa_status_t psa_aead_decrypt(  psa_key_id_t key,
+                                psa_algorithm_t alg,
+                                const uint8_t * nonce,
+                                size_t nonce_length,
+                                const uint8_t * additional_data,
+                                size_t additional_data_length,
+                                const uint8_t * ciphertext,
+                                size_t ciphertext_length,
+                                uint8_t * plaintext,
+                                size_t plaintext_size,
+                                size_t * plaintext_length)
 {
     (void) key;
     (void) alg;
@@ -103,17 +112,17 @@ psa_status_t psa_aead_decrypt_setup(psa_aead_operation_t * operation,
     return PSA_ERROR_NOT_SUPPORTED;
 }
 
-psa_status_t psa_aead_encrypt(psa_key_id_t key,
-                              psa_algorithm_t alg,
-                              const uint8_t * nonce,
-                              size_t nonce_length,
-                              const uint8_t * additional_data,
-                              size_t additional_data_length,
-                              const uint8_t * plaintext,
-                              size_t plaintext_length,
-                              uint8_t * ciphertext,
-                              size_t ciphertext_size,
-                              size_t * ciphertext_length)
+psa_status_t psa_aead_encrypt(  psa_key_id_t key,
+                                psa_algorithm_t alg,
+                                const uint8_t * nonce,
+                                size_t nonce_length,
+                                const uint8_t * additional_data,
+                                size_t additional_data_length,
+                                const uint8_t * plaintext,
+                                size_t plaintext_length,
+                                uint8_t * ciphertext,
+                                size_t ciphertext_size,
+                                size_t * ciphertext_length)
 {
     (void) key;
     (void) alg;
@@ -139,13 +148,13 @@ psa_status_t psa_aead_encrypt_setup(psa_aead_operation_t * operation,
     return PSA_ERROR_NOT_SUPPORTED;
 }
 
-psa_status_t psa_aead_finish(psa_aead_operation_t * operation,
-                             uint8_t * ciphertext,
-                             size_t ciphertext_size,
-                             size_t * ciphertext_length,
-                             uint8_t * tag,
-                             size_t tag_size,
-                             size_t * tag_length)
+psa_status_t psa_aead_finish(   psa_aead_operation_t * operation,
+                                uint8_t * ciphertext,
+                                size_t ciphertext_size,
+                                size_t * ciphertext_length,
+                                uint8_t * tag,
+                                size_t tag_size,
+                                size_t * tag_length)
 {
     (void) operation;
     (void) ciphertext;
@@ -157,10 +166,10 @@ psa_status_t psa_aead_finish(psa_aead_operation_t * operation,
     return PSA_ERROR_NOT_SUPPORTED;
 }
 
-psa_status_t psa_aead_generate_nonce(psa_aead_operation_t * operation,
-                                     uint8_t * nonce,
-                                     size_t nonce_size,
-                                     size_t * nonce_length)
+psa_status_t psa_aead_generate_nonce(   psa_aead_operation_t * operation,
+                                        uint8_t * nonce,
+                                        size_t nonce_size,
+                                        size_t * nonce_length)
 {
     (void) operation;
     (void) nonce;
@@ -174,9 +183,9 @@ psa_aead_operation_t psa_aead_operation_init(void)
     return PSA_ERROR_NOT_SUPPORTED;
 }
 
-psa_status_t psa_aead_set_lengths(psa_aead_operation_t * operation,
-                                  size_t ad_length,
-                                  size_t plaintext_length)
+psa_status_t psa_aead_set_lengths(  psa_aead_operation_t * operation,
+                                    size_t ad_length,
+                                    size_t plaintext_length)
 {   (void) operation;
     (void) ad_length;
     (void) plaintext_length;
@@ -193,12 +202,12 @@ psa_status_t psa_aead_set_nonce(psa_aead_operation_t * operation,
     return PSA_ERROR_NOT_SUPPORTED;
 }
 
-psa_status_t psa_aead_update(psa_aead_operation_t * operation,
-                             const uint8_t * input,
-                             size_t input_length,
-                             uint8_t * output,
-                             size_t output_size,
-                             size_t * output_length)
+psa_status_t psa_aead_update(   psa_aead_operation_t * operation,
+                                const uint8_t * input,
+                                size_t input_length,
+                                uint8_t * output,
+                                size_t output_size,
+                                size_t * output_length)
 {
     (void) operation;
     (void) input;
@@ -219,12 +228,12 @@ psa_status_t psa_aead_update_ad(psa_aead_operation_t * operation,
     return PSA_ERROR_NOT_SUPPORTED;
 }
 
-psa_status_t psa_aead_verify(psa_aead_operation_t * operation,
-                             uint8_t * plaintext,
-                             size_t plaintext_size,
-                             size_t * plaintext_length,
-                             const uint8_t * tag,
-                             size_t tag_length)
+psa_status_t psa_aead_verify(   psa_aead_operation_t * operation,
+                                uint8_t * plaintext,
+                                size_t plaintext_size,
+                                size_t * plaintext_length,
+                                const uint8_t * tag,
+                                size_t tag_length)
 {
     (void) operation;
     (void) plaintext;
@@ -279,34 +288,53 @@ psa_status_t psa_asymmetric_encrypt(psa_key_id_t key,
     return PSA_ERROR_NOT_SUPPORTED;
 }
 
-/* Ciphers */
-
-static int psa_key_algorithm_permits(psa_key_type_t type, psa_algorithm_t policy_alg, psa_algorithm_t requested_alg)
+/**
+ * @brief Checks whether a key's policy permits the usage of a given algorithm
+ *
+ * @param[in]   policy        Policy of the given key
+ * @param       type          Type of the given key
+ * @param       requested_alg Algorithm to be used
+ *
+ * @return  PSA_SUCCESS
+ *          PSA_ERROR_NOT_PERMITTED
+ *          PSA_ERROR_INVALID_ARGUMENT  If @c requested_alg is not a valid algorithm
+ */
+static psa_status_t psa_key_policy_permits( const psa_key_policy_t *policy,
+                                            psa_key_type_t type,
+                                            psa_algorithm_t requested_alg)
 {
-    if (requested_alg == policy_alg) {
-        return 1;
-    }
-    (void) type;
-    return 0;
-}
-
-static psa_status_t psa_key_policy_permits (const psa_key_policy_t *policy, psa_key_type_t type, psa_algorithm_t alg)
-{
-    if (alg == 0) {
+    if (requested_alg == 0) {
         return PSA_ERROR_INVALID_ARGUMENT;
     }
-    if (psa_key_algorithm_permits(type, policy->alg, alg)) {
+    if (policy->alg == requested_alg) {
         return PSA_SUCCESS;
     }
 
+    (void) type;
     return PSA_ERROR_NOT_PERMITTED;
 }
 
-static psa_status_t psa_get_and_lock_key_slot_with_policy(
-    psa_key_id_t id,
-    psa_key_slot_t **p_slot,
-    psa_key_usage_t usage,
-    psa_algorithm_t alg)
+/**
+ * @brief   Check whether the policy of the key associated with the given ID permits the requested usage and return
+ *          the key slot.
+ *
+ * @param       id      ID of the key to be used
+ * @param[out]  p_slot  Pointer to a @c psa_key_slot_t type to return the desired key slot.
+ *                      NULL if something went wrong.
+ * @param       usage   The requested usage of the key
+ * @param       alg     The requested algorithm that uses the key
+ *
+ * @return  PSA_SUCCESS
+ *          PSA_ERROR_NOT_PERMITTED
+ *          PSA_ERROR_DOES_NOT_EXIST
+ *          PSA_ERROR_INVALID_ARGUMENT
+ *          PSA_ERROR_NOT_SUPPORTED
+ *          PSA_ERROR_CORRUPTION_DETECTED
+ */
+static psa_status_t psa_get_and_lock_key_slot_with_policy(  psa_key_id_t id,
+                                                            psa_key_slot_t **p_slot,
+                                                            psa_key_usage_t usage,
+                                                            psa_algorithm_t alg)
 {
     psa_status_t status = PSA_ERROR_CORRUPTION_DETECTED;
     psa_key_slot_t *slot;
@@ -345,6 +373,15 @@ psa_status_t psa_cipher_abort(psa_cipher_operation_t * operation)
     return PSA_ERROR_NOT_SUPPORTED;
 }
 
+/**
+ * @brief Setup a cipher encrypt or decrypt operation.
+ *
+ * @param operation
+ * @param key
+ * @param alg
+ * @param direction
+ * @return psa_status_t
+ */
 static psa_status_t psa_cipher_setup(   psa_cipher_operation_t * operation,
                                         psa_key_id_t key,
                                         psa_algorithm_t alg,
