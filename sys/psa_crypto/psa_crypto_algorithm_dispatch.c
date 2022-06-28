@@ -176,11 +176,11 @@ psa_status_t psa_algorithm_dispatch_sign_hash(  const psa_key_attributes_t *attr
     psa_get_key_data_from_key_slot(slot, &key_data, &key_bytes);
 
     switch(asym_key) {
-#if IS_ACTIVE(CONFIG_PSA_ECC_P192_DRIVER)
+#if IS_ACTIVE(CONFIG_PSA_ECC_P192_R1_DRIVER)
         case PSA_ECC_P192_R1:
             return psa_ecc_p192r1_sign_hash(attributes, alg, key_data, *key_bytes, hash, hash_length, signature, signature_size, signature_length);
 #endif
-#if IS_ACTIVE(CONFIG_PSA_ECC_P256_DRIVER)
+#if IS_ACTIVE(CONFIG_PSA_ECC_P256_R1_DRIVER)
         case PSA_ECC_P256_R1:
             return psa_ecc_p256r1_sign_hash(attributes, alg, key_data, *key_bytes, hash, hash_length, signature, signature_size, signature_length);
 #endif
@@ -219,11 +219,11 @@ psa_status_t psa_algorithm_dispatch_verify_hash(  const psa_key_attributes_t *at
     psa_get_public_key_data_from_key_slot(slot, &pubkey_data, &pubkey_bytes);
 
     switch(asym_key) {
-#if IS_ACTIVE(CONFIG_PSA_ECC_P192_DRIVER)
+#if IS_ACTIVE(CONFIG_PSA_ECC_P192_R1_DRIVER)
         case PSA_ECC_P192_R1:
             return psa_ecc_p192r1_verify_hash(attributes, alg, pubkey_data, *pubkey_bytes, hash, hash_length, signature, signature_length);
 #endif
-#if IS_ACTIVE(CONFIG_PSA_ECC_P256_DRIVER)
+#if IS_ACTIVE(CONFIG_PSA_ECC_P256_R1_DRIVER)
         case PSA_ECC_P256_R1:
             return psa_ecc_p256r1_verify_hash(attributes, alg, pubkey_data, *pubkey_bytes, hash, hash_length, signature, signature_length);
 #endif
@@ -262,7 +262,7 @@ psa_status_t psa_algorithm_dispatch_generate_key(   const psa_key_attributes_t *
         }
 
         switch(asym_key) {
-#if IS_ACTIVE(CONFIG_PSA_ECC_P192_DRIVER)
+#if IS_ACTIVE(CONFIG_PSA_ECC_P192_R1_DRIVER)
             case PSA_ECC_P192_R1:
                 return psa_generate_ecc_p192r1_key_pair(attributes, key_data, pubkey_data, key_bytes, pubkey_bytes);
 #endif
