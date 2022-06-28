@@ -2125,15 +2125,6 @@
 #define PSA_ALG_TRUNCATED_MAC(mac_alg, mac_length) \
     ((psa_algorithm_t) (((mac_alg) & ~0x003f0000) | (((mac_length) & 0x3f) << 16)))
 
-#define PSA_ASYMMETRIC_DECRYPT_OUTPUT_MAX_SIZE \
-/* implementation-defined value */
-#define PSA_ASYMMETRIC_DECRYPT_OUTPUT_SIZE(key_type, key_bits, alg) \
-/* implementation-defined value */
-#define PSA_ASYMMETRIC_ENCRYPT_OUTPUT_MAX_SIZE \
-/* implementation-defined value */
-#define PSA_ASYMMETRIC_ENCRYPT_OUTPUT_SIZE(key_type, key_bits, alg) \
-/* implementation-defined value */
-
 #define PSA_DH_FAMILY_RFC7919 ((psa_dh_family_t) 0x03)
 #define PSA_ECC_FAMILY_BRAINPOOL_P_R1 ((psa_ecc_family_t) 0x30)
 #define PSA_ECC_FAMILY_FRP ((psa_ecc_family_t) 0x33)
