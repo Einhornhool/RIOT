@@ -24,8 +24,8 @@
 #include <stdint.h>
 
 /**
- * For encrypt-decrypt functions, whether the operation is an encryption
- * or a decryption.
+ * @brief   For encrypt-decrypt functions, whether the operation is an encryption
+ *          or a decryption.
  */
 typedef enum {
     PSA_CRYPTO_DRIVER_DECRYPT,

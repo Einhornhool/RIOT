@@ -1289,116 +1289,116 @@
 #define PSA_ALG_CHACHA20_POLY1305   ((psa_algorithm_t)0x05100500)
 
 /**
- * @brief The Counter with CBC-MAC (CCM) authenticated encryption algorithm.
+ * @brief   The Counter with CBC-MAC (CCM) authenticated encryption algorithm.
  *
- * CCM is defined for block ciphers that have a 128-bit block size. The underlying block cipher is
- * determined by the key type.
+ *          CCM is defined for block ciphers that have a 128-bit block size. The underlying block cipher is
+ *          determined by the key type.
  *
- * To use @ref PSA_ALG_CCM with a multi-part AEAD operation, the application must call
- * @ref psa_aead_set_lengths() before providing the nonce, the additional data and plaintext to the
- * operation.
+ *          To use @ref PSA_ALG_CCM with a multi-part AEAD operation, the application must call
+ *          @ref psa_aead_set_lengths() before providing the nonce, the additional data and plaintext to the
+ *          operation.
  *
- * CCM requires a nonce of between 7 and 13 bytes in length. The length of the nonce affects the m
- * maximum length of the plaintext than can be encrypted or decrypted. If the nonce has length N,
- * then the plaintext length pLen is encoded in L = 15 - N octets, this requires that pLen < 28L.
+ *          CCM requires a nonce of between 7 and 13 bytes in length. The length of the nonce affects the m
+ *          maximum length of the plaintext than can be encrypted or decrypted. If the nonce has length N,
+ *          then the plaintext length pLen is encoded in L = 15 - N octets, this requires that pLen < 28L.
  *
- * The value for L that is used with PSA_ALG_CCM depends on the function used to provide the nonce:
- *  - A call to @ref psa_aead_encrypt(), @ref psa_aead_decrypt(), or @ref psa_aead_set_nonce() will
- *    set L to 15 - nonce_length. If the plaintext length cannot be encoded in L octets, then a
- *    @ref PSA_ERROR_INVALID_ARGUMENT error is returned.
- *  - A call to @ref psa_aead_generate_nonce() on a multi-part cipher operation will select L as
- *    the smallest integer >= 2 where pLen < 28L, with pLen being the plaintext_length provided to
- *    @ref psa_aead_set_lengths(). The call to @ref psa_aead_generate_nonce() will generate and
- *    return a random nonce of length 15 - L bytes.
+ *          The value for L that is used with PSA_ALG_CCM depends on the function used to provide the nonce:
+ *           -  A call to @ref psa_aead_encrypt(), @ref psa_aead_decrypt(), or @ref psa_aead_set_nonce() will
+ *              set L to 15 - nonce_length. If the plaintext length cannot be encoded in L octets, then a
+ *              @ref PSA_ERROR_INVALID_ARGUMENT error is returned.
+ *           -  A call to @ref psa_aead_generate_nonce() on a multi-part cipher operation will select L as
+ *              the smallest integer >= 2 where pLen < 28L, with pLen being the plaintext_length provided to
+ *              @ref psa_aead_set_lengths(). The call to @ref psa_aead_generate_nonce() will generate and
+ *              return a random nonce of length 15 - L bytes.
  *
- * CCM supports authentication tag sizes of 4, 6, 8, 10, 12, 14, and 16 bytes. The default tag
- * length is 16. Shortened tag lengths can be requested using @ref PSA_ALG_AEAD_WITH_SHORTENED_TAG
- * (PSA_ALG_CCM, tag_length), where tag_length is a valid CCM tag length.
+ *          CCM supports authentication tag sizes of 4, 6, 8, 10, 12, 14, and 16 bytes. The default tag
+ *          length is 16. Shortened tag lengths can be requested using @ref PSA_ALG_AEAD_WITH_SHORTENED_TAG
+ *          (@ref PSA_ALG_CCM, @p tag_length), where tag_length is a valid CCM tag length.
  *
- * The CCM block cipher mode is defined in Counter with CBC-MAC (CCM) [RFC3610].
+ *          The CCM block cipher mode is defined in Counter with CBC-MAC (CCM) [RFC3610].
  *
- * @b Compatible @b key @b types
- * @ref PSA_KEY_TYPE_AES
- * @ref PSA_KEY_TYPE_ARIA
- * @ref PSA_KEY_TYPE_CAMELLIA
- * @ref PSA_KEY_TYPE_SM4
+ *          @b Compatible @b key @b types
+ *          - @ref PSA_KEY_TYPE_AES
+ *          - @ref PSA_KEY_TYPE_ARIA
+ *          - @ref PSA_KEY_TYPE_CAMELLIA
+ *          - @ref PSA_KEY_TYPE_SM4
  */
 #define PSA_ALG_CCM                 ((psa_algorithm_t)0x05500100)
 
 /**
- * @brief The Galois/Counter Mode (GCM) authenticated encryption algorithm.
+ * @brief   The Galois/Counter Mode (GCM) authenticated encryption algorithm.
  *
- * GCM is defined for block ciphers that have a 128-bit block size. The underlying block cipher is
- * determined by the key type.
+ *          GCM is defined for block ciphers that have a 128-bit block size. The underlying block cipher is
+ *          determined by the key type.
  *
- * GCM requires a nonce of at least 1 byte in length. The maximum supported nonce size is
- * implementation defined. Calling @ref psa_aead_generate_nonce() will generate a random 12-byte
- * nonce.
+ *          GCM requires a nonce of at least 1 byte in length. The maximum supported nonce size is
+ *          implementation defined. Calling @ref psa_aead_generate_nonce() will generate a random 12-byte
+ *          nonce.
  *
- * GCM supports authentication tag sizes of 4, 8, 12, 13, 14, 15, and 16 bytes. The default tag
- * length is 16. Shortened tag lengths can be requested using
- * @ref PSA_ALG_AEAD_WITH_SHORTENED_TAG(PSA_ALG_GCM, tag_length), where tag_length is a valid GCM
- * tag length.
+ *          GCM supports authentication tag sizes of 4, 8, 12, 13, 14, 15, and 16 bytes. The default tag
+ *          length is 16. Shortened tag lengths can be requested using
+ *          @ref PSA_ALG_AEAD_WITH_SHORTENED_TAG(@ref PSA_ALG_GCM, @p tag_length), where tag_length is a valid GCM
+ *          tag length.
  *
- * The GCM block cipher mode is defined in NIST Special Publication 800-38D: Recommendation for
- * Block Cipher Modes of Operation: Galois/Counter Mode (GCM) and GMAC [SP800-38D].
+ *          The GCM block cipher mode is defined in NIST Special Publication 800-38D: Recommendation for
+ *          Block Cipher Modes of Operation: Galois/Counter Mode (GCM) and GMAC [SP800-38D].
  *
- * @b Compatible @b key @b types
- * @ref PSA_KEY_TYPE_AES
- * @ref PSA_KEY_TYPE_ARIA
- * @ref PSA_KEY_TYPE_CAMELLIA
- * @ref PSA_KEY_TYPE_SM4
+ *          @b Compatible @b key @b types
+ *          - @ref PSA_KEY_TYPE_AES
+ *          - @ref PSA_KEY_TYPE_ARIA
+ *          - @ref PSA_KEY_TYPE_CAMELLIA
+ *          - @ref PSA_KEY_TYPE_SM4
  */
 #define PSA_ALG_GCM                 ((psa_algorithm_t)0x05500200)
 
 /**
- * @brief The PBKDF2-AES-CMAC-PRF-128 password-hashing or key-stretching algorithm.
+ * @brief   The PBKDF2-AES-CMAC-PRF-128 password-hashing or key-stretching algorithm.
  *
- * PBKDF2 is specified by PKCS #5: Password-Based Cryptography Specification Version 2.1 [RFC8018]
- * §5.2. This algorithm specifies the PBKDF2 algorithm using the AES-CMAC-PRF-128 pseudo-random
- * function specified by [RFC4615]
+ *          PBKDF2 is specified by PKCS #5: Password-Based Cryptography Specification Version 2.1 [RFC8018]
+ *          §5.2. This algorithm specifies the PBKDF2 algorithm using the AES-CMAC-PRF-128 pseudo-random
+ *          function specified by [RFC4615]
  *
- * This key derivation algorithm uses the same inputs as @ref PSA_ALG_PBKDF2_HMAC() with the same
- * constraints.
+ *          This key derivation algorithm uses the same inputs as @ref PSA_ALG_PBKDF2_HMAC() with the same
+ *          constraints.
  *
- * @b Compatible @b key @b types
- * @ref PSA_KEY_TYPE_DERIVE (for password input)
- * @ref PSA_KEY_TYPE_PASSWORD (for password input)
- * @ref PSA_KEY_TYPE_PEPPER (for salt input)
- * @ref PSA_KEY_TYPE_RAW_DATA (for salt input)
- * @ref PSA_KEY_TYPE_PASSWORD_HASH (for key verification)
+ *          @b Compatible @b key @b types
+ *          - @ref PSA_KEY_TYPE_DERIVE (for password input)
+ *          - @ref PSA_KEY_TYPE_PASSWORD (for password input)
+ *          - @ref PSA_KEY_TYPE_PEPPER (for salt input)
+ *          - @ref PSA_KEY_TYPE_RAW_DATA (for salt input)
+ *          - @ref PSA_KEY_TYPE_PASSWORD_HASH (for key verification)
  */
 #define PSA_ALG_PBKDF2_AES_CMAC_PRF_128 ((psa_algorithm_t)0x08800200)
 
 /**
- * @brief Macro to build a PBKDF2-HMAC password-hashing or key-stretching algorithm.
+ * @brief   Macro to build a PBKDF2-HMAC password-hashing or key-stretching algorithm.
  *
- * PBKDF2 is specified by PKCS #5: Password-Based Cryptography Specification Version 2.1 [RFC8018]
- * §5.2. This macro constructs a PBKDF2 algorithm that uses a pseudo-random function based on HMAC
- * with the specified hash.
+ *          PBKDF2 is specified by PKCS #5: Password-Based Cryptography Specification Version 2.1 [RFC8018]
+ *          §5.2. This macro constructs a PBKDF2 algorithm that uses a pseudo-random function based on HMAC
+ *          with the specified hash.
  *
- * This key derivation algorithm uses the following inputs, which must be provided in the following
- * order:
- * - @ref PSA_KEY_DERIVATION_INPUT_COST is the iteration count. This input step must be used
- *   exactly once.
- * - @ref PSA_KEY_DERIVATION_INPUT_SALT is the salt. This input step must be used one or more
- *   times; if used several times, the inputs will be concatenated. This can be used to build the
- *   final salt from multiple sources, both public and secret (also known as pepper).
- * - @ref PSA_KEY_DERIVATION_INPUT_PASSWORD is the password to be hashed. This input step must be
- *   used exactly once.
+ *          This key derivation algorithm uses the following inputs, which must be provided in the following
+ *          order:
+ *          -   @ref PSA_KEY_DERIVATION_INPUT_COST is the iteration count. This input step must be used
+ *              exactly once.
+ *          -   @ref PSA_KEY_DERIVATION_INPUT_SALT is the salt. This input step must be used one or more
+ *              times; if used several times, the inputs will be concatenated. This can be used to build the
+ *              final salt from multiple sources, both public and secret (also known as pepper).
+ *          -   @ref PSA_KEY_DERIVATION_INPUT_PASSWORD is the password to be hashed. This input step must be
+ *              used exactly once.
  *
- * @b Compatible @b key @b types
- * @ref PSA_KEY_TYPE_DERIVE (for password input)
- * @ref PSA_KEY_TYPE_PASSWORD (for password input)
- * @ref PSA_KEY_TYPE_PEPPER (for salt input)
- * @ref PSA_KEY_TYPE_RAW_DATA (for salt input)
- * @ref PSA_KEY_TYPE_PASSWORD_HASH (for key verification)
+ *          @b Compatible @b key @b types
+ *          - @ref PSA_KEY_TYPE_DERIVE (for password input)
+ *          - @ref PSA_KEY_TYPE_PASSWORD (for password input)
+ *          - @ref PSA_KEY_TYPE_PEPPER (for salt input)
+ *          - @ref PSA_KEY_TYPE_RAW_DATA (for salt input)
+ *          - @ref PSA_KEY_TYPE_PASSWORD_HASH (for key verification)
  *
- * @param hash_alg  A hash algorithm: a value of type @ref psa_algorithm_t such that
- *                  @ref PSA_ALG_IS_HASH(hash_alg) is true.
+ * @param   hash_alg    A hash algorithm: a value of type @ref psa_algorithm_t such that
+ *                      @ref PSA_ALG_IS_HASH(hash_alg) is true.
  *
  * @return  The corresponding PBKDF2-HMAC-XXX algorithm. For example,
- *          @ref PSA_ALG_PBKDF2_HMAC(PSA_ALG_SHA_256) is the algorithm identifier for
+ *          @ref PSA_ALG_PBKDF2_HMAC(@ref PSA_ALG_SHA_256) is the algorithm identifier for
  *          PBKDF2-HMAC-SHA-256.
  *          Unspecified if hash_alg is not a supported hash algorithm.
  */
@@ -1406,104 +1406,100 @@
     ((psa_algorithm_t)(0x08800100 | ((hash_alg) & 0x000000ff)))
 
 /**
- * @brief The raw RSA PKCS#1 v1.5 signature algorithm, without hashing.
+ * @brief   The raw RSA PKCS#1 v1.5 signature algorithm, without hashing.
  *
- * This algorithm can be only used with the @ref psa_sign_hash() and @ref psa_verify_hash()
- * functions.
- * This signature scheme is defined by PKCS #1: RSA Cryptography Specifications Version 2.2
- * [RFC8017] §8.2 under the name RSASSA-PKCS1-v1_5.
+ *          This algorithm can be only used with the @ref psa_sign_hash() and @ref psa_verify_hash()
+ *          functions.
+ *          This signature scheme is defined by PKCS #1: RSA Cryptography Specifications Version 2.2
+ *          [RFC8017] §8.2 under the name RSASSA-PKCS1-v1_5.
  *
- * The hash parameter to @ref psa_sign_hash() or @ref psa_verify_hash() is used as T from step 3
- * onwards in the message encoding algorithm EMSA-PKCS1-V1_5-ENCODE() in [RFC8017] §9.2. T is the
- * DER encoding of the DigestInfo structure normally produced by step 2 in the message encoding
- * algorithm.
+ *          The hash parameter to @ref psa_sign_hash() or @ref psa_verify_hash() is used as T from step 3
+ *          onwards in the message encoding algorithm EMSA-PKCS1-V1_5-ENCODE() in [RFC8017] §9.2. T is the
+ *          DER encoding of the DigestInfo structure normally produced by step 2 in the message encoding
+ *          algorithm.
  *
- * The wildcard key policy @ref PSA_ALG_RSA_PKCS1V15_SIGN(PSA_ALG_ANY_HASH) also permits a key to
- * be used with the @ref PSA_ALG_RSA_PKCS1V15_SIGN_RAW signature algorithm.
+ *          The wildcard key policy @ref PSA_ALG_RSA_PKCS1V15_SIGN(@ref PSA_ALG_ANY_HASH) also permits a key to
+ *          be used with the @ref PSA_ALG_RSA_PKCS1V15_SIGN_RAW signature algorithm.
  *
- * @b Compatible @b key @b types
- * @ref PSA_KEY_TYPE_RSA_KEY_PAIR
- * @ref PSA_KEY_TYPE_RSA_PUBLIC_KEY (signature verification only)
+ *          @b Compatible @b key @b types
+ *          - @ref PSA_KEY_TYPE_RSA_KEY_PAIR
+ *          - @ref PSA_KEY_TYPE_RSA_PUBLIC_KEY (signature verification only)
  */
 #define PSA_ALG_RSA_PKCS1V15_SIGN_RAW   ((psa_algorithm_t) 0x06000200)
 
 #define PSA_ALG_ECDSA_BASE      ((psa_algorithm_t) 0x06000600)
 
 /**
- * @brief Edwards-curve digital signature algorithm without prehashing (PureEdDSA), using standard
- * parameters.
+ * @brief   Edwards-curve digital signature algorithm without prehashing (PureEdDSA),
+ *          using standard parameters.
  *
- * This algorithm can be only used with the @ref psa_sign_message() and @ref psa_verify_message()
- * functions.
+ *          This algorithm can be only used with the @ref psa_sign_message() and @ref psa_verify_message()
+ *          functions.
  *
- * This is the PureEdDSA digital signature algorithm defined by Edwards-Curve Digital Signature
- * Algorithm (EdDSA) [RFC8032], using standard parameters.
+ *          This is the PureEdDSA digital signature algorithm defined by Edwards-Curve Digital Signature
+ *          Algorithm (EdDSA) [RFC8032], using standard parameters.
  *
- * PureEdDSA requires an elliptic curve key on a twisted Edwards curve. The following curves are
- * supported:
- * - Edwards25519: the Ed25519 algorithm is computed. The output signature is a 64-byte string: the
- *   concatenation of R and S as defined by [RFC8032] §5.1.6.
- * - Edwards448: the Ed448 algorithm is computed with an empty string as the context. The output
- *   signature is a 114-byte string: the concatenation of R and S as defined by [RFC8032] §5.2.6.
+ *          PureEdDSA requires an elliptic curve key on a twisted Edwards curve. The following curves are
+ *          supported:
+ *          -   Edwards25519: the Ed25519 algorithm is computed. The output signature is a 64-byte string: the
+ *              concatenation of R and S as defined by [RFC8032] §5.1.6.
+ *          -   Edwards448: the Ed448 algorithm is computed with an empty string as the context. The output
+ *              signature is a 114-byte string: the concatenation of R and S as defined by [RFC8032] §5.2.6.
  *
- * @note
- * Contexts are not supported in the current version of this specification because there is no
- * suitable signature interface that can take the context as a parameter. A future version of this
- * specification may add suitable functions and extend this algorithm to support contexts.
+ * @note    Contexts are not supported in the current version of this specification because there is no
+ *          suitable signature interface that can take the context as a parameter. A future version of this
+ *          specification may add suitable functions and extend this algorithm to support contexts.
  *
- * @note
- * To sign or verify the pre-computed hash of a message using EdDSA, the HashEdDSA algorithms
- * (@ref PSA_ALG_ED25519PH and @ref PSA_ALG_ED448PH) can be used with @ref psa_sign_hash() and
- * @ref psa_verify_hash().
- * The signature produced by HashEdDSA is distinct from that produced by PureEdDSA.
+ * @note    To sign or verify the pre-computed hash of a message using EdDSA, the HashEdDSA algorithms
+ *          (@ref PSA_ALG_ED25519PH and @ref PSA_ALG_ED448PH) can be used with @ref psa_sign_hash() and
+ *          @ref psa_verify_hash().
+ *          The signature produced by HashEdDSA is distinct from that produced by PureEdDSA.
  *
- * @b Compatible @b key @b types
- * @ref PSA_KEY_TYPE_ECC_KEY_PAIR(PSA_ECC_FAMILY_TWISTED_EDWARDS)
- * @ref PSA_KEY_TYPE_ECC_PUBLIC_KEY(PSA_ECC_FAMILY_TWISTED_EDWARDS) (signature verification only)
+ *          @b Compatible @b key @b types
+ *          - @ref PSA_KEY_TYPE_ECC_KEY_PAIR(PSA_ECC_FAMILY_TWISTED_EDWARDS)
+ *          - @ref PSA_KEY_TYPE_ECC_PUBLIC_KEY(PSA_ECC_FAMILY_TWISTED_EDWARDS) (signature verification only)
  */
 #define PSA_ALG_PURE_EDDSA ((psa_algorithm_t) 0x06000800)
 
 /**
- * @brief The randomized ECDSA signature scheme, with hashing.
+ * @brief   The randomized ECDSA signature scheme, with hashing.
  *
- * This algorithm can be used with both the message and hash signature functions.
+ *          This algorithm can be used with both the message and hash signature functions.
  *
- * This algorithm is randomized: each invocation returns a different, equally valid signature.
+ *          This algorithm is randomized: each invocation returns a different, equally valid signature.
  *
- * @note
- * When based on the same hash algorithm, the verification operations for @ref PSA_ALG_ECDSA and
- * @ref PSA_ALG_DETERMINISTIC_ECDSA are identical. A signature created using @ref PSA_ALG_ECDSA can
- * be verified with the same key using either @ref PSA_ALG_ECDSA or
- * @ref PSA_ALG_DETERMINISTIC_ECDSA. Similarly, a signature created using
- * @ref PSA_ALG_DETERMINISTIC_ECDSA can be verified with the same key using either
- * @ref PSA_ALG_ECDSA or @ref PSA_ALG_DETERMINISTIC_ECDSA.
+ * @note    When based on the same hash algorithm, the verification operations for @ref PSA_ALG_ECDSA and
+ *          @ref PSA_ALG_DETERMINISTIC_ECDSA are identical. A signature created using @ref PSA_ALG_ECDSA can
+ *          be verified with the same key using either @ref PSA_ALG_ECDSA or @ref PSA_ALG_DETERMINISTIC_ECDSA.
+ *          Similarly, a signature created using @ref PSA_ALG_DETERMINISTIC_ECDSA can be verified with the same
+ *          key using either @ref PSA_ALG_ECDSA or @ref PSA_ALG_DETERMINISTIC_ECDSA.
  *
- * In particular, it is impossible to determine whether a signature was produced with deterministic
- * ECDSA or with randomized ECDSA: it is only possible to verify that a signature was made with
- * ECDSA with the private key corresponding to the public key used for the verification.
+ *          In particular, it is impossible to determine whether a signature was produced with deterministic
+ *          ECDSA or with randomized ECDSA: it is only possible to verify that a signature was made with
+ *          ECDSA with the private key corresponding to the public key used for the verification.
  *
- * This signature scheme is defined by SEC 1: Elliptic Curve Cryptography [SEC1], and also by
- * Public Key Cryptography For The Financial Services Industry: The Elliptic Curve Digital
- * Signature Algorithm (ECDSA) [X9-62], with a random per-message secret number k.
+ *          This signature scheme is defined by SEC 1: Elliptic Curve Cryptography [SEC1], and also by
+ *          Public Key Cryptography For The Financial Services Industry: The Elliptic Curve Digital
+ *          Signature Algorithm (ECDSA) [X9-62], with a random per-message secret number k.
  *
- * The representation of the signature as a byte string consists of the concatenation of the
- * signature values r and s. Each of r and s is encoded as an N-octet string, where N is the length
- * of the base point of the curve in octets. Each value is represented in big-endian order, with
- * the most significant octet first.
+ *          The representation of the signature as a byte string consists of the concatenation of the
+ *          signature values r and s. Each of r and s is encoded as an N-octet string, where N is the length
+ *          of the base point of the curve in octets. Each value is represented in big-endian order, with
+ *          the most significant octet first.
  *
- * @b Compatible @b key @b types
- * @ref PSA_KEY_TYPE_ECC_KEY_PAIR(family)
- * @ref PSA_KEY_TYPE_ECC_PUBLIC_KEY(family) (signature verification only)
+ *          @b Compatible @b key @b types
+ *          - @ref PSA_KEY_TYPE_ECC_KEY_PAIR(family)
+ *          - @ref PSA_KEY_TYPE_ECC_PUBLIC_KEY(family) (signature verification only)
  *
- * where family is a Weierstrass Elliptic curve family. That is, one of the following values:
- * - PSA_ECC_FAMILY_SECT_XX
- * - PSA_ECC_FAMILY_SECP_XX
- * - @ref PSA_ECC_FAMILY_FRP
- * - @ref PSA_ECC_FAMILY_BRAINPOOL_P_R1
+ *          where family is a Weierstrass Elliptic curve family. That is, one of the following values:
+ *          - PSA_ECC_FAMILY_SECT_XX
+ *          - PSA_ECC_FAMILY_SECP_XX
+ *          - @ref PSA_ECC_FAMILY_FRP
+ *          - @ref PSA_ECC_FAMILY_BRAINPOOL_P_R1
  *
- * @param hash_alg  A hash algorithm: a value of type psa_algorithm_t such that @ref PSA_ALG_IS_HASH
- *                  (hash_alg) is true. This includes @ref PSA_ALG_ANY_HASH when specifying the
- *                  algorithm in a key policy.
+ * @param   hash_alg    A hash algorithm: a value of type psa_algorithm_t such that @ref PSA_ALG_IS_HASH
+ *                      (@p hash_alg) is true. This includes @ref PSA_ALG_ANY_HASH when specifying the
+ *                      algorithm in a key policy.
  *
  * @return  The corresponding randomized ECDSA signature algorithm.
  *          Unspecified if hash_alg is not a supported hash algorithm.
@@ -1512,200 +1508,199 @@
     (PSA_ALG_ECDSA_BASE | ((hash_alg) & PSA_ALG_HASH_MASK))
 
 /**
- * @brief The randomized ECDSA signature scheme, without hashing.
+ * @brief   The randomized ECDSA signature scheme, without hashing.
  *
- * This algorithm can be only used with the @ref psa_sign_hash() and @ref psa_verify_hash()
- * functions.
+ *          This algorithm can be only used with the @ref psa_sign_hash() and @ref psa_verify_hash()
+ *          functions.
  *
- * This algorithm is randomized: each invocation returns a different, equally valid signature.
+ *          This algorithm is randomized: each invocation returns a different, equally valid signature.
  *
- * This is the same signature scheme as @ref PSA_ALG_ECDSA(), but without specifying a hash
- * algorithm, and skipping the message hashing operation.
+ *          This is the same signature scheme as @ref PSA_ALG_ECDSA(), but without specifying a hash
+ *          algorithm, and skipping the message hashing operation.
  *
- * This algorithm is only recommended to sign or verify a sequence of bytes that are an
- * already-calculated hash. Note that the input is padded with zeros on the left or truncated on
- * the right as required to fit the curve size.
+ *          This algorithm is only recommended to sign or verify a sequence of bytes that are an
+ *          already-calculated hash. Note that the input is padded with zeros on the left or truncated on
+ *          the right as required to fit the curve size.
  *
- * @b Compatible @b key @b types
- * @ref PSA_KEY_TYPE_ECC_KEY_PAIR(family)
- * @ref PSA_KEY_TYPE_ECC_PUBLIC_KEY(family) (signature verification only)
+ *          @b Compatible @b key @b types
+ *          - @ref PSA_KEY_TYPE_ECC_KEY_PAIR(family)
+ *          - @ref PSA_KEY_TYPE_ECC_PUBLIC_KEY(family) (signature verification only)
  *
- * where family is a Weierstrass Elliptic curve family. That is, one of the following values:
- * - PSA_ECC_FAMILY_SECT_XX
- * - PSA_ECC_FAMILY_SECP_XX
- * - @ref PSA_ECC_FAMILY_FRP
- * - @ref PSA_ECC_FAMILY_BRAINPOOL_P_R1
+ *          where family is a Weierstrass Elliptic curve family. That is, one of the following values:
+ *          - PSA_ECC_FAMILY_SECT_XX
+ *          - PSA_ECC_FAMILY_SECP_XX
+ *          - @ref PSA_ECC_FAMILY_FRP
+ *          - @ref PSA_ECC_FAMILY_BRAINPOOL_P_R1
  */
 #define PSA_ALG_ECDSA_ANY       PSA_ALG_ECDSA_BASE
 
 /**
- * @brief Edwards-curve digital signature algorithm with prehashing (HashEdDSA), using the
- * Edwards25519 curve.
+ * @brief   Edwards-curve digital signature algorithm with prehashing (HashEdDSA), using the
+ *          Edwards25519 curve.
  *
- * This algorithm can be used with both the message and hash signature functions.
+ *          This algorithm can be used with both the message and hash signature functions.
  *
- * This computes the Ed25519ph algorithm as specified in Edwards-Curve Digital Signature Algorithm
- * (EdDSA) [RFC8032] §5.1, and requires an Edwards25519 curve key. An empty string is used as the
- * context. The prehash function is SHA-512.
+ *          This computes the Ed25519ph algorithm as specified in Edwards-Curve Digital Signature Algorithm
+ *          (EdDSA) [RFC8032] §5.1, and requires an Edwards25519 curve key. An empty string is used as the
+ *          context. The prehash function is SHA-512.
  *
- * Usage
- * This is a hash-and-sign algorithm. To calculate a signature, use one of the following approaches:
- * - Call @ref psa_sign_message() with the message.
- * - Calculate the SHA-512 hash of the message with @ref psa_hash_compute(), or with a multi-part
- *   hash operation, using the hash algorithm PSA_ALG_SHA_512. Then sign the calculated hash with
- *   @ref psa_sign_hash().
+ *          @b Usage
+ *          This is a hash-and-sign algorithm. To calculate a signature, use one of the following approaches:
+ *          -   Call @ref psa_sign_message() with the message.
+ *          -   Calculate the SHA-512 hash of the message with @ref psa_hash_compute(), or with a multi-part
+ *              hash operation, using the hash algorithm @ref PSA_ALG_SHA_512. Then sign the calculated hash with
+ *              @ref psa_sign_hash().
  *
- * Verifying a signature is similar, using @ref psa_verify_message() or @ref psa_verify_hash()
- * instead of the signature function.
+ *          Verifying a signature is similar, using @ref psa_verify_message() or @ref psa_verify_hash()
+ *          instead of the signature function.
  *
- * @b Compatible @b key @b types
- * @ref PSA_KEY_TYPE_ECC_KEY_PAIR(PSA_ECC_FAMILY_TWISTED_EDWARDS)
- * @ref PSA_KEY_TYPE_ECC_PUBLIC_KEY(PSA_ECC_FAMILY_TWISTED_EDWARDS) (signature verification only)
+ *          @b Compatible @b key @b types
+ *          - @ref PSA_KEY_TYPE_ECC_KEY_PAIR(@ref PSA_ECC_FAMILY_TWISTED_EDWARDS)
+ *          - @ref PSA_KEY_TYPE_ECC_PUBLIC_KEY(@ref PSA_ECC_FAMILY_TWISTED_EDWARDS) (signature verification only)
  */
 #define PSA_ALG_ED25519PH ((psa_algorithm_t) 0x0600090B)
 
 /**
- * @brief Edwards-curve digital signature algorithm with prehashing (HashEdDSA), using the
- * Edwards448 curve.
+ * @brief   Edwards-curve digital signature algorithm with prehashing (HashEdDSA), using the
+ *          Edwards448 curve.
  *
- * This algorithm can be used with both the message and hash signature functions.
+ *          This algorithm can be used with both the message and hash signature functions.
  *
- * This computes the Ed448ph algorithm as specified in Edwards-Curve Digital Signature Algorithm
- * (EdDSA) [RFC8032] §5.2, and requires an Edwards448 curve key. An empty string is used as the
- * context. The prehash function is the first 64 bytes of the output from SHAKE256.
+ *          This computes the Ed448ph algorithm as specified in Edwards-Curve Digital Signature Algorithm
+ *          (EdDSA) [RFC8032] §5.2, and requires an Edwards448 curve key. An empty string is used as the
+ *          context. The prehash function is the first 64 bytes of the output from SHAKE256.
  *
- * Usage
- * This is a hash-and-sign algorithm. To calculate a signature, use one of the following approaches:
- * - Call @ref psa_sign_message() with the message.
- * - Calculate the first 64 bytes of the SHAKE256 output of the message with
- *   @ref psa_hash_compute(), or with a multi-part hash operation, using the hash algorithm
- *   @ref PSA_ALG_SHAKE256_512. Then sign the calculated hash with @ref psa_sign_hash().
+ *          @b Usage
+ *          This is a hash-and-sign algorithm. To calculate a signature, use one of the following approaches:
+ *          -   Call @ref psa_sign_message() with the message.
+ *          -   Calculate the first 64 bytes of the SHAKE256 output of the message with
+ *              @ref psa_hash_compute(), or with a multi-part hash operation, using the hash algorithm
+ *              @ref PSA_ALG_SHAKE256_512. Then sign the calculated hash with @ref psa_sign_hash().
  *
- * Verifying a signature is similar, using @ref psa_verify_message() or @ref psa_verify_hash()
- * instead of the signature function.
+ *          Verifying a signature is similar, using @ref psa_verify_message() or @ref psa_verify_hash()
+ *          instead of the signature function.
  *
- * @b Compatible @b key @b types
- * @ref PSA_KEY_TYPE_ECC_KEY_PAIR(PSA_ECC_FAMILY_TWISTED_EDWARDS)
- * @ref PSA_KEY_TYPE_ECC_PUBLIC_KEY(PSA_ECC_FAMILY_TWISTED_EDWARDS) (signature verification only)
+ *          @b Compatible @b key @b types
+ *          - @ref PSA_KEY_TYPE_ECC_KEY_PAIR(@ref PSA_ECC_FAMILY_TWISTED_EDWARDS)
+ *          - @ref PSA_KEY_TYPE_ECC_PUBLIC_KEY(@ref PSA_ECC_FAMILY_TWISTED_EDWARDS) (signature verification only)
  */
 #define PSA_ALG_ED448PH ((psa_algorithm_t) 0x06000915)
 
 /**
- * @brief The RSA PKCS#1 v1.5 asymmetric encryption algorithm.
+ * @brief   The RSA PKCS#1 v1.5 asymmetric encryption algorithm.
  *
- * This encryption scheme is defined by PKCS #1: RSA Cryptography Specifications Version 2.2
- * [RFC8017] §7.2 under the name RSAES-PKCS-v1_5.
+ *          This encryption scheme is defined by PKCS #1: RSA Cryptography Specifications Version 2.2
+ *          [RFC8017] §7.2 under the name RSAES-PKCS-v1_5.
  *
- * @b Compatible @b key @b types
- * @ref PSA_KEY_TYPE_RSA_KEY_PAIR
- * @ref PSA_KEY_TYPE_RSA_PUBLIC_KEY (asymmetric encryption only)
+ *          @b Compatible @b key @b types
+ *          - @ref PSA_KEY_TYPE_RSA_KEY_PAIR
+ *          - @ref PSA_KEY_TYPE_RSA_PUBLIC_KEY (asymmetric encryption only)
  */
 #define PSA_ALG_RSA_PKCS1V15_CRYPT ((psa_algorithm_t)0x07000200)
 
 /**
- * @brief The finite-field Diffie-Hellman (DH) key agreement algorithm.
+ * @brief   The finite-field Diffie-Hellman (DH) key agreement algorithm.
  *
- * This algorithm can be used directly in a call to @ref psa_raw_key_agreement(),
- * or combined with a key derivation operation using @ref PSA_ALG_KEY_AGREEMENT() for use with
- * @ref psa_key_derivation_key_agreement().
+ *          This algorithm can be used directly in a call to @ref psa_raw_key_agreement(),
+ *          or combined with a key derivation operation using @ref PSA_ALG_KEY_AGREEMENT() for use with
+ *          @ref psa_key_derivation_key_agreement().
  *
- * When used as a key’s permitted algorithm policy, the following uses are permitted:
- * - In a call to @ref psa_raw_key_agreement(), with algorithm @ref PSA_ALG_FFDH.
- * - In a call to @ref psa_key_derivation_key_agreement(), with any combined key agreement and key
- *   derivation algorithm constructed with @ref PSA_ALG_FFDH.
+ *          When used as a key’s permitted algorithm policy, the following uses are permitted:
+ *          -   In a call to @ref psa_raw_key_agreement(), with algorithm @ref PSA_ALG_FFDH.
+ *          -   In a call to @ref psa_key_derivation_key_agreement(), with any combined key agreement and key
+ *              derivation algorithm constructed with @ref PSA_ALG_FFDH.
  *
- * When used as part of a multi-part key derivation operation, this implements a Diffie-Hellman key
- * agreement scheme using a single Diffie-Hellman key-pair for each participant. This includes the
- * dhEphem, dhOneFlow, and dhStatic schemes. The input step @ref PSA_KEY_DERIVATION_INPUT_SECRET is
- * used when providing the secret and peer keys to the operation.
+ *          When used as part of a multi-part key derivation operation, this implements a Diffie-Hellman key
+ *          agreement scheme using a single Diffie-Hellman key-pair for each participant. This includes the
+ *          dhEphem, dhOneFlow, and dhStatic schemes. The input step @ref PSA_KEY_DERIVATION_INPUT_SECRET is
+ *          used when providing the secret and peer keys to the operation.
  *
- * The shared secret produced by this key agreement algorithm is g^{ab} in big-endian format. It is
- * ceiling(m / 8) bytes long where m is the size of the prime p in bits.
+ *          The shared secret produced by this key agreement algorithm is g^{ab} in big-endian format. It is
+ *          ceiling(m / 8) bytes long where m is the size of the prime p in bits.
  *
- * This key agreement scheme is defined by NIST Special Publication 800-56A: Recommendation for
- * Pair-Wise Key-Establishment Schemes Using Discrete Logarithm Cryptography [SP800-56A] §5.7.1.1
- * under the name FFC DH.
+ *          This key agreement scheme is defined by NIST Special Publication 800-56A: Recommendation for
+ *          Pair-Wise Key-Establishment Schemes Using Discrete Logarithm Cryptography [SP800-56A] §5.7.1.1
+ *          under the name FFC DH.
  *
- * @b Compatible @b key @b types
- * @ref PSA_KEY_TYPE_DH_KEY_PAIR()
+ *          @b Compatible @b key @b types
+ *          - @ref PSA_KEY_TYPE_DH_KEY_PAIR()
  */
 #define PSA_ALG_FFDH ((psa_algorithm_t)0x09010000)
 
 /**
- * @brief The elliptic curve Diffie-Hellman (ECDH) key agreement algorithm.
+ * @brief   The elliptic curve Diffie-Hellman (ECDH) key agreement algorithm.
  *
- * This algorithm can be used directly in a call to @ref psa_raw_key_agreement(), or combined with
- * a key derivation operation using @ref PSA_ALG_KEY_AGREEMENT() for use with
- * @ref psa_key_derivation_key_agreement().
+ *          This algorithm can be used directly in a call to @ref psa_raw_key_agreement(), or combined with
+ *          a key derivation operation using @ref PSA_ALG_KEY_AGREEMENT() for use with
+ *          @ref psa_key_derivation_key_agreement().
  *
- * When used as a key’s permitted algorithm policy, the following uses are permitted:
- * - In a call to @ref psa_raw_key_agreement(), with algorithm @ref PSA_ALG_ECDH.
- * - In a call to @ref psa_key_derivation_key_agreement(), with any combined key agreement and key
- *   derivation algorithm constructed with @ref PSA_ALG_ECDH.
+ *          When used as a key’s permitted algorithm policy, the following uses are permitted:
+ *          -   In a call to @ref psa_raw_key_agreement(), with algorithm @ref PSA_ALG_ECDH.
+ *          -   In a call to @ref psa_key_derivation_key_agreement(), with any combined key agreement and key
+ *              derivation algorithm constructed with @ref PSA_ALG_ECDH.
  *
- * When used as part of a multi-part key derivation operation, this implements a Diffie-Hellman key
- * agreement scheme using a single elliptic curve key-pair for each participant. This includes the
- * Ephemeral unified model, the Static unified model, and the One-pass Diffie-Hellman schemes. The
- * input step @ref PSA_KEY_DERIVATION_INPUT_SECRET is used when providing the secret and peer keys
- * to the operation.
+ *          When used as part of a multi-part key derivation operation, this implements a Diffie-Hellman key
+ *          agreement scheme using a single elliptic curve key-pair for each participant. This includes the
+ *          Ephemeral unified model, the Static unified model, and the One-pass Diffie-Hellman schemes. The
+ *          input step @ref PSA_KEY_DERIVATION_INPUT_SECRET is used when providing the secret and peer keys
+ *          to the operation.
  *
- * The shared secret produced by key agreement is the x-coordinate of the shared secret point. It
- * is always ceiling(m / 8) bytes long where m is the bit size associated with the curve, i.e. the
- * bit size of the order of the curve’s coordinate field. When m is not a multiple of 8, the byte
- * containing the most significant bit of the shared secret is padded with zero bits. The byte
- * order is either little-endian or big-endian depending on the curve type.
+ *          The shared secret produced by key agreement is the x-coordinate of the shared secret point. It
+ *          is always ceiling(m / 8) bytes long where m is the bit size associated with the curve, i.e. the
+ *          bit size of the order of the curve’s coordinate field. When m is not a multiple of 8, the byte
+ *          containing the most significant bit of the shared secret is padded with zero bits. The byte
+ *          order is either little-endian or big-endian depending on the curve type.
  *
- * - For Montgomery curves (curve family @ref PSA_ECC_FAMILY_MONTGOMERY), the shared secret is the
- *   x-coordinate of Z = d_A Q_B = d_B Q_A in little-endian byte order.
- *      - For Curve25519, this is the X25519 function defined in Curve25519: new Diffie-Hellman
- *        speed records [Curve25519]. The bit size m is 255.
- *      - For Curve448, this is the X448 function defined in Ed448-Goldilocks, a new elliptic curve
- *        [Curve448]. The bit size m is 448.
- * - For Weierstrass curves (curve families PSA_ECC_FAMILY_SECP_XX, PSA_ECC_FAMILY_SECT_XX,
- *   @ref PSA_ECC_FAMILY_BRAINPOOL_P_R1 and @ref PSA_ECC_FAMILY_FRP) the shared secret is the
- *   x-coordinate of Z = h d_A Q_B = h d_B Q_A in big-endian byte order. This is the Elliptic Curve
- *   Cryptography Cofactor Diffie-Hellman primitive defined by SEC 1: Elliptic Curve Cryptography
- *   [SEC1] §3.3.2 as, and also as ECC CDH by NIST Special Publication 800-56A: Recommendation for
- *   Pair-Wise Key-Establishment Schemes Using Discrete Logarithm Cryptography [SP800-56A] §5.7.1.2.
- *      - Over prime fields (curve families PSA_ECC_FAMILY_SECP_XX,
- *        @ref PSA_ECC_FAMILY_BRAINPOOL_P_R1 and @ref PSA_ECC_FAMILY_FRP),
- *        the bit size is m = ceiling(log_2(p)) for the field F_p.
- *      - Over binary fields (curve families PSA_ECC_FAMILY_SECT_XX), the bit size is m for the
- *        field F_{2^m}.
+ *          -   For Montgomery curves (curve family @ref PSA_ECC_FAMILY_MONTGOMERY), the shared secret is the
+ *              x-coordinate of Z = d_A Q_B = d_B Q_A in little-endian byte order.
+ *              -   For Curve25519, this is the X25519 function defined in Curve25519: new Diffie-Hellman
+ *                  speed records [Curve25519]. The bit size m is 255.
+ *              -   For Curve448, this is the X448 function defined in Ed448-Goldilocks, a new elliptic curve
+ *                  [Curve448]. The bit size m is 448.
+ *          -   For Weierstrass curves (curve families PSA_ECC_FAMILY_SECP_XX, PSA_ECC_FAMILY_SECT_XX,
+ *              @ref PSA_ECC_FAMILY_BRAINPOOL_P_R1 and @ref PSA_ECC_FAMILY_FRP) the shared secret is the
+ *              x-coordinate of Z = h d_A Q_B = h d_B Q_A in big-endian byte order. This is the Elliptic Curve
+ *              Cryptography Cofactor Diffie-Hellman primitive defined by SEC 1: Elliptic Curve Cryptography
+ *              [SEC1] §3.3.2 as, and also as ECC CDH by NIST Special Publication 800-56A: Recommendation for
+ *              Pair-Wise Key-Establishment Schemes Using Discrete Logarithm Cryptography [SP800-56A] §5.7.1.2.
+ *              -   Over prime fields (curve families PSA_ECC_FAMILY_SECP_XX,
+ *                  @ref PSA_ECC_FAMILY_BRAINPOOL_P_R1 and @ref PSA_ECC_FAMILY_FRP),
+ *                  the bit size is m = ceiling(log_2(p)) for the field F_p.
+ *              -   Over binary fields (curve families PSA_ECC_FAMILY_SECT_XX), the bit size is m for the
+ *                  field F_{2^m}.
  *
- * @note
- * The cofactor Diffie-Hellman primitive is equivalent to the standard elliptic curve
- * Diffie-Hellman calculation Z = d_A Q_B = d_B Q_A ([SEC1] §3.3.1) for curves where the cofactor h
- * is 1. This is true for all curves in the PSA_ECC_FAMILY_SECP_XX,
- * @ref PSA_ECC_FAMILY_BRAINPOOL_P_R1, and @ref PSA_ECC_FAMILY_FRP families.
+ * @note    The cofactor Diffie-Hellman primitive is equivalent to the standard elliptic curve
+ *          Diffie-Hellman calculation Z = d_A Q_B = d_B Q_A ([SEC1] §3.3.1) for curves where the cofactor h
+ *          is 1. This is true for all curves in the PSA_ECC_FAMILY_SECP_XX, @ref PSA_ECC_FAMILY_BRAINPOOL_P_R1,
+ *          and @ref PSA_ECC_FAMILY_FRP families.
  *
- * @b Compatible @b key @b types
- * @ref PSA_KEY_TYPE_ECC_KEY_PAIR(family)
+ *          @b Compatible @b key @b types
+ *          - @ref PSA_KEY_TYPE_ECC_KEY_PAIR(family)
  *
- * where family is a Weierstrass or Montgomery Elliptic curve family. That is, one of the following
- * values:
- * - PSA_ECC_FAMILY_SECT_XX
- * - PSA_ECC_FAMILY_SECP_XX
- * - @ref PSA_ECC_FAMILY_FRP
- * - @ref PSA_ECC_FAMILY_BRAINPOOL_P_R1
- * - @ref PSA_ECC_FAMILY_MONTGOMERY
+ *          where family is a Weierstrass or Montgomery Elliptic curve family. That is, one of the following
+ *          values:
+ *          - PSA_ECC_FAMILY_SECT_XX
+ *          - PSA_ECC_FAMILY_SECP_XX
+ *          - @ref PSA_ECC_FAMILY_FRP
+ *          - @ref PSA_ECC_FAMILY_BRAINPOOL_P_R1
+ *          - @ref PSA_ECC_FAMILY_MONTGOMERY
  */
 #define PSA_ALG_ECDH ((psa_algorithm_t)0x09020000)
 
 /**
- * @brief The RSA OAEP asymmetric encryption algorithm.
+ * @brief   The RSA OAEP asymmetric encryption algorithm.
  *
- * This encryption scheme is defined by [RFC8017] §7.1 under the name RSAES-OAEP, with the
- * following options:
- * - The mask generation function MGF1 defined in [RFC8017] Appendix B.2.1.
- * - The specified hash algorithm is used to hash the label, and for the mask generation function.
+ *          This encryption scheme is defined by [RFC8017] §7.1 under the name RSAES-OAEP, with the
+ *          following options:
+ *          -   The mask generation function MGF1 defined in [RFC8017] Appendix B.2.1.
+ *          -   The specified hash algorithm is used to hash the label, and for the mask generation function.
  *
- * @b Compatible @b key @b types
- * @ref PSA_KEY_TYPE_RSA_KEY_PAIR
- * @ref PSA_KEY_TYPE_RSA_PUBLIC_KEY (asymmetric encryption only)
+ *          @b Compatible @b key @b types
+ *          - @ref PSA_KEY_TYPE_RSA_KEY_PAIR
+ *          - @ref PSA_KEY_TYPE_RSA_PUBLIC_KEY (asymmetric encryption only)
  *
- * @param hash_alg  A hash algorithm: a value of type @ref psa_algorithm_t such that
- *                  @ref PSA_ALG_IS_HASH(hash_alg) is true. The hash algorithm is used for MGF1.
+ * @param   hash_alg    A hash algorithm: a value of type @ref psa_algorithm_t such that
+ *                      @ref PSA_ALG_IS_HASH(@p hash_alg) is true. The hash algorithm is used for MGF1.
  *
  * @return  The corresponding RSA OAEP encryption algorithm.
  *          Unspecified if @c hash_alg is not a supported hash algorithm.
@@ -1714,24 +1709,24 @@
     ((psa_algorithm_t)(0x07000300 | ((hash_alg) & 0x000000ff)))
 
 /**
- * @brief The RSA PKCS#1 v1.5 message signature scheme, with hashing.
+ * @brief   The RSA PKCS#1 v1.5 message signature scheme, with hashing.
  *
- * This algorithm can be used with both the message and hash signature functions.
+ *          This algorithm can be used with both the message and hash signature functions.
  *
- * This signature scheme is defined by PKCS #1: RSA Cryptography Specifications Version 2.2
- * [RFC8017] §8.2 under the name RSASSA-PKCS1-v1_5.
+ *          This signature scheme is defined by PKCS #1: RSA Cryptography Specifications Version 2.2
+ *          [RFC8017] §8.2 under the name RSASSA-PKCS1-v1_5.
  *
- * When used with @ref psa_sign_hash() or @ref psa_verify_hash(), the provided hash parameter is
- * used as H from step 2 onwards in the message encoding algorithm EMSA-PKCS1-V1_5-ENCODE() in
- * [RFC8017] §9.2. H is usually the message digest, using the hash_alg hash algorithm.
+ *          When used with @ref psa_sign_hash() or @ref psa_verify_hash(), the provided hash parameter is
+ *          used as H from step 2 onwards in the message encoding algorithm EMSA-PKCS1-V1_5-ENCODE() in
+ *          [RFC8017] §9.2. H is usually the message digest, using the @c hash_alg hash algorithm.
  *
- * @b Compatible @b key @b types
- * @ref PSA_KEY_TYPE_RSA_KEY_PAIR
- * @ref PSA_KEY_TYPE_RSA_PUBLIC_KEY (signature verification only)
+ *          @b Compatible @b key @b types
+ *          - @ref PSA_KEY_TYPE_RSA_KEY_PAIR
+ *          - @ref PSA_KEY_TYPE_RSA_PUBLIC_KEY (signature verification only)
  *
- * @param hash_alg  A hash algorithm: a value of type @ref psa_algorithm_t such that
- *                  @ref PSA_ALG_IS_HASH(hash_alg) is true. This includes @ref PSA_ALG_ANY_HASH
- *                  when specifying the algorithm in a key policy.
+ * @param   hash_alg    A hash algorithm: a value of type @ref psa_algorithm_t such that
+ *                      @ref PSA_ALG_IS_HASH(@p hash_alg) is true. This includes @ref PSA_ALG_ANY_HASH
+ *                      when specifying the algorithm in a key policy.
  *
  * @return  The corresponding RSA PKCS#1 v1.5 signature algorithm.
  *          Unspecified if @c hash_alg is not a supported hash algorithm.
@@ -1740,122 +1735,120 @@
     ((psa_algorithm_t)(0x06000200 | ((hash_alg) & 0x000000ff)))
 
 /**
- * @brief The RSA PSS message signature scheme, with hashing.
+ * @brief   The RSA PSS message signature scheme, with hashing.
  *
- * This algorithm can be used with both the message and hash signature functions.
+ *          This algorithm can be used with both the message and hash signature functions.
  *
- * This algorithm is randomized: each invocation returns a different, equally valid signature.
+ *          This algorithm is randomized: each invocation returns a different, equally valid signature.
  *
- * This is the signature scheme defined by [RFC8017] §8.1 under the name RSASSA-PSS, with the
- * following options:
- * - The mask generation function is MGF1 defined by [RFC8017] Appendix B.
- * - When creating a signature, the salt length is equal to the length of the hash, or the largest
- *   possible salt length for the algorithm and key size if that is smaller than the hash length.
- * - When verifying a signature, the salt length must be equal to the length of the hash, or the
- *   largest possible salt length for the algorithm and key size if that is smaller than the hash
- *   length.
- * - The specified hash algorithm is used to hash the input message, to create the salted hash, and
- *   for the mask generation.
+ *          This is the signature scheme defined by [RFC8017] §8.1 under the name RSASSA-PSS, with the
+ *          following options:
+ *          -   The mask generation function is MGF1 defined by [RFC8017] Appendix B.
+ *          -   When creating a signature, the salt length is equal to the length of the hash, or the largest
+ *              possible salt length for the algorithm and key size if that is smaller than the hash length.
+ *          -   When verifying a signature, the salt length must be equal to the length of the hash, or the
+ *              largest possible salt length for the algorithm and key size if that is smaller than the hash
+ *              length.
+ *          -   The specified hash algorithm is used to hash the input message, to create the salted hash, and
+ *              for the mask generation.
  *
- * @note
- * The @ref PSA_ALG_RSA_PSS_ANY_SALT() algorithm is equivalent to @ref PSA_ALG_RSA_PSS() when
- * creating a signature, but permits any salt length when verifying a signature.
+ * @note    The @ref PSA_ALG_RSA_PSS_ANY_SALT() algorithm is equivalent to @ref PSA_ALG_RSA_PSS() when
+ *          creating a signature, but permits any salt length when verifying a signature.
  *
- * @b Compatible @b key @b types
- * @ref PSA_KEY_TYPE_RSA_KEY_PAIR
- * @ref PSA_KEY_TYPE_RSA_PUBLIC_KEY (signature verification only)
+ *          @b Compatible @b key @b types
+ *          - @ref PSA_KEY_TYPE_RSA_KEY_PAIR
+ *          - @ref PSA_KEY_TYPE_RSA_PUBLIC_KEY (signature verification only)
  */
 #define PSA_ALG_RSA_PSS(hash_alg) \
     ((psa_algorithm_t)(0x06000300 | ((hash_alg) & 0x000000ff)))
 
 /**
- * @brief The RSA PSS message signature scheme, with hashing. This variant permits any salt length
- * for signature verification.
+ * @brief   The RSA PSS message signature scheme, with hashing. This variant permits any salt length
+ *          for signature verification.
  *
- * This algorithm can be used with both the message and hash signature functions.
+ *          This algorithm can be used with both the message and hash signature functions.
  *
- * This algorithm is randomized: each invocation returns a different, equally valid signature.
+ *          This algorithm is randomized: each invocation returns a different, equally valid signature.
  *
- * This is the signature scheme defined by [RFC8017] §8.1 under the name RSASSA-PSS, with the
- * following options:
- * - The mask generation function is MGF1 defined by [RFC8017] Appendix B.
- * - When creating a signature, the salt length is equal to the length of the hash, or the largest
- *   possible salt length for the algorithm and key size if that is smaller than the hash length.
- * - When verifying a signature, any salt length permitted by the RSASSA-PSS signature algorithm is
- *   accepted.
- * - The specified hash algorithm is used to hash the input message, to create the salted hash, and
- *   for the mask generation.
+ *          This is the signature scheme defined by [RFC8017] §8.1 under the name RSASSA-PSS, with the
+ *          following options:
+ *          -   The mask generation function is MGF1 defined by [RFC8017] Appendix B.
+ *          -   When creating a signature, the salt length is equal to the length of the hash, or the largest
+ *              possible salt length for the algorithm and key size if that is smaller than the hash length.
+ *          -   When verifying a signature, any salt length permitted by the RSASSA-PSS signature algorithm is
+ *              accepted.
+ *          -   The specified hash algorithm is used to hash the input message, to create the salted hash, and
+ *              for the mask generation.
  *
- * @note
- * The @ref PSA_ALG_RSA_PSS() algorithm is equivalent to @ref PSA_ALG_RSA_PSS_ANY_SALT() when
- * creating a signature, but is strict about the permitted salt length when verifying a signature.
+ * @note    The @ref PSA_ALG_RSA_PSS() algorithm is equivalent to @ref PSA_ALG_RSA_PSS_ANY_SALT() when
+ *          creating a signature, but is strict about the permitted salt length when verifying a signature.
  *
- * @b Compatible @b key @b types
- * @ref PSA_KEY_TYPE_RSA_KEY_PAIR
- * @ref PSA_KEY_TYPE_RSA_PUBLIC_KEY (signature verification only)
+ *          @b Compatible @b key @b types
+ *          - @ref PSA_KEY_TYPE_RSA_KEY_PAIR
+ *          - @ref PSA_KEY_TYPE_RSA_PUBLIC_KEY (signature verification only)
  */
 #define PSA_ALG_RSA_PSS_ANY_SALT(hash_alg) \
     ((psa_algorithm_t)(0x06001300 | ((hash_alg) & 0x000000ff)))
 
 /**
- * @brief Macro to build a TLS-1.2 PRF algorithm.
+ * @brief   Macro to build a TLS-1.2 PRF algorithm.
  *
- * TLS 1.2 uses a custom pseudorandom function (PRF) for key schedule, specified in
- * The Transport Layer Security (TLS) Protocol Version 1.2 [RFC5246] §5. It is based on HMAC and
- * can be used with either SHA-256 or SHA-384.
+ *          TLS 1.2 uses a custom pseudorandom function (PRF) for key schedule, specified in
+ *          The Transport Layer Security (TLS) Protocol Version 1.2 [RFC5246] §5. It is based on HMAC and
+ *          can be used with either SHA-256 or SHA-384.
  *
- * This key derivation algorithm uses the following inputs, which must be passed in the order given
- * here:
- * - @ref PSA_KEY_DERIVATION_INPUT_SEED is the seed.
- * - @ref PSA_KEY_DERIVATION_INPUT_SECRET is the secret key.
- * - @ref PSA_KEY_DERIVATION_INPUT_LABEL is the label.
+ *          This key derivation algorithm uses the following inputs, which must be passed in the order given
+ *          here:
+ *          - @ref PSA_KEY_DERIVATION_INPUT_SEED is the seed.
+ *          - @ref PSA_KEY_DERIVATION_INPUT_SECRET is the secret key.
+ *          - @ref PSA_KEY_DERIVATION_INPUT_LABEL is the label.
  *
- * Each input may only be passed once.
+ *          Each input may only be passed once.
  *
- * For the application to TLS-1.2 key expansion:
- * - The seed is the concatenation of @c ServerHello.Random + @c ClientHello.Random.
- * - The label is "key expansion".
+ *          For the application to TLS-1.2 key expansion:
+ *          - The seed is the concatenation of @c ServerHello.Random + @c ClientHello.Random.
+ *          - The label is "key expansion".
  *
- * @b Compatible @b key @b types
- * @ref PSA_KEY_TYPE_DERIVE (for the secret key)
- * @ref PSA_KEY_TYPE_RAW_DATA (for the other inputs)
+ *          @b Compatible @b key @b types
+ *          - @ref PSA_KEY_TYPE_DERIVE (for the secret key)
+ *          - @ref PSA_KEY_TYPE_RAW_DATA (for the other inputs)
  *
- * @param hash_alg  A hash algorithm: a value of type @ref psa_algorithm_t such that
- *                  @ref PSA_ALG_IS_HASH(hash_alg) is true.
+ * @param   hash_alg    A hash algorithm: a value of type @ref psa_algorithm_t such that
+ *                      @ref PSA_ALG_IS_HASH(@p hash_alg) is true.
  *
  * @return  The corresponding TLS-1.2 PRF algorithm. For example,
- *          @ref PSA_ALG_TLS12_PRF(PSA_ALG_SHA_256) represents the TLS 1.2 PRF using HMAC-SHA-256.
+ *          @ref PSA_ALG_TLS12_PRF(@p PSA_ALG_SHA_256) represents the TLS 1.2 PRF using HMAC-SHA-256.
  *          Unspecified if @c hash_alg is not a supported hash algorithm.
  */
 #define PSA_ALG_TLS12_PRF(hash_alg) \
     ((psa_algorithm_t) (0x08000200 | ((hash_alg) & 0x000000ff)))
 
 /**
- * @brief Macro to build a TLS-1.2 PSK-to-MasterSecret algorithm.
+ * @brief   Macro to build a TLS-1.2 PSK-to-MasterSecret algorithm.
  *
- * In a pure-PSK handshake in TLS 1.2, the master secret (MS) is derived from the pre-shared key
- * (PSK) through the application of padding (Pre-Shared Key Ciphersuites for Transport Layer
- * Security (TLS) [RFC4279] §2) and the TLS-1.2 PRF (The Transport Layer Security (TLS) Protocol
- * Version 1.2 [RFC5246] §5). The latter is based on HMAC and can be used with either SHA-256 or
- * SHA-384.
+ *          In a pure-PSK handshake in TLS 1.2, the master secret (MS) is derived from the pre-shared key
+ *          (PSK) through the application of padding (Pre-Shared Key Ciphersuites for Transport Layer
+ *          Security (TLS) [RFC4279] §2) and the TLS-1.2 PRF (The Transport Layer Security (TLS) Protocol
+ *          Version 1.2 [RFC5246] §5). The latter is based on HMAC and can be used with either SHA-256 or
+ *          SHA-384.
  *
- * This key derivation algorithm uses the following inputs, which must be passed in the order given
- * here:
- * - @ref PSA_KEY_DERIVATION_INPUT_SEED is the seed.
- * - @ref PSA_KEY_DERIVATION_INPUT_SECRET is the PSK. The PSK must not be larger than
- *   @ref PSA_TLS12_PSK_TO_MS_PSK_MAX_SIZE.
- * - @ref PSA_KEY_DERIVATION_INPUT_LABEL is the label.
+ *          This key derivation algorithm uses the following inputs, which must be passed in the order given
+ *          here:
+ *          - @ref PSA_KEY_DERIVATION_INPUT_SEED is the seed.
+ *          - @ref PSA_KEY_DERIVATION_INPUT_SECRET is the PSK. The PSK must not be larger than
+ *            @ref PSA_TLS12_PSK_TO_MS_PSK_MAX_SIZE.
+ *          - @ref PSA_KEY_DERIVATION_INPUT_LABEL is the label.
  *
- * Each input may only be passed once.
+ *          Each input may only be passed once.
  *
- * For the application to TLS-1.2:
- * - The seed, which is forwarded to the TLS-1.2 PRF, is the concatenation of the
- *   @ref ClientHello.Random + @ref ServerHello.Random.
- * - The label is "master secret" or "extended master secret".
+ *          For the application to TLS-1.2:
+ *          -   The seed, which is forwarded to the TLS-1.2 PRF, is the concatenation of the
+ *              @ref ClientHello.Random + @ref ServerHello.Random.
+ *          -   The label is "master secret" or "extended master secret".
  *
- * @b Compatible @b key @b types
- * - @ref PSA_KEY_TYPE_DERIVE (for the PSK)
- * - @ref PSA_KEY_TYPE_RAW_DATA (for the other inputs)
+ *          @b Compatible @b key @b types
+ *          - @ref PSA_KEY_TYPE_DERIVE (for the PSK)
+ *          - @ref PSA_KEY_TYPE_RAW_DATA (for the other inputs)
  */
 #define PSA_ALG_TLS12_PSK_TO_MS(hash_alg) \
     ((psa_algorithm_t) (0x08000300 | ((hash_alg) & 0x000000ff)))
@@ -1881,12 +1874,12 @@
  *          The resulting truncated MAC algorithm is compatible with the same key types as the MAC
  *          algorithm used to construct it.
  *
- * @param mac_alg   A MAC algorithm: a value of type @ref psa_algorithm_t such that
- *                  @ref PSA_ALG_IS_MAC(mac_alg) is true. This can be a truncated or untruncated
- *                  MAC algorithm.
- * @param mac_length Desired length of the truncated MAC in bytes. This must be at most the
- *                   untruncated length of the MAC and must be at least an implementation-specified
- *                   minimum. The implementation-specified minimum must not be zero.
+ * @param   mac_alg     A MAC algorithm: a value of type @ref psa_algorithm_t such that
+ *                      @ref PSA_ALG_IS_MAC(@p mac_alg) is true. This can be a truncated or untruncated
+ *                      MAC algorithm.
+ * @param   mac_length  Desired length of the truncated MAC in bytes. This must be at most the
+ *                      untruncated length of the MAC and must be at least an implementation-specified
+ *                      minimum. The implementation-specified minimum must not be zero.
  *
  * @return  The corresponding MAC algorithm with the specified length.
  *          Unspecified if @c mac_alg is not a supported MAC algorithm or if @c mac_length is too
@@ -2106,86 +2099,6 @@
 #define PSA_ECC_FAMILY_TWISTED_EDWARDS ((psa_ecc_family_t) 0x42)
 
 /**
- * @brief   The size of the algorithm field that is part of the output of @ref psa_hash_suspend(),
- *          in bytes.
- *
- *          Applications can use this value to unpack the hash suspend state that is output by
- *          @ref psa_hash_suspend().
- */
-#define PSA_HASH_SUSPEND_ALGORITHM_FIELD_LENGTH ((size_t)4)
-
-/**
- * @brief   The size of the hash-state field that is part of the output of @ref psa_hash_suspend(),
- *          in bytes.
- *
- *          Applications can use this value to unpack the hash suspend state that is output by
- *          @ref psa_hash_suspend().
- *
- * @param   alg A hash algorithm: a value of type @ref psa_algorithm_t such that
- *              @ref PSA_ALG_IS_HASH(@p alg) is true.
- *
- * @return  The size, in bytes, of the hash-state field of the hash suspend state for the specified
- *          hash algorithm.
- *          0 if the hash algorithm is not recognized or not supported.
- */
-#define PSA_HASH_SUSPEND_HASH_STATE_FIELD_LENGTH(alg) \
-/* specification-defined value */
-
-/**
- * @brief   The size of the input-length field that is part of the output of
- *          @ref psa_hash_suspend(), in bytes.
- *
- *          Applications can use this value to unpack the hash suspend state that is output
- *          by @ref psa_hash_suspend().
- *
- * @param   alg A hash algorithm: a value of type @ref psa_algorithm_t such that
- *              @ref PSA_ALG_IS_HASH(@p alg) is true.
- *
- * @return  The size, in bytes, of the input-length field of the hash suspend state for the
- *          specified hash algorithm.
- *          0 i f the hash algorithm is not recognized or not supported.
- */
-#define PSA_HASH_SUSPEND_INPUT_LENGTH_FIELD_LENGTH(alg) \
-/* specification-defined value */
-
-/**
- * @brief   A sufficient hash suspend state buffer size for @ref psa_hash_suspend(),
- *          for any supported hash algorithms.
- *
- *          If the size of the hash state buffer is at least this large, it is guaranteed that
- *          @ref psa_hash_suspend() will not fail due to an insufficient buffer size.
- *
- *          See also @ref PSA_HASH_SUSPEND_OUTPUT_SIZE().
- */
-#define PSA_HASH_SUSPEND_OUTPUT_MAX_SIZE /* implementation-defined value */
-
-/**
- * @brief   A sufficient hash suspend state buffer size for @ref psa_hash_suspend(), in bytes.
- *
- *          If the size of the hash state buffer is at least this large, it is guaranteed that
- *          @ref psa_hash_suspend() will not fail due to an insufficient buffer size. The actual
- *          size of the output might be smaller in any given call.
- *
- *          See also @ref PSA_HASH_SUSPEND_OUTPUT_MAX_SIZE.
- *
- * @param   alg A hash algorithm: a value of type @ref psa_algorithm_t such that
- *              @ref PSA_ALG_IS_HASH(alg) is true.
- *
- * @return  A sufficient output size for the algorithm.
- *          0 if the hash algorithm is not recognized, or is not supported by
- *          @ref psa_hash_suspend().
- *
- *          For a supported hash algorithm alg, the following expression is true:
- *          @code
- *          PSA_HASH_SUSPEND_OUTPUT_SIZE(alg) == PSA_HASH_SUSPEND_ALGORITHM_FIELD_LENGTH +
- *                                               PSA_HASH_SUSPEND_INPUT_LENGTH_FIELD_LENGTH(alg) +
- *                                               PSA_HASH_SUSPEND_HASH_STATE_FIELD_LENGTH(alg) +
- *                                               PSA_HASH_BLOCK_LENGTH(alg) - 1
- *          @endcode
- */
-#define PSA_HASH_SUSPEND_OUTPUT_SIZE(alg) /* specification-defined value */
-
-/**
  * @brief   A context for key derivation.
  *
  *          This is typically a direct input. It can also be a key of type
@@ -2260,12 +2173,6 @@
 #define PSA_KEY_DERIVATION_INPUT_SEED /* implementation-defined value */
 
 /**
- * @brief   This macro returns a suitable initializer for a key derivation operation object of
- *          type @ref psa_key_derivation_operation_t.
- */
-#define PSA_KEY_DERIVATION_OPERATION_INIT /* implementation-defined value */
-
-/**
  * @brief   Use the maximum possible capacity for a key derivation operation.
  *
  *          Use this value as the capacity argument when setting up a key derivation to specify
@@ -2307,7 +2214,7 @@
  * @brief   Construct a lifetime from a persistence level and a location.
  *
  * @param   persistence The persistence level: a value of type @ref psa_key_persistence_t.
- * @param   location The location indicator: a value of type @ref psa_key_location_t.
+ * @param   location    The location indicator: a value of type @ref psa_key_location_t.
  *
  * @return  The constructed lifetime value.
  */
@@ -2426,12 +2333,12 @@
 #define PSA_KEY_PERSISTENCE_VOLATILE ((psa_key_persistence_t) 0x00)
 
 /**
- * @brief Vendor-defined key type flag.
+ * @brief   Vendor-defined key type flag.
  *
- * Key types defined by this standard will never have the
- * #PSA_KEY_TYPE_VENDOR_FLAG bit set. Vendors who define additional key types
- * must use an encoding with the #PSA_KEY_TYPE_VENDOR_FLAG bit set and should
- * respect the bitwise structure used by standard encodings whenever practical.
+ *          Key types defined by this standard will never have the
+ *          @ref PSA_KEY_TYPE_VENDOR_FLAG bit set. Vendors who define additional key types
+ *          must use an encoding with the @ref PSA_KEY_TYPE_VENDOR_FLAG bit set and should
+ *          respect the bitwise structure used by standard encodings whenever practical.
  */
 #define PSA_KEY_TYPE_VENDOR_FLAG                    ((psa_key_type_t)0x8000)
 
@@ -2557,10 +2464,10 @@
  * @brief   Key for the ChaCha20 stream cipher or the ChaCha20-Poly1305 AEAD algorithm.
  *
  *          The ChaCha20 key size is 256 bits (32 bytes).
- *          - Use algorithm PSA_ALG_STREAM_CIPHER to use this key with the ChaCha20 cipher for
- *            unauthenticated encryption. See PSA_ALG_STREAM_CIPHER for details of this algorithm.
- *          - Use algorithm PSA_ALG_CHACHA20_POLY1305 to use this key with the ChaCha20 cipher and
- *            Poly1305 authenticator for AEAD. See PSA_ALG_CHACHA20_POLY1305 for details of this
+ *          - Use algorithm @ref PSA_ALG_STREAM_CIPHER to use this key with the ChaCha20 cipher for
+ *            unauthenticated encryption. See @ref PSA_ALG_STREAM_CIPHER for details of this algorithm.
+ *          - Use algorithm @ref PSA_ALG_CHACHA20_POLY1305 to use this key with the ChaCha20 cipher and
+ *            Poly1305 authenticator for AEAD. See @ref PSA_ALG_CHACHA20_POLY1305 for details of this
  *            algorithm.
  *
  *          @b Compatible @b algorithms
@@ -2680,16 +2587,25 @@
  *          curve family for details.
  *
  *          @b Compatible @b algorithms
- *          Elliptic curve key pairs can be used in Asymmetric signature and Key agreement
- *          algorithms.
- *          The set of compatible algorithms depends on the Elliptic curve key family. See the
- *          Elliptic curve family for details.
+ *          -   Elliptic curve key pairs can be used in Asymmetric signature and Key agreement
+ *              algorithms.
+ *          -   The set of compatible algorithms depends on the Elliptic curve key family. See the
+ *              Elliptic curve family for details.
  *
  * @param   curve A value of type @ref psa_ecc_family_t that identifies the ECC curve to be used.
  */
 #define PSA_KEY_TYPE_ECC_KEY_PAIR(curve)         \
     (PSA_KEY_TYPE_ECC_KEY_PAIR_BASE | (curve))
 
+/**
+ * @brief   Extract group family of an elliptic curve key pair
+ *
+ * @param   type    A an ECC key pair type: a value of type @ref psa_key_type_t such that
+ *          @ref PSA_KEY_TYPE_IS_ECC(@p type) is true.
+ *
+ * @return  The elliptic curve family id, if type is a supported elliptic curve key.
+ *          Unspecified if type is not a supported elliptic curve key.
+ */
 #define PSA_KEY_TYPE_ECC_GET_CURVE(type) \
         (type & ~PSA_KEY_TYPE_ECC_KEY_PAIR_BASE)
 
@@ -2743,7 +2659,7 @@
  * @brief   The public key type corresponding to a key pair type.
  *          You may also pass a key pair type as type, it will be left unchanged.
  *
- * @param type A public key type or key pair type.
+ * @param   type A public key type or key pair type.
  *
  * @return  The corresponding public key type.
  *          If type is not a public key or a key pair, the return value is undefined.
@@ -2777,7 +2693,7 @@
 /**
  * @brief Whether a key type is asymmetric: either a key pair or a public key.
  *
- * @param type  A key type: a value of type @ref psa_key_type_t.
+ * @param type A key type: a value of type @ref psa_key_type_t.
  */
 #define PSA_KEY_TYPE_IS_ASYMMETRIC(type) \
         (((type) & 0x4000) == 0x4000)
@@ -2835,7 +2751,7 @@
  * @brief   Whether a key type is an unstructured array of bytes.
  *          This encompasses both symmetric keys and non-key data.
  *
- * @param type A key type: a value of type @ref psa_key_type_t.
+ * @param   type A key type: a value of type @ref psa_key_type_t.
  */
 #define PSA_KEY_TYPE_IS_UNSTRUCTURED(type) \
     (((type) & 0x7000) == 0x1000 || ((type) & 0x7000) == 0x2000)

@@ -31,6 +31,13 @@
  */
 #define PSA_AEAD_OPERATION_INIT /* implementation-defined value */
 
+/**
+ * @brief   Return an initial value for an AEAD operation object.
+ *
+ * @return  psa_aead_operation_s
+ */
+psa_aead_operation_t psa_aead_operation_init(void);
+
 struct psa_hash_operation_s
 {
     psa_algorithm_t alg;
@@ -112,5 +119,11 @@ static inline struct psa_cipher_operation_s psa_cipher_operation_init(void)
     const struct psa_cipher_operation_s v = PSA_CIPHER_OPERATION_INIT;
     return v;
 }
+
+/**
+ * @brief   This macro returns a suitable initializer for a key derivation operation object of
+ *          type @ref psa_key_derivation_operation_t.
+ */
+#define PSA_KEY_DERIVATION_OPERATION_INIT /* implementation-defined value */
 
 #endif /* PSA_CRYPTO_STRUCT_H */
