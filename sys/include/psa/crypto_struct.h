@@ -25,14 +25,29 @@
 #include "crypto_sizes.h"
 #include "crypto_contexts.h"
 
+/**
+ * @brief   This macro returns a suitable initializer for an AEAD operation object of type
+ *          @ref psa_aead_operation_t.
+ */
+#define PSA_AEAD_OPERATION_INIT /* implementation-defined value */
+
 struct psa_hash_operation_s
 {
     psa_algorithm_t alg;
     psa_hash_context_t ctx;
 };
 
+/**
+ * @brief   This macro returns a suitable initializer for a hash operation object of type
+ *          @ref psa_hash_operation_t.
+ */
 #define PSA_HASH_OPERATION_INIT {0}
 
+/**
+ * @brief Return an initial value for a hash operation object.
+ *
+ * @return struct psa_hash_operation_s
+ */
 static inline struct psa_hash_operation_s psa_hash_operation_init(void)
 {
     const struct psa_hash_operation_s v = PSA_HASH_OPERATION_INIT;
@@ -55,8 +70,17 @@ struct psa_key_attributes_s
     psa_key_policy_t policy;
 };
 
-#define PSA_KEY_ATTRIBUTES_INIT {0}//{PSA_CORE_KEY_ATTRIBUTES_INIT, NULL, 0}
+/**
+ * @brief   This macro returns a suitable initializer for a key attribute object of
+ *          type @ref psa_key_attributes_t.
+ */
+#define PSA_KEY_ATTRIBUTES_INIT {0}
 
+/**
+ * @brief Return an initial value for a key attribute object.
+ *
+ * @return struct psa_key_attributes_s
+ */
 static inline struct psa_key_attributes_s psa_key_attributes_init(void)
 {
     const struct psa_key_attributes_s v = PSA_KEY_ATTRIBUTES_INIT;
@@ -77,6 +101,10 @@ struct psa_cipher_operation_s
     } backend_ctx;
 };
 
+/**
+ * @brief This macro returns a suitable initializer for a cipher operation
+ * object of type @ref psa_cipher_operation_t.
+ */
 #define PSA_CIPHER_OPERATION_INIT {0}
 
 static inline struct psa_cipher_operation_s psa_cipher_operation_init(void)
