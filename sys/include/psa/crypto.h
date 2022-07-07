@@ -32,12 +32,12 @@
 #include "crypto_types.h"
 
 /**
- * The major version of this implementation of the PSA Crypto API
+ * @brief The major version of this implementation of the PSA Crypto API
  */
 #define PSA_CRYPTO_API_VERSION_MAJOR 1
 
 /**
- * The minor version of this implementation of the PSA Crypto API
+ * @brief The minor version of this implementation of the PSA Crypto API
  */
 #define PSA_CRYPTO_API_VERSION_MINOR 0
 
