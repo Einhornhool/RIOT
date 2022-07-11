@@ -51,9 +51,9 @@ struct psa_hash_operation_s
 #define PSA_HASH_OPERATION_INIT {0}
 
 /**
- * @brief Return an initial value for a hash operation object.
+ * @brief   eturn an initial value for a hash operation object.
  *
- * @return struct psa_hash_operation_s
+ * @return  struct psa_hash_operation_s
  */
 static inline struct psa_hash_operation_s psa_hash_operation_init(void)
 {
