@@ -124,6 +124,45 @@ static inline struct psa_cipher_operation_s psa_cipher_operation_init(void)
  * @brief   This macro returns a suitable initializer for a key derivation operation object of
  *          type @ref psa_key_derivation_operation_t.
  */
-#define PSA_KEY_DERIVATION_OPERATION_INIT /* implementation-defined value */
+#define PSA_KEY_DERIVATION_OPERATION_INIT {0}
+
+struct psa_key_derivation_operation_s
+{
+    int dummy;
+};
+
+/**
+ * @brief   Return an initial value for a key derivation operation object.
+ *
+ * @return  psa_key_derivation_operation_t
+ */
+static inline struct psa_key_derivation_operation_s psa_key_derivation_operation_init(void)
+{
+    const struct psa_key_derivation_operation_s v = PSA_KEY_DERIVATION_OPERATION_INIT;
+    return v;
+}
+
+/**
+ * @brief   This macro returns a suitable initializer for a MAC operation object of type
+ *          @ref psa_mac_operation_t.
+ *
+ */
+#define PSA_MAC_OPERATION_INIT {0}
+
+struct psa_mac_operation_s
+{
+    int dummy;
+};
+
+/**
+ * @brief   Return an initial value for a MAC operation object.
+ *
+ * @return  psa_mac_operation_s
+ */
+static inline psa_mac_operation_s psa_mac_operation_init(void)
+{
+    const struct psa_mac_operation_s v = PSA_MAC_OPERATION_INIT;
+    return v;
+}
 
 #endif /* PSA_CRYPTO_STRUCT_H */

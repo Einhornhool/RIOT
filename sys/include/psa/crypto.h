@@ -2468,13 +2468,45 @@ psa_status_t psa_hash_verify(psa_hash_operation_t * operation,
  *          Copies a plain key into local memory. This function is used by the implementation,
  *          when an imported key is stored only in local memory.
  *
- * @param attributes
- * @param data
- * @param data_length
- * @param key_buffer
- * @param key_buffer_length
- * @param bits
- * @return psa_status_t
+ * @param   attributes          The attributes for the new key.
+ *                              This function uses the attributes as follows:
+ *                              - The key type is required, and determines how the data buffer is
+ *                                interpreted.
+ *                              - The key size is always determined from the  data buffer. If the
+ *                                key size in attributes is nonzero, it must be equal to the size
+ *                                determined from data.
+ *                              - The key permitted-algorithm policy is required for keys that will
+ *                                be used for a cryptographic operation, see Permitted algorithms.
+ *                              - The key usage flags define what operations are permitted with the
+ *                                key, see Key usage flags.
+ *                              - The key lifetime and identifier are required for a persistent key.
+ *                              @note   This is an input parameter: it is not updated with the
+ *                                      final key attributes. The final attributes of the new key
+ *                                      can be queried by calling @ref psa_get_key_attributes()
+ *                                      with the key’s identifier.
+ * @param   data                Buffer containing the key data. The content of this buffer is
+ *                              interpreted according to the type declared in attributes. All
+ *                              implementations must support at least the format described in
+ *                              the documentation of @ref psa_export_key() or @ref
+ *                              psa_export_public_key() for the chosen type.
+ *                              Implementations can support other formats, but be conservative in
+ *                              interpreting the key data: it is recommended that implementations
+ *                              reject content if it might be erroneous, for example, if it is the
+ *                              wrong type or is truncated.
+ * @param   data_length         Size of the data buffer in bytes.
+ * @param   key_buffer          Pointer to buffer containing the plain text key material
+ * @param   key_buffer_length   Size of the key buffer
+ * @param   bits                Size of the key in bits
+ *
+ * @return  @ref PSA_SUCCESS                Success. If the key is persistent, the key material
+ *                                          and the key’s metadata have been saved to persistent
+ *                                          storage.
+ *          @ref PSA_ERROR_INVALID_ARGUMENT The following conditions can result in this error:
+ *                                          -   The key size is nonzero, and is incompatible with
+ *                                              the key data in @p data.
+ *          @ref PSA_ERROR_NOT_SUPPORTED    The key attributes, as a whole, are not supported,
+ *                                          either by the implementation in general or in the
+ *                                          specified storage location.
  */
 psa_status_t psa_builtin_import_key(const psa_key_attributes_t *attributes,
                                     const uint8_t *data, size_t data_length,
@@ -2507,16 +2539,16 @@ psa_status_t psa_builtin_import_key(const psa_key_attributes_t *attributes,
  *
  * @param   attributes  The attributes for the new key.
  *                      This function uses the attributes as follows:
- *                      -   The key type is required, and determines how the data buffer is
- *                          interpreted.
- *                      -   The key size is always determined from the  data buffer. If the key
- *                          size in attributes is nonzero, it must be equal to the size
- *                          determined from data.
- *                      -   The key permitted-algorithm policy is required for keys that will be
- *                          used for a cryptographic operation, see Permitted algorithms.
- *                      -   The key usage flags define what operations are permitted with the key,
- *                          see Key usage flags.
- *                      -   The key lifetime and identifier are required for a persistent key.
+ *                      - The key type is required, and determines how the data buffer is
+ *                        interpreted.
+ *                      - The key size is always determined from the  data buffer. If the key
+ *                        size in attributes is nonzero, it must be equal to the size
+ *                        determined from data.
+ *                      - The key permitted-algorithm policy is required for keys that will be
+ *                        used for a cryptographic operation, see Permitted algorithms.
+ *                      - The key usage flags define what operations are permitted with the key,
+ *                        see Key usage flags.
+ *                      - The key lifetime and identifier are required for a persistent key.
  *                      @note   This is an input parameter: it is not updated with the final key
  *                              attributes. The final attributes of the new key can be queried
  *                              by calling @ref psa_get_key_attributes() with the key’s identifier.
@@ -2545,17 +2577,17 @@ psa_status_t psa_builtin_import_key(const psa_key_attributes_t *attributes,
  *                                          and there is already a persistent key with the given
  *                                          identifier.
  *          @ref PSA_ERROR_INVALID_ARGUMENT The following conditions can result in this error:
- *                                          -   The key type is invalid.
- *                                          -   The key size is nonzero, and is incompatible with
- *                                              the key data in @p data.
- *                                          -   The key lifetime is invalid.
- *                                          -   The key identifier is not valid for the key
- *                                              lifetime.
- *                                          -   The key usage flags include invalid values.
- *                                          -   The key’s permitted-usage algorithm is invalid.
- *                                          -   The key attributes, as a whole, are invalid.
- *                                          -   The key data is not correctly formatted for the key
- *                                              type.
+ *                                          - The key type is invalid.
+ *                                          - The key size is nonzero, and is incompatible with
+ *                                            the key data in @p data.
+ *                                          - The key lifetime is invalid.
+ *                                          - The key identifier is not valid for the key
+ *                                            lifetime.
+ *                                          - The key usage flags include invalid values.
+ *                                          - The key’s permitted-usage algorithm is invalid.
+ *                                          - The key attributes, as a whole, are invalid.
+ *                                          - The key data is not correctly formatted for the key
+ *                                            type.
  *          @ref PSA_ERROR_NOT_SUPPORTED    The key attributes, as a whole, are not supported,
  *                                          either by the implementation in general or in the
  *                                          specified storage location.
@@ -2572,73 +2604,770 @@ psa_status_t psa_import_key(const psa_key_attributes_t * attributes,
                             size_t data_length,
                             psa_key_id_t * key);
 
+/**
+ * @brief   Abort a key derivation operation.
+ *
+ *          Aborting an operation frees all associated resources except for the operation object
+ *          itself. Once aborted, the operation object can be reused for another operation by
+ *          calling @ref psa_key_derivation_setup() again.
+ *
+ *          This function can be called at any time after the operation object has been initialized
+ *          as described in @ref psa_key_derivation_operation_t.
+ *
+ *          In particular, it is valid to call @ref psa_key_derivation_abort() twice, or to call
+ *          @ref psa_key_derivation_abort() on an operation that has not been set up.
+ *
+ * @param   operation   The operation to abort.
+ *
+ * @return  @ref PSA_SUCCESS            Success. The operation object can now be discarded or
+ *                                      reused.
+ *          @ref PSA_ERROR_BAD_STATE    The library requires initializing by a call to @ref
+ *                                      psa_crypto_init().
+ *          @ref PSA_ERROR_COMMUNICATION_FAILURE
+            @ref PSA_ERROR_CORRUPTION_DETECTED
+ */
 psa_status_t psa_key_derivation_abort(psa_key_derivation_operation_t * operation);
+
+/**
+ * @brief   Retrieve the current capacity of a key derivation operation.
+ *
+ *          The capacity of a key derivation is the maximum number of bytes that it can return.
+ *          Reading N bytes of output from a key derivation operation reduces its capacity by at
+ *          least N. The capacity can be reduced by more than N in the following situations:
+ *          - Calling @ref psa_key_derivation_output_key() can reduce the capacity by more than
+ *            the key size, depending on the type of key being generated. See @ref
+ *            psa_key_derivation_output_key() for details of the key derivation process.
+ *          - When the @ref psa_key_derivation_operation_t object is operating as a deterministic
+ *            random bit generator (DBRG), which reduces capacity in whole blocks, even when less
+ *            than a block is read.
+ *
+ * @param   operation   The operation to query.
+ * @param   capacity    On success, the capacity of the operation.
+ *
+ * @return  @ref PSA_SUCCESS            Success. The maximum number of bytes that this key
+ *                                      derivation can return is (@c *capacity).
+ *          @ref PSA_ERROR_BAD_STATE    The following conditions can result in this error:
+ *                                      - The operation state is not valid: it must be active.
+ *                                      - The library requires initializing by a call to @ref
+ *                                        psa_crypto_init().
+ *          @ref PSA_ERROR_COMMUNICATION_FAILURE
+ *          @ref PSA_ERROR_CORRUPTION_DETECTED
+ */
 psa_status_t psa_key_derivation_get_capacity(const psa_key_derivation_operation_t * operation,
                                              size_t * capacity);
+
+/**
+ * @brief   Provide an input for key derivation or key agreement.
+ *
+ *          Which inputs are required and in what order depends on the algorithm. Refer to the
+ *          documentation of each key derivation or key agreement algorithm for information.
+ *
+ *          This function passes direct inputs, which is usually correct for non-secret inputs.
+ *          To pass a secret input, which is normally in a key object, call @ref
+ *          psa_key_derivation_input_key() instead of this function. Refer to the documentation
+ *          of individual step types (@ref PSA_KEY_DERIVATION_INPUT_xxx values of type @ref
+ *          psa_key_derivation_step_t) for more information.
+ *
+ *          If this function returns an error status, the operation enters an error state and must
+ *          be aborted by calling @ref psa_key_derivation_abort().
+ *
+ * @param   operation   The key derivation operation object to use. It must have been set up with
+ *                      @ref psa_key_derivation_setup() and must not have produced any output yet.
+ * @param   step        Which step the input data is for.
+ * @param   data        Input data to use.
+ * @param   data_length Size of the data buffer in bytes.
+ * @return  @ref PSA_SUCCESS        Success.
+ *          @ref PSA_ERROR_BAD_STATE        The following conditions can result in this error:
+ *                                          - The operation state is not valid for this input step.
+ *                                            This can happen if the application provides a step
+ *                                            out of order or repeats a step that may not be
+ *                                            repeated.
+ *                                          - The library requires initializing by a call to @ref
+ *                                            psa_crypto_init().
+ *          @ref PSA_ERROR_INVALID_ARGUMENT The following conditions can result in this error:
+ *                                          - @c step is not compatible with the operation’s
+ *                                            algorithm.
+ *                                          - @c step does not allow direct inputs.
+ *                                          - @c data_length is too small or too large for step in
+ *                                            this particular algorithm.
+ *          @ref PSA_ERROR_NOT_SUPPORTED    The following conditions can result in this error:
+ *                                          - @c step is not supported with the operation’s
+ *                                            algorithm.
+ *                                          - @c data_length is is not supported for step in this
+ *                                            particular algorithm.
+ *          @ref PSA_ERROR_INSUFFICIENT_MEMORY
+ *          @ref PSA_ERROR_COMMUNICATION_FAILURE
+ *          @ref PSA_ERROR_CORRUPTION_DETECTED
+ *          @ref PSA_ERROR_STORAGE_FAILURE
+ *          @ref PSA_ERROR_DATA_CORRUPT
+ *          @ref PSA_ERROR_DATA_INVALID
+ */
 psa_status_t psa_key_derivation_input_bytes(psa_key_derivation_operation_t * operation,
                                             psa_key_derivation_step_t step,
                                             const uint8_t * data,
                                             size_t data_length);
+
+/**
+ * @brief   Provide a numeric input for key derivation or key agreement.
+ *
+ *          Which inputs are required and in what order depends on the algorithm. However, when an
+ *          algorithm requires a particular order, numeric inputs usually come first as they tend
+ *          to be configuration parameters. Refer to the documentation of each key derivation or
+ *          key agreement algorithm for information.
+ *
+ *          This function is used for inputs which are fixed-size non-negative integers.
+ *
+ *          If this function returns an error status, the operation enters an error state and must
+ *          be aborted by calling @ref psa_key_derivation_abort().
+ *
+ * @param   operation   The key derivation operation object to use. It must have been set up with
+ *                      @ref psa_key_derivation_setup() and must not have produced any output yet.
+ * @param   step        Which step the input data is for.
+ * @param   value       The value of the numeric input.
+ * @return  @ref PSA_SUCCESS                Success.
+ *          @ref PSA_ERROR_BAD_STATE        The following conditions can result in this error:
+ *                                          - The operation state is not valid for this input step.
+ *                                            This can happen if the application provides a step
+ *                                            out of order or repeats a step that may not be
+ *                                            repeated.
+ *                                          - The library requires initializing by a call to @ref
+ *                                            psa_crypto_init().
+ *          @ref PSA_ERROR_INVALID_ARGUMENT The following conditions can result in this error:
+ *                                          - @c step is not compatible with the operation’s
+ *                                            algorithm.
+ *                                          - @c step does not allow numerical inputs.
+ *                                          - @c value is not valid for step in the operation’s
+ *                                            algorithm.
+ *          @ref PSA_ERROR_NOT_SUPPORTED    The following conditions can result in this error:
+ *                                          - @c step is not supported with the operation’s
+ *                                            algorithm.
+ *                                          - @c value is not supported for step in the operation’s
+ *                                            algorithm.
+ *          @ref PSA_ERROR_INSUFFICIENT_MEMORY
+ *          @ref PSA_ERROR_COMMUNICATION_FAILURE
+ *          @ref PSA_ERROR_CORRUPTION_DETECTED
+ *          @ref PSA_ERROR_STORAGE_FAILURE
+ *          @ref PSA_ERROR_DATA_CORRUPT
+ *          @ref PSA_ERROR_DATA_INVALID
+ */
+psa_status_t psa_key_derivation_input_integer(  psa_key_derivation_operation_t * operation,
+                                                psa_key_derivation_step_t step,
+                                                uint64_t value);
+
+/**
+ * @brief   Provide an input for key derivation in the form of a key.
+ *
+ *          Which inputs are required and in what order depends on the algorithm. Refer to the
+ *          documentation of each key derivation or key agreement algorithm for information.
+ *
+ *          This function obtains input from a key object, which is usually correct for secret
+ *          inputs or for non-secret personalization strings kept in the key store. To pass a
+ *          non-secret parameter which is not in the key store, call @ref
+ *          psa_key_derivation_input_bytes() instead of this function. Refer to the documentation
+ *          of individual step types (@ref PSA_KEY_DERIVATION_INPUT_xxx values of type @ref
+ *          psa_key_derivation_step_t) for more information.
+ *
+ *          @note   Once all inputs steps are completed, the following operations are permitted:
+ *                  - @ref psa_key_derivation_output_bytes() — if each input was either a direct
+ *                    input or a key with usage flag @ref PSA_KEY_USAGE_DERIVE.
+ *                  - @ref psa_key_derivation_output_key() — if the input for step @ref
+ *                    PSA_KEY_DERIVATION_INPUT_SECRET or @ref PSA_KEY_DERIVATION_INPUT_PASSWORD was
+ *                    a key with usage flag @ref PSA_KEY_USAGE_DERIVE, and every other input was
+ *                    either a direct input or a key with usage flag @ref PSA_KEY_USAGE_DERIVE.
+ *                  - @ref psa_key_derivation_verify_bytes() — if each input was either a direct
+ *                    input or a key with usage flag @ref PSA_KEY_USAGE_VERIFY_DERIVATION.
+ *                  - @ref psa_key_derivation_verify_key() — under the same conditions as @ref
+ *                    psa_key_derivation_verify_bytes().
+ *
+ *          If this function returns an error status, the operation enters an error state and must
+ *          be aborted by calling @ref psa_key_derivation_abort().
+ *
+ * @param   operation   The key derivation operation object to use. It must have been set up with
+ *                      @ref psa_key_derivation_setup() and must not have produced any output yet.
+ * @param   step        Which step the input data is for.
+ * @param   key         Identifier of the key. The key must have an appropriate type for step, it
+ *                      must allow the usage @ref PSA_KEY_USAGE_DERIVE or @ref
+ *                      PSA_KEY_USAGE_VERIFY_DERIVATION (see note), and it must permit the
+ *                      algorithm used by the operation.
+ *
+ * @return  @ref PSA_SUCCESS                Success.
+ *          @ref PSA_ERROR_BAD_STATE        The following conditions can result in this error:
+ *                                          - The operation state is not valid for this input step.
+ *                                            This can happen if the application provides a step
+ *                                            out of order or repeats a step that may not be
+ *                                            repeated.
+ *                                          - The library requires initializing by a call to @ref
+ *                                            psa_crypto_init().
+ *          @ref PSA_ERROR_INVALID_HANDLE   @c key is not a valid key identifier.
+ *          @ref PSA_ERROR_NOT_PERMITTED    The key has neither the @ref PSA_KEY_USAGE_DERIVE nor
+ *                                          the @ref PSA_KEY_USAGE_VERIFY_DERIVATION usage flag,
+ *                                          or it does not permit the operation’s algorithm.
+ *          @ref PSA_ERROR_INVALID_ARGUMENT The following conditions can result in this error:
+ *                                          - @c step is not compatible with the operation’s
+ *                                            algorithm.
+ *                                          - @c step does not allow key inputs of the given type,
+ *                                            or does not allow key inputs at all.
+ *          @ref PSA_ERROR_NOT_SUPPORTED    The following conditions can result in this error:
+ *                                          - @c step is not supported with the operation’s
+ *                                            algorithm.
+ *                                          - @c Key inputs of the given type are not supported for
+ *                                            step in the operation’s algorithm.
+ *          @ref PSA_ERROR_INSUFFICIENT_MEMORY
+ *          @ref PSA_ERROR_COMMUNICATION_FAILURE
+ *          @ref PSA_ERROR_CORRUPTION_DETECTED
+ *          @ref PSA_ERROR_STORAGE_FAILURE
+ *          @ref PSA_ERROR_DATA_CORRUPT
+ *          @ref PSA_ERROR_DATA_INVALID
+ */
 psa_status_t psa_key_derivation_input_key(psa_key_derivation_operation_t * operation,
                                           psa_key_derivation_step_t step,
                                           psa_key_id_t key);
+
+/**
+ * @brief   Perform a key agreement and use the shared secret as input to a key derivation.
+ *
+ *          A key agreement algorithm takes two inputs: a private key @c private_key, and a public
+ *          key @c peer_key. The result of this function is passed as input to the key derivation
+ *          operation. The output of this key derivation can be extracted by reading from the
+ *          resulting operation to produce keys and other cryptographic material.
+ *
+ *          If this function returns an error status, the operation enters an error state and must
+ *          be aborted by calling @ref psa_key_derivation_abort().
+ *
+ * @param   operation       The key derivation operation object to use. It must have been set
+ *                          up with @ref psa_key_derivation_setup() with a key agreement and
+ *                          derivation algorithm alg: a value of type @ref psa_algorithm_t such
+ *                          that @ref PSA_ALG_IS_KEY_AGREEMENT(@p alg) is true and @ref
+ *                          PSA_ALG_IS_RAW_KEY_AGREEMENT(@p alg) is false.
+ *                          The operation must be ready for an input of the type given by step.
+ * @param   step            Which step the input data is for.
+ * @param   private_key     Identifier of the private key to use. It must allow the usage @ref
+ *                          PSA_KEY_USAGE_DERIVE.
+ * @param   peer_key        Public key of the peer. The peer key must be in the same format that
+ *                          @ref psa_import_key() accepts for the public key type corresponding to
+ *                          the type of @c private_key. That is, this function performs the
+ *                          equivalent of @ref psa_import_key(..., @p peer_key, @p
+ *                          peer_key_length), with key attributes indicating the public key type
+ *                          corresponding to the type of @c private_key. For example, for ECC keys,
+ *                          this means that @c peer_key is interpreted as a point on the curve that
+ *                          the private key is on. The standard formats for public keys are
+ *                          documented in the documentation of @ref psa_export_public_key().
+ * @param   peer_key_length Size of @c peer_key in bytes.
+ *
+ * @return  @ref PSA_SUCCESS                Success.
+ *          @ref PSA_ERROR_BAD_STATE        The following conditions can result in this error:
+ *                                          - The operation state is not valid for this key
+ *                                            agreement step.
+ *                                          - The library requires initializing by a call to @ref
+ *                                            psa_crypto_init().
+ *          @ref PSA_ERROR_INVALID_HANDLE   @c private_key is not a valid key identifier.
+ *          @ref PSA_ERROR_NOT_PERMITTED    @c private_key does not have the @ref
+ *                                          PSA_KEY_USAGE_DERIVE flag, or it does not permit the
+ *                                          operation’s algorithm.
+ *          @ref PSA_ERROR_INVALID_ARGUMENT The following conditions can result in this error:
+ *                                          - The operation’s algorithm is not a key agreement
+ *                                            algorithm.
+ *                                          - @c step does not allow an input resulting from a key
+ *                                            agreement.
+ *                                          - @c private_key is not compatible with the operation’s
+ *                                            algorithm.
+ *                                          - @c peer_key is not a valid public key corresponding
+ *                                            to @c private_key.
+ *          @ref PSA_ERROR_NOT_SUPPORTED    @c private_key is not supported for use with the
+ *                                          operation’s algorithm.
+ *          @ref PSA_ERROR_INSUFFICIENT_MEMORY
+ *          @ref PSA_ERROR_COMMUNICATION_FAILURE
+ *          @ref PSA_ERROR_CORRUPTION_DETECTED
+ *          @ref PSA_ERROR_STORAGE_FAILURE
+ *          @ref PSA_ERROR_DATA_CORRUPT
+ *          @ref PSA_ERROR_DATA_INVALID
+ */
 psa_status_t psa_key_derivation_key_agreement(psa_key_derivation_operation_t * operation,
                                               psa_key_derivation_step_t step,
                                               psa_key_id_t private_key,
                                               const uint8_t * peer_key,
                                               size_t peer_key_length);
-psa_key_derivation_operation_t psa_key_derivation_operation_init(void);
+
+/**
+ * @brief   Read some data from a key derivation operation.
+ *
+ *          This function calculates output bytes from a key derivation algorithm and returns those
+ *          bytes. If the key derivation’s output is viewed as a stream of bytes, this function
+ *          consumes the requested number of bytes from the stream and returns them to the caller.
+ *          The operation’s capacity decreases by the number of bytes read.
+ *
+ *          If this function returns an error status other than @ref PSA_ERROR_INSUFFICIENT_DATA,
+ *          the operation enters an error state and must be aborted by calling @ref
+ *          psa_key_derivation_abort().
+ *
+ * @param   operation       The key derivation operation object to read from.
+ * @param   output          Buffer where the output will be written.
+ * @param   output_length   Number of bytes to output.
+ *
+ * @return  @ref PSA_SUCCESS                    Success. The first output_length bytes of output
+ *                                              contain the derived data.
+ *          @ref PSA_ERROR_BAD_STATE            The following conditions can result in this error:
+ *                                              - The operation state is not valid: it must be
+ *                                                active, with all required input steps complete.
+ *                                              - The library requires initializing by a call to
+ *                                                @ref psa_crypto_init().
+ *          @ref PSA_ERROR_NOT_PERMITTED        One of the inputs was a key whose policy did not
+ *                                              allow @ref PSA_KEY_USAGE_DERIVE.
+ *          @ref PSA_ERROR_INSUFFICIENT_DATA    The operation’s capacity was less than
+ *                                              @c output_length bytes. In this case, the following
+ *                                              occurs:
+ *                                              - No output is written to the output buffer.
+ *                                              - The operation’s capacity is set to zero —
+ *                                                subsequent calls to this function will not
+ *                                                succeed, even with a smaller output buffer.
+ *          @ref PSA_ERROR_INSUFFICIENT_MEMORY
+ *          @ref PSA_ERROR_COMMUNICATION_FAILURE
+ *          @ref PSA_ERROR_CORRUPTION_DETECTED
+ *          @ref PSA_ERROR_STORAGE_FAILURE
+ *          @ref PSA_ERROR_DATA_CORRUPT
+ *          @ref PSA_ERROR_DATA_INVALID
+ */
 psa_status_t psa_key_derivation_output_bytes(psa_key_derivation_operation_t * operation,
                                              uint8_t * output,
                                              size_t output_length);
+
+/**
+ * @brief   Derive a key from an ongoing key derivation operation.
+ *
+ *          This function calculates output bytes from a key derivation algorithm and uses those
+ *          bytes to generate a key deterministically. The key’s location, policy, type and size
+ *          are taken from attributes.
+ *
+ *          If the key derivation’s output is viewed as a stream of bytes, this function consumes
+ *          the required number of bytes from the stream. The operation’s capacity decreases by the
+ *          number of bytes used to derive the key.
+ *
+ *          If this function returns an error status other than @ref PSA_ERROR_INSUFFICIENT_DATA,
+ *          the operation enters an error state and must be aborted by calling @ref
+ *          psa_key_derivation_abort().
+ *
+ *          How much output is produced and consumed from the operation, and how the key is
+ *          derived, depends on the key type.
+ *
+ *          - For key types for which the key is an arbitrary sequence of bytes of a given size,
+ *            this function is functionally equivalent to calling @ref
+ *            psa_key_derivation_output_bytes() and passing the resulting output to @ref
+ *            psa_import_key(). However, this function has a security benefit: if the
+ *            implementation provides an isolation boundary then the key material is not exposed
+ *            outside the isolation boundary. As a consequence, for these key types, this function
+ *            always consumes exactly @c (bits/8) bytes from the operation.
+ *            The following key types defined in this specification follow this scheme:
+ *            - @ref PSA_KEY_TYPE_AES
+ *            - @ref PSA_KEY_TYPE_ARC4
+ *            - @ref PSA_KEY_TYPE_ARIA
+ *            - @ref PSA_KEY_TYPE_CAMELLIA
+ *            - @ref PSA_KEY_TYPE_CHACHA20
+ *            - @ref PSA_KEY_TYPE_SM4
+ *            - @ref PSA_KEY_TYPE_DERIVE
+ *            - @ref PSA_KEY_TYPE_HMAC
+ *            - @ref PSA_KEY_TYPE_PASSWORD_HASH
+ *            - @ref PSA_KEY_TYPE_DES, 64 bits
+ *              This function generates a key using the following process:
+ *              -# Draw an 8-byte string.
+ *              -# Set/clear the parity bits in each byte.
+ *              -# If the result is a forbidden weak key, discard the result and return to step 1.
+ *              -# Output the string.
+ *            - @ref PSA_KEY_TYPE_DES, 192 bits
+ *            - @ref PSA_KEY_TYPE_DES, 128 bits
+ *              The two or three keys are generated by repeated application of the process used to
+ *              generate a DES key.
+ *              For example, for 3-key 3DES, if the first 8 bytes specify a weak key and the next 8
+ *              bytes do not, discard the first 8 bytes, use the next 8 bytes as the first key, and
+ *              continue reading output from the operation to derive the other two keys.
+ *          - For Finite-field Diffie-Hellman keys @ref PSA_KEY_TYPE_DH_KEY_PAIR(@p dh_family)
+ *            where @c dh_family designates any Diffie-Hellman family.
+ *          - ECC keys on a Weierstrass elliptic curve (@ref PSA_KEY_TYPE_ECC_KEY_PAIR(
+ *            @p ecc_family) where @c ecc_family designates a Weierstrass curve family.) require
+ *            the generation of a private key which is an integer in the range [1, N - 1], where N
+ *            is the boundary of the private key domain: N is the prime p for Diffie-Hellman, or
+ *            the order of the curve’s base point for ECC.
+ *            Let m be the bit size of N, such that 2^m > N >= 2^(m-1). This function generates the
+ *            private key using the following process:
+ *            -# Draw a byte string of length ceiling(m/8) bytes.
+ *            -# If m is not a multiple of 8, set the most significant (8 * ceiling(m/8) - m) bits
+ *               of the first byte in the string to zero.
+ *            -# Convert the string to integer k by decoding it as a big-endian byte string.
+ *            -# If k > N - 2, discard the result and return to step 1.
+ *            -# Output k + 1 as the private key.
+ *            This method allows compliance to NIST standards, specifically the methods titled
+ *            Key-Pair Generation by Testing Candidates in the following publications:
+ *            - NIST Special Publication 800-56A: Recommendation for Pair-Wise Key-Establishment
+ *              Schemes Using Discrete Logarithm Cryptography SP800-56A §5.6.1.1.4 for
+ *              Diffie-Hellman keys.
+ *            - SP800-56A §5.6.1.2.2 or FIPS Publication 186-4: Digital Signature Standard (DSS)
+ *              FIPS186-4 §B.4.2 for elliptic curve keys.
+ *          - For ECC keys on a Montgomery elliptic curve (where @ref PSA_KEY_TYPE_ECC_KEY_PAIR
+ *            (@ref PSA_ECC_FAMILY_MONTGOMERY)) this function always draws a byte string whose
+ *            length is determined by the curve, and sets the mandatory bits accordingly. That is:
+ *            - Curve25519 (@ref PSA_ECC_FAMILY_MONTGOMERY, 255 bits): draw a 32-byte string and
+ *              process it as specified in Elliptic Curves for Security RFC7748 §5.
+ *            - Curve448 (@ref PSA_ECC_FAMILY_MONTGOMERY, 448 bits): draw a 56-byte string and
+ *              process it as specified in RFC7748 §5.
+ *
+ *          In all cases, the data that is read is discarded from the operation. The operation’s
+ *          capacity is decreased by the number of bytes read.
+ *
+ *          For algorithms that take an input step @ref PSA_KEY_DERIVATION_INPUT_SECRET, the input
+ *          to that step must be provided with @ref psa_key_derivation_input_key(). Future versions
+ *          of this specification might include additional restrictions on the derived key based on
+ *          the attributes and strength of the secret key.
+ *
+ * @param   attributes      The attributes for the new key. This function uses the attributes as
+ *                          follows:
+ *                          - The key type is required. It cannot be an asymmetric public key.
+ *                          - The key size is required. It must be a valid size for the key type.
+ *                          - The key permitted-algorithm policy is required for keys that will be
+ *                            used for a cryptographic operation.
+ *                          - If the key type to be created is @ref PSA_KEY_TYPE_PASSWORD_HASH,
+ *                            then the permitted-algorithm policy must be the same as the current
+ *                            operation’s algorithm.
+ *                          - The key usage flags define what operations are permitted with the
+ *                            key.
+ *                          - The key lifetime and identifier are required for a persistent key.
+ *                          @note   This is an input parameter: it is not updated with the final
+ *                                  key attributes. The final attributes of the new key can be
+ *                                  queried by calling @ref psa_get_key_attributes() with the key’s
+ *                                  identifier.
+ * @param   operation       The key derivation operation object to read from.
+ * @param   key             On success, an identifier for the newly created key.
+ *                          @ref PSA_KEY_ID_NULL on failure.
+ * @return  @ref PSA_SUCCESS                Success. If the key is persistent, the key material
+ *                                          and the key’s metadata have been saved to persistent
+ *                                          storage.
+ *          @ref PSA_ERROR_BAD_STATE        The following conditions can result in this error:
+ *                                          - The operation state is not valid: it must be active,
+ *                                            with all required input steps complete.
+ *                                          - The library requires initializing by a call to @ref
+ *                                            psa_crypto_init().
+ *          @ref PSA_ERROR_NOT_PERMITTED    The following conditions can result in this error:
+ *                                          - The @ref PSA_KEY_DERIVATION_INPUT_SECRET input step
+ *                                            was neither provided through a key, nor the result of
+ *                                            a key agreement.
+ *                                          - One of the inputs was a key whose policy did not
+ *                                            allow @ref PSA_KEY_USAGE_DERIVE.
+ *                                          - The implementation does not permit creating a key
+ *                                            with the specified attributes due to some
+ *                                            implementation-specific policy.
+ *          @ref PSA_ERROR_ALREADY_EXISTS   This is an attempt to create a persistent key, and
+ *                                          there is already a persistent key with the given
+ *                                          identifier.
+ *          @ref PSA_ERROR_INSUFFICIENT_DATA    There was not enough data to create the desired
+ *                                              key. In this case, the following occurs:
+ *                                              - No key is generated.
+ *                                              - The operation’s capacity is set to zero —
+ *                                                subsequent calls to this function will not
+ *                                                succeed, even if they require less data.
+ *          @ref PSA_ERROR_INVALID_ARGUMENT The following conditions can result in this error:
+ *                                          - The key type is invalid, or is an asymmetric public
+ *                                            key type.
+ *                                          - The key type is @ref PSA_KEY_TYPE_PASSWORD_HASH, and
+ *                                            the permitted-algorithm policy is not the same as the
+ *                                            current operation’s algorithm.
+ *                                          - The key size is not valid for the key type.
+ *                                          - The key lifetime is invalid.
+ *                                          - The key identifier is not valid for the key lifetime.
+ *                                          - The key usage flags include invalid values.
+ *                                          - The key’s permitted-usage algorithm is invalid.
+ *                                          - The key attributes, as a whole, are invalid.
+ *          @ref PSA_ERROR_NOT_SUPPORTED    The key attributes, as a whole, are not supported,
+ *                                          either by the implementation in general or in the
+ *                                          specified storage location.
+ *          @ref PSA_ERROR_INSUFFICIENT_MEMORY
+ *          @ref PSA_ERROR_INSUFFICIENT_STORAGE
+ *          @ref PSA_ERROR_COMMUNICATION_FAILURE
+ *          @ref PSA_ERROR_CORRUPTION_DETECTED
+ *          @ref PSA_ERROR_STORAGE_FAILURE
+ *          @ref PSA_ERROR_DATA_CORRUPT
+ *          @ref PSA_ERROR_DATA_INVALID
+ */
 psa_status_t psa_key_derivation_output_key(const psa_key_attributes_t * attributes,
                                            psa_key_derivation_operation_t * operation,
                                            psa_key_id_t * key);
+
+/**
+ * @brief   Set the maximum capacity of a key derivation operation.
+ *
+ *          The capacity of a key derivation operation is the maximum number of bytes that the key
+ *          derivation operation can return from this point onwards.
+ *
+ * @param   operation   The key derivation operation object to modify.
+ * @param   capacity    The new capacity of the operation. It must be less or equal to the
+ *                      operation’s current capacity.
+ * @return  @ref PSA_SUCCESS                Success.
+ *          @ref PSA_ERROR_BAD_STATE        The following conditions can result in this error:
+ *                                          - The operation state is not valid: it must be active.
+ *                                          - The library requires initializing by a call to @ref
+ *                                            psa_crypto_init().
+ *          @ref PSA_ERROR_INVALID_ARGUMENT @c capacity is larger than the operation’s current
+ *                                          capacity. In this case, the operation object remains
+ *                                          valid and its capacity remains unchanged.
+ *          @ref PSA_ERROR_COMMUNICATION_FAILURE
+ *          @ref PSA_ERROR_CORRUPTION_DETECTED
+ */
 psa_status_t psa_key_derivation_set_capacity(psa_key_derivation_operation_t * operation,
                                              size_t capacity);
+
+/**
+ * @brief   Set up a key derivation operation.
+ *
+ *          A key derivation algorithm takes some inputs and uses them to generate a byte stream in
+ *          a deterministic way. This byte stream can be used to produce keys and other
+ *          cryptographic material.
+ *
+ *          A key agreement and derivation algorithm uses a key agreement protocol to provide a
+ *          shared secret which is used for the key derivation. See @ref
+ *          psa_key_derivation_key_agreement().
+ *
+ *          To derive a key:
+ *          -# Start with an initialized object of type @ref psa_key_derivation_operation_t.
+ *          -# Call @ref psa_key_derivation_setup() to select the algorithm.
+ *          -# Provide the inputs for the key derivation by calling @ref
+ *             psa_key_derivation_input_bytes() or @ref psa_key_derivation_input_key() as
+ *             appropriate. Which inputs are needed, in what order, whether keys are permitted,
+ *             and what type of keys depends on the algorithm.
+ *          -# Optionally set the operation’s maximum capacity with @ref
+ *             psa_key_derivation_set_capacity(). This can be done before, in the middle of, or
+ *             after providing inputs. For some algorithms, this step is mandatory because the
+ *             output depends on the maximum capacity.
+ *          -# To derive a key, call @ref psa_key_derivation_output_key(). To derive a byte string
+ *             for a different purpose, call @ref psa_key_derivation_output_bytes(). Successive
+ *             calls to these functions use successive output bytes calculated by the key
+ *             derivation algorithm.
+ *          -# Clean up the key derivation operation object with @ref psa_key_derivation_abort().
+ *
+ *          If this function returns an error, the key derivation operation object is not changed.
+ *
+ *          If an error occurs at any step after a call to @ref psa_key_derivation_setup(), the
+ *          operation will need to be reset by a call to @ref psa_key_derivation_abort().
+ *
+ *          Implementations must reject an attempt to derive a key of size 0.
+ *
+ * @param   operation   The key derivation operation object to set up. It must have been
+ *                      initialized but not set up yet.
+ * @param   alg         The algorithm to compute. This must be one of the following:
+ *                      - A key derivation algorithm: a value of type @ref psa_algorithm_t
+ *                        such that @ref PSA_ALG_IS_KEY_DERIVATION(@p alg) is true.
+ *                      - A key agreement and derivation algorithm: a value of type @ref
+ *                        psa_algorithm_t such that @ref PSA_ALG_IS_KEY_AGREEMENT(@p alg) is
+ *                        true and @ref PSA_ALG_IS_RAW_KEY_AGREEMENT(@p alg) is false.
+ *
+ * @return  @ref PSA_SUCCESS                Success.
+ *          @ref PSA_ERROR_BAD_STATE        The following conditions can result in this error:
+ *                                          - The operation state is not valid: it must be inactive.
+ *                                          - The library requires initializing by a call to @ref
+ *                                            psa_crypto_init().
+ *          @ref PSA_ERROR_INVALID_ARGUMENT @c alg is neither a key derivation algorithm, nor a key
+ *                                          agreement and derivation algorithm.
+ *          @ref PSA_ERROR_NOT_SUPPORTED    @c alg is not supported or is not a key derivation
+ *                                          algorithm, or a key agreement and derivation algorithm.
+ *          @ref PSA_ERROR_INSUFFICIENT_MEMORY
+ *          @ref PSA_ERROR_COMMUNICATION_FAILURE
+ *          @ref PSA_ERROR_CORRUPTION_DETECTED
+ */
 psa_status_t psa_key_derivation_setup(psa_key_derivation_operation_t * operation,
                                       psa_algorithm_t alg);
+
+/**
+ * @brief   Compare output data from a key derivation operation to an expected value.
+ *
+ *          This function calculates output bytes from a key derivation algorithm and compares
+ *          those bytes to an expected value. If the key derivation’s output is viewed as a stream
+ *          of bytes, this function destructively reads @c output_length bytes from the stream
+ *          before comparing them with @c expected_output. The operation’s capacity decreases by
+ *          the number of bytes read.
+ *
+ *          This is functionally equivalent to the following code:
+ *          @code
+ *          uint8_t tmp[output_length];
+ *          @ref psa_key_derivation_output_bytes(operation, tmp, output_length);
+ *          if (memcmp(expected_output, tmp, output_length) != 0)
+ *               return @ref PSA_ERROR_INVALID_SIGNATURE;
+ *          @endcode
+ *
+ *          However, calling @ref psa_key_derivation_verify_bytes() works even if the key’s policy
+ *          does not allow output of the bytes.
+ *
+ *          If this function returns an error status other than @ref PSA_ERROR_INSUFFICIENT_DATA or
+ *          @ref PSA_ERROR_INVALID_SIGNATURE, the operation enters an error state and must be
+ *          aborted by calling @ref psa_key_derivation_abort().
+ *
+ *          @note   Implementations must make the best effort to ensure that the comparison between
+ *                  the actual key derivation output and the expected output is performed in
+ *                  constant time.
+ *
+ * @param   operation       The key derivation operation object to read from.
+ * @param   expected_output Buffer containing the expected derivation output.
+ * @param   output_length   Length ot the expected output. This is also the number of bytes that
+ *                          will be read.
+ *
+ * @return  @ref PSA_SUCCESS                    Success. The output of the key derivation operation
+ *                                              matches expected_output.
+ *          @ref PSA_ERROR_BAD_STATE            The following conditions can result in this error:
+ *                                              - The operation state is not valid: it must be
+ *                                                active, with all required input steps complete.
+ *                                              - The library requires initializing by a call to
+ *                                                @ref psa_crypto_init().
+ *          @ref PSA_ERROR_NOT_PERMITTED        One of the inputs is a key whose policy does not
+ *                                              permit @ref PSA_KEY_USAGE_VERIFY_DERIVATION.
+ *          @ref PSA_ERROR_INVALID_SIGNATURE    The output of the key derivation operation does
+ *                                              not match the value in expected_output.
+ *          @ref PSA_ERROR_INSUFFICIENT_DATA    The operation’s capacity was less than
+ *                                              @c output_length bytes. In this case, the
+ *                                              operation’s capacity is set to zero — subsequent
+ *                                              calls to this function will not succeed, even with
+ *                                              a smaller expected output length.
+ *          @ref PSA_ERROR_INSUFFICIENT_MEMORY
+ *          @ref PSA_ERROR_COMMUNICATION_FAILURE
+ *          @ref PSA_ERROR_CORRUPTION_DETECTED
+ *          @ref PSA_ERROR_STORAGE_FAILURE
+ *          @ref PSA_ERROR_DATA_CORRUPT
+ *          @ref PSA_ERROR_DATA_INVALID
+ */
+psa_status_t psa_key_derivation_verify_bytes(psa_key_derivation_operation_t * operation,
+                                             const uint8_t *expected_output,
+                                             size_t output_length);
+
+/**
+ * @brief   Compare output data from a key derivation operation to an expected value stored in a
+ *          key.
+ *
+ *          This function calculates output bytes from a key derivation algorithm and compares
+ *          those bytes to an expected value, provided as key of type @ref
+ *          PSA_KEY_TYPE_PASSWORD_HASH. If the key derivation’s output is viewed as a stream of
+ *          bytes, this function destructively reads the number of bytes corresponding to the
+ *          length of the expected key from the stream before comparing them with the key value.
+ *          The operation’s capacity decreases by the number of bytes read.
+ *
+ *          This is functionally equivalent to exporting the expected key and calling @ref
+ *          psa_key_derivation_verify_bytes() on the result, except that it works when the key
+ *          cannot be exported.
+ *
+ *          If this function returns an error status other than @ref PSA_ERROR_INSUFFICIENT_DATA or
+ *          @ref PSA_ERROR_INVALID_SIGNATURE, the operation enters an error state and must be
+ *          aborted by calling @ref psa_key_derivation_abort().
+ *
+ *          @note   Implementations must make the best effort to ensure that the comparison between
+ *                  the actual key derivation output and the expected output is performed in
+ *                  constant time.
+ *
+ * @param   operation   The key derivation operation object to read from.
+ * @param   expected    A key of type @ref PSA_KEY_TYPE_PASSWORD_HASH containing the expected
+ *                      output. The key must allow the usage @ref PSA_KEY_USAGE_VERIFY_DERIVATION,
+ *                      and the permitted algorithm must match the operation’s algorithm.
+ *                      The value of this key is typically computed by a previous call to @ref
+ *                      psa_key_derivation_output_key().
+
+ * @return  @ref PSA_SUCCESS                    Success. The output of the key derivation operation
+ *                                              matches the expected key value.
+ *          @ref PSA_ERROR_BAD_STATE            The following conditions can result in this error:
+ *                                              - The operation state is not valid: it must be
+ *                                                active, with all required input steps complete.
+ *                                              - The library requires initializing by a call to
+ *                                                @ref psa_crypto_init().
+ *          @ref PSA_ERROR_INVALID_HANDLE       @c expected is not a valid key identifier.
+ *          @ref PSA_ERROR_NOT_PERMITTED        The following conditions can result in this error:
+ *                                              - The key does not have the @ref
+ *                                                PSA_KEY_USAGE_VERIFY_DERIVATION flag, or it does
+ *                                                not permit the requested algorithm.
+ *                                              - One of the inputs is a key whose policy does not
+ *                                                permit @ref PSA_KEY_USAGE_VERIFY_DERIVATION.
+ *          @ref PSA_ERROR_INVALID_SIGNATURE    The output of the key derivation operation does not
+ *                                              match the value of the expected key.
+ *          @ref PSA_ERROR_INSUFFICIENT_DATA    The operation’s capacity was less than the length
+ *                                              of the @c expected key. In this case, the
+ *                                              operation’s capacity is set to zero — subsequent
+ *                                              calls to this function will not succeed, even with
+ *                                              a smaller expected key length.
+ *          @ref PSA_ERROR_INVALID_ARGUMENT     The key type is not @ref PSA_KEY_TYPE_PASSWORD_HASH.
+ *          @ref PSA_ERROR_INSUFFICIENT_MEMORY
+ *          @ref PSA_ERROR_COMMUNICATION_FAILURE
+ *          @ref PSA_ERROR_CORRUPTION_DETECTED
+ *          @ref PSA_ERROR_STORAGE_FAILURE
+ *          @ref PSA_ERROR_DATA_CORRUPT
+ *          @ref PSA_ERROR_DATA_INVALID
+ */
+psa_status_t psa_key_derivation_verify_key(psa_key_derivation_operation_t * operation,
+                                           psa_key_id_t expected);
+
+/**
+ * @brief   Abort a MAC operation.
+ *
+ *          Aborting an operation frees all associated resources except for the operation object
+ *          itself. Once aborted, the operation object can be reused for another operation by
+ *          calling @ref psa_mac_sign_setup() or @ref psa_mac_verify_setup() again.
+ *
+ *          This function can be called any time after the operation object has been initialized by
+ *          one of the methods described in @ref psa_mac_operation_t.
+ *
+ *          In particular, calling @ref psa_mac_abort() after the operation has been terminated
+ *          by a call to @ref psa_mac_abort(), @ref psa_mac_sign_finish() or @ref
+ *          psa_mac_verify_finish() is safe and has no effect.
+ *
+ * @param   operation   Initialized MAC operation.
+ * @return  @ref PSA_SUCCESS            Success. The operation object can now be discarded or
+ *                                      reused.
+ *          @ref PSA_ERROR_BAD_STATE    The library requires initializing by a call to @ref
+ *                                      psa_crypto_init().
+ *          @ref PSA_ERROR_COMMUNICATION_FAILURE
+ *          @ref PSA_ERROR_CORRUPTION_DETECTED
+ */
 psa_status_t psa_mac_abort(psa_mac_operation_t * operation);
 
 /**
- * @brief Calculate the message authentication code (MAC) of a message.
+ * @brief   Calculate the message authentication code (MAC) of a message.
  *
- * @note To verify the MAC of a message against an expected value, use psa_mac_verify() instead. Beware that comparing
- * integrity or authenticity data such as MAC values with a function such as memcmp() is risky because the time taken
- * by the comparison might leak information about the MAC value which could allow an attacker to guess a valid MAC and
- * thereby bypass security controls.
+ * @note    To verify the MAC of a message against an expected value, use @ref psa_mac_verify()
+ *          instead. Beware that comparing integrity or authenticity data such as MAC values with a
+ *          function such as @c memcmp() is risky because the time taken by the comparison might
+ *          leak information about the MAC value which could allow an attacker to guess a valid MAC
+ *          and thereby bypass security controls.
  *
- * @param key           Identifier of the key to use for the operation. It must allow the usage
- *                      PSA_KEY_USAGE_SIGN_MESSAGE.
- * @param alg           The MAC algorithm to compute (PSA_ALG_XXX value such that PSA_ALG_IS_MAC(alg) is true).
- * @param input         Buffer containing the input message.
- * @param input_length  Size of the input buffer in bytes.
- * @param mac           Buffer where the MAC value is to be written.
- * @param mac_size      Size of the mac buffer in bytes. This must be appropriate for the selected
- *                      algorithm and key:
- *                      - The exact MAC size is PSA_MAC_LENGTH(key_type, key_bits, alg) where key_type and
- *                        key_bits are attributes of the key used to compute the MAC.
- *                      - PSA_MAC_MAX_SIZE evaluates to the maximum MAC size of any supported MAC algorithm.
- * @param mac_length    On success, the number of bytes that make up the MAC value.
- * @return psa_status_t
- *         PSA_SUCCESS                  Success.
- *         PSA_ERROR_INVALID_HANDLE
- *         PSA_ERROR_NOT_PERMITTED      The key does not have the PSA_KEY_USAGE_SIGN_MESSAGE flag,
- *                                      or it does not permit the requested algorithm.
- *         PSA_ERROR_INVALID_ARGUMENT   key is not compatible with alg.
- *         PSA_ERROR_NOT_SUPPORTED      alg is not supported or is not a MAC algorithm.
- *         PSA_ERROR_BUFFER_TOO_SMALL   The size of the mac buffer is too small. PSA_MAC_LENGTH() or PSA_MAC_MAX_SIZE
- *                                      can be used to determine the required buffer size.
- *         PSA_ERROR_INSUFFICIENT_MEMORY
- *         PSA_ERROR_COMMUNICATION_FAILURE
- *         PSA_ERROR_HARDWARE_FAILURE
- *         PSA_ERROR_CORRUPTION_DETECTED
- *         PSA_ERROR_STORAGE_FAILURE    The key could not be retrieved from storage.
- *         PSA_ERROR_DATA_CORRUPT       The key could not be retrieved from storage.
- *         PSA_ERROR_DATA_INVALID       The key could not be retrieved from storage.
- *         PSA_ERROR_BAD_STATE          The library has not been previously initialized by psa_crypto_init().
- *                                      It is implementation-dependent whether a failure to initialize results
- *                                      in this error code.
+ * @param   key             Identifier of the key to use for the operation. It must allow the usage
+ *                          @ref PSA_KEY_USAGE_SIGN_MESSAGE.
+ * @param   alg             The MAC algorithm to compute (PSA_ALG_XXX value such that @ref
+ *                          PSA_ALG_IS_MAC(@p alg) is true).
+ * @param   input           Buffer containing the input message.
+ * @param   input_length    Size of the input buffer in bytes.
+ * @param   mac             Buffer where the MAC value is to be written.
+ * @param   mac_size        Size of the mac buffer in bytes. This must be appropriate for the
+ *                          selected algorithm and key:
+ *                          - The exact MAC size is @ref PSA_MAC_LENGTH(@p key_type, @p key_bits,
+ *                            @p alg) where @c key_type and @c key_bits are attributes of the key
+ *                            used to compute the MAC.
+ *                          - @ref PSA_MAC_MAX_SIZE evaluates to the maximum MAC size of any
+ *                          supported MAC algorithm.
+ * @param   mac_length      On success, the number of bytes that make up the MAC value.
+ *
+ * @return  @ref PSA_SUCCESS            Success. The first @c (*mac_length) bytes of @c mac contain
+ *                                      the MAC value.
+ *          @ref PSA_ERROR_BAD_STATE    The library requires initializing by a call to @ref
+ *                                      psa_crypto_init().
+ *          @ref PSA_ERROR_INVALID_HANDLE   @c key is not a valid key identifier.
+ *          @ref PSA_ERROR_NOT_PERMITTED    The key does not have the @ref
+ *                                          PSA_KEY_USAGE_SIGN_MESSAGE flag, or it does not permit
+ *                                          the requested algorithm.
+ *          @ref PSA_ERROR_BUFFER_TOO_SMALL The size of the mac buffer is too small. @ref
+ *                                          PSA_MAC_LENGTH() or @ref PSA_MAC_MAX_SIZE can be used
+ *                                          to determine a sufficient buffer size.
+ *          @ref PSA_ERROR_INVALID_ARGUMENT The following conditions can result in this error:
+ *                                          - @c alg is not a MAC algorithm.
+ *                                          - @c key is not compatible with @c alg.
+ *                                          - @c input_length is too large for @c alg.
+ *          @ref PSA_ERROR_NOT_SUPPORTED    The following conditions can result in this error:
+ *                                          - @c alg is not supported or is not a MAC algorithm.
+ *                                          - @c key is not supported for use with @c alg.
+ *                                          - @c input_length is too large for the implementation.
+ *          @ref PSA_ERROR_INSUFFICIENT_MEMORY
+ *          @ref PSA_ERROR_COMMUNICATION_FAILURE
+ *          @ref PSA_ERROR_CORRUPTION_DETECTED
+ *          @ref PSA_ERROR_STORAGE_FAILURE
+ *          @ref PSA_ERROR_DATA_CORRUPT
+ *          @ref PSA_ERROR_DATA_INVALID
  */
 psa_status_t psa_mac_compute(psa_key_id_t key,
                              psa_algorithm_t alg,
@@ -2647,30 +3376,385 @@ psa_status_t psa_mac_compute(psa_key_id_t key,
                              uint8_t * mac,
                              size_t mac_size,
                              size_t * mac_length);
-psa_mac_operation_t psa_mac_operation_init(void);
+
+/**
+ * @brief   Finish the calculation of the MAC of a message.
+ *
+ *          The application must call @ref psa_mac_sign_setup() before calling this function. This
+ *          function calculates the MAC of the message formed by concatenating the inputs passed to
+ *          preceding calls to @ref psa_mac_update().
+ *
+ *          When this function returns successfully, the operation becomes inactive. If this
+ *          function returns an error status, the operation enters an error state and must be
+ *          aborted by calling @ref psa_mac_abort().
+ *
+ * @warning It is not recommended to use this function when a specific value is expected for the
+ *          MAC. Call @ref psa_mac_verify_finish() instead with the expected MAC value.
+ *          Comparing integrity or authenticity data such as MAC values with a function such as
+ *          @c memcmp() is risky because the time taken by the comparison might leak information
+ *          about the hashed data which could allow an attacker to guess a valid MAC and thereby
+ *          bypass security controls.
+ *
+ * @param   operation   Active MAC operation.
+ * @param   mac         Buffer where the MAC value is to be written.
+ * @param   mac_size    Size of the mac buffer in bytes. This must be appropriate for the selected
+ *                      algorithm and key:
+ *                      - The exact MAC size is @ref PSA_MAC_LENGTH(@p key_type, @p key_bits,
+ *                        @p alg) where @c key_type and @c key_bits are attributes of the key,
+ *                        and @c alg is the algorithm used to compute the MAC.
+ *                      - @ref PSA_MAC_MAX_SIZE evaluates to the maximum MAC size of any supported
+ *                        MAC algorithm.
+ * @param   mac_length  On success, the number of bytes that make up the MAC value. This is always
+ *                      @ref PSA_MAC_LENGTH(@p key_type, @p key_bits, @p alg) where @c key_type and
+ *                      @c key_bits are attributes of the key, and @c alg is the algorithm used to
+ *                      compute the MAC.
+ * @return  @ref PSA_SUCCESS                Success. The first @c (*mac_length) bytes of mac
+ *                                          contain the MAC value.
+ *          @ref PSA_ERROR_BAD_STATE        The following conditions can result in this error:
+ *                                          - The operation state is not valid: it must be an
+ *                                            active mac sign operation.
+ *                                          - The library requires initializing by a call to @ref
+ *                                            psa_crypto_init().
+ *          @ref PSA_ERROR_BUFFER_TOO_SMALL The size of the mac buffer is too small. @ref
+ *                                          PSA_MAC_LENGTH() or @ref PSA_MAC_MAX_SIZE can be used
+ *                                          to determine a sufficient buffer size.
+ *          @ref PSA_ERROR_INSUFFICIENT_MEMORY
+ *          @ref PSA_ERROR_COMMUNICATION_FAILURE
+ *          @ref PSA_ERROR_CORRUPTION_DETECTED
+ *          @ref PSA_ERROR_STORAGE_FAILURE
+ *          @ref PSA_ERROR_DATA_CORRUPT
+ *          @ref PSA_ERROR_DATA_INVALID
+ */
 psa_status_t psa_mac_sign_finish(psa_mac_operation_t * operation,
                                  uint8_t * mac,
                                  size_t mac_size,
                                  size_t * mac_length);
+
+/**
+ * @brief   Set up a multi-part MAC calculation operation.
+ *
+ *          This function sets up the calculation of the message authentication code (MAC)
+ *          of a byte string. To verify the MAC of a message against an expected value,
+ *          use @ref psa_mac_verify_setup() instead.
+ *
+ *          The sequence of operations to calculate a MAC is as follows:
+ *          -# Allocate an operation object which will be passed to all the functions listed here.
+ *          -# Initialize the operation object with one of the methods described in the
+ *             documentation for @ref psa_mac_operation_t, e.g. @ref PSA_MAC_OPERATION_INIT.
+ *          -# Call @ref psa_mac_sign_setup() to specify the algorithm and key.
+ *          -# Call @ref psa_mac_update() zero, one or more times, passing a fragment of the
+ *             message each time. The MAC that is calculated is the MAC of the concatenation of
+ *             these messages in order.
+ *          -# At the end of the message, call @ref psa_mac_sign_finish() to finish calculating the
+ *             MAC value and retrieve it.
+ *
+ *          If an error occurs at any step after a call to @ref psa_mac_sign_setup(), the operation
+ *          will need to be reset by a call to @ref psa_mac_abort(). The application can call @ref
+ *          psa_mac_abort() at any time after the operation has been initialized.
+ *
+ *          After a successful call to @ref psa_mac_sign_setup(), the application must eventually
+ *          terminate the operation through one of the following methods:
+ *          - A successful call to @ref psa_mac_sign_finish().
+ *          - A call to @ref psa_mac_abort().
+ *
+ * @param   operation   The operation object to set up. It must have been initialized as per the
+ *                      documentation for @ref psa_mac_operation_t and not yet in use.
+ * @param   key         Identifier of the key to use for the operation. It must remain valid until
+ *                      the operation terminates. It must allow the usage @ref
+ *                      PSA_KEY_USAGE_SIGN_MESSAGE.
+ * @param   alg         The MAC algorithm to compute: a value of type @ref psa_algorithm_t such
+ *                      that @ref PSA_ALG_IS_MAC(@p alg) is true.
+ * @return  @ref PSA_SUCCESS                Success.
+ *          @ref PSA_ERROR_BAD_STATE        The following conditions can result in this error:
+ *                                          - The operation state is not valid: it must be inactive.
+ *                                          - The library requires initializing by a call to @ref
+ *                                          psa_crypto_init().
+ *          @ref PSA_ERROR_INVALID_HANDLE   @c key is not a valid key identifier.
+ *          @ref PSA_ERROR_NOT_PERMITTED    The key does not have the @ref
+ *                                          PSA_KEY_USAGE_SIGN_MESSAGE flag, or it does not permit
+ *                                          the requested algorithm.
+ *          @ref PSA_ERROR_INVALID_ARGUMENT The following conditions can result in this error:
+ *                                          - @c alg is not a MAC algorithm.
+ *                                          - @c key is not compatible with @c alg.
+ *          @ref PSA_ERROR_NOT_SUPPORTED    The following conditions can result in this error:
+ *                                          - @c alg is not supported or is not a MAC algorithm.
+ *                                          - @c key is not supported for use with @c alg.
+ *          @ref PSA_ERROR_INSUFFICIENT_MEMORY
+ *          @ref PSA_ERROR_COMMUNICATION_FAILURE
+ *          @ref PSA_ERROR_CORRUPTION_DETECTED
+ *          @ref PSA_ERROR_STORAGE_FAILURE
+ *          @ref PSA_ERROR_DATA_CORRUPT
+ *          @ref PSA_ERROR_DATA_INVALID
+ */
 psa_status_t psa_mac_sign_setup(psa_mac_operation_t * operation,
                                 psa_key_id_t key,
                                 psa_algorithm_t alg);
+
+/**
+ * @brief   Add a message fragment to a multi-part MAC operation.
+ *
+ *          The application must call @ref psa_mac_sign_setup() or @ref psa_mac_verify_setup()
+ *          before calling this function.
+ *
+ *          If this function returns an error status, the operation enters an error state and must
+ *          be aborted by calling @ref psa_mac_abort().
+ *
+ * @param   operation       Active MAC operation.
+ * @param   input           Buffer containing the message fragment to add to the MAC calculation.
+ * @param   input_length    Size of the @c input buffer in bytes.
+ * @return  @ref PSA_SUCCESS                Success.
+ *          @ref PSA_ERROR_BAD_STATE        The following conditions can result in this error:
+ *                                          - The operation state is not valid: it must be active.
+ *                                          - The library requires initializing by a call to @ref
+ *                                          psa_crypto_init().
+ *          @ref PSA_ERROR_INVALID_ARGUMENT The total input for the operation is too large for the
+ *                                          MAC algorithm.
+ *          @ref PSA_ERROR_NOT_SUPPORTED    The total input for the operation is too large for the
+ *                                          implementation.
+ *          @ref PSA_ERROR_INSUFFICIENT_MEMORY
+ *          @ref PSA_ERROR_COMMUNICATION_FAILURE
+ *          @ref PSA_ERROR_CORRUPTION_DETECTED
+ *          @ref PSA_ERROR_STORAGE_FAILURE
+ *          @ref PSA_ERROR_DATA_CORRUPT
+ *          @ref PSA_ERROR_DATA_INVALID
+ */
 psa_status_t psa_mac_update(psa_mac_operation_t * operation,
                             const uint8_t * input,
                             size_t input_length);
+
+/**
+ * @brief   Calculate the MAC of a message and compare it with a reference value.
+ *
+ * @param   key             Identifier of the key to use for the operation. It must allow the usage
+ *                          @ref PSA_KEY_USAGE_VERIFY_MESSAGE.
+ * @param   alg             The MAC algorithm to compute: a value of type @ref psa_algorithm_t such
+ *                          that @ref PSA_ALG_IS_MAC(@p alg) is true.
+ * @param   input           Buffer containing the input message.
+ * @param   input_length    Size of the @c input buffer in bytes.
+ * @param   mac             Buffer containing the expected MAC value.
+ * @param   mac_length      Size of the @c mac buffer in bytes.
+ * @return  @ref PSA_SUCCESS                    Success. The expected MAC is identical to the
+ *                                              actual MAC of the input.
+ *          @ref PSA_ERROR_BAD_STATE            The library requires initializing by a call to @ref
+ *                                              psa_crypto_init().
+ *          @ref PSA_ERROR_INVALID_HANDLE       @c key is not a valid key identifier.
+ *          @ref PSA_ERROR_NOT_PERMITTED        The key does not have the @ref
+ *                                              PSA_KEY_USAGE_VERIFY_MESSAGE flag, or it does not
+ *                                              permit the requested algorithm.
+ *          @ref PSA_ERROR_INVALID_SIGNATURE    The calculated MAC of the message does not match
+ *                                              the value in @c mac.
+ *          @ref PSA_ERROR_INVALID_ARGUMENT     The following conditions can result in this error:
+ *                                              - @c alg is not a MAC algorithm.
+ *                                              - @c key is not compatible with @c alg.
+ *                                              - @c input_length is too large for @c alg.
+ *          @ref PSA_ERROR_NOT_SUPPORTED        The following conditions can result in this error:
+ *                                              - @c alg is not supported or is not a MAC algorithm.
+ *                                              - @c key is not supported for use with @c alg.
+ *                                              - @c input_length is too large for the
+ *                                                implementation.
+ *          @ref PSA_ERROR_INSUFFICIENT_MEMORY
+ *          @ref PSA_ERROR_COMMUNICATION_FAILURE
+ *          @ref PSA_ERROR_CORRUPTION_DETECTED
+ *          @ref PSA_ERROR_STORAGE_FAILURE
+ *          @ref PSA_ERROR_DATA_CORRUPT
+ *          @ref PSA_ERROR_DATA_INVALID
+ */
 psa_status_t psa_mac_verify(psa_key_id_t key,
                             psa_algorithm_t alg,
                             const uint8_t * input,
                             size_t input_length,
                             const uint8_t * mac,
                             size_t mac_length);
+
+/**
+ * @brief   Finish the calculation of the MAC of a message and compare it with an expected value.
+ *
+ *          The application must call @ref psa_mac_verify_setup() before calling this function.
+ *          This function calculates the MAC of the message formed by concatenating the inputs
+ *          passed to preceding calls to @ref psa_mac_update(). It then compares the calculated MAC
+ *          with the expected MAC passed as a parameter to this function.
+ *
+ *          When this function returns successfully, the operation becomes inactive. If this
+ *          function returns an error status, the operation enters an error state and must be
+ *          aborted by calling @ref psa_mac_abort().
+ *
+ * @note    Implementations must make the best effort to ensure that the comparison between the
+ *          actual MAC and the expected MAC is performed in constant time.
+ *
+ * @param   operation   Active MAC operation.
+ * @param   mac         Buffer containing the expected MAC value.
+ * @param   mac_length  Size of the @c mac buffer in bytes.
+ *
+ * @return  @ref PSA_SUCCESS                    Success. The expected MAC is identical to the
+ *                                              actual MAC of the message.
+ *          @ref PSA_ERROR_BAD_STATE            The following conditions can result in this error:
+ *                                              - The operation state is not valid: it must be an
+ *                                                active mac verify operation.
+ *                                              - The library requires initializing by a call to
+ *                                                @ref psa_crypto_init().
+ *          @ref PSA_ERROR_INVALID_SIGNATURE    The calculated MAC of the message does not match
+ *                                              the value in mac.
+ *          @ref PSA_ERROR_INSUFFICIENT_MEMORY
+ *          @ref PSA_ERROR_COMMUNICATION_FAILURE
+ *          @ref PSA_ERROR_CORRUPTION_DETECTED
+ *          @ref PSA_ERROR_STORAGE_FAILURE
+ *          @ref PSA_ERROR_DATA_CORRUPT
+ *          @ref PSA_ERROR_DATA_INVALID
+ */
 psa_status_t psa_mac_verify_finish(psa_mac_operation_t * operation,
                                    const uint8_t * mac,
                                    size_t mac_length);
+
+/**
+ * @brief   Set up a multi-part MAC verification operation.
+ *
+ *          This function sets up the verification of the message authentication code (MAC) of a
+ *          byte string against an expected value.
+ *
+ *          The sequence of operations to verify a MAC is as follows:
+ *          -# Allocate an operation object which will be passed to all the functions listed here.
+ *          -# Initialize the operation object with one of the methods described in the
+ *             documentation for @ref psa_mac_operation_t, e.g. @ref PSA_MAC_OPERATION_INIT.
+ *          -# Call @ref psa_mac_verify_setup() to specify the algorithm and key.
+ *          -# Call @ref psa_mac_update() zero, one or more times, passing a fragment of the
+ *             message each time. The MAC that is calculated is the MAC of the concatenation of
+ *             these messages in order.
+ *          -# At the end of the message, call @ref psa_mac_verify_finish() to finish calculating
+ *             the actual MAC of the message and verify it against the expected value.
+ *
+ *          If an error occurs at any step after a call to @ref psa_mac_verify_setup(), the
+ *          operation will need to be reset by a call to @ref psa_mac_abort(). The application can
+ *          call @ref psa_mac_abort() at any time after the operation has been initialized.
+ *
+ *          After a successful call to @ref psa_mac_verify_setup(), the application must eventually
+ *          terminate the operation through one of the following methods:
+ *          - A successful call to @ref psa_mac_verify_finish().
+ *          - A call to @ref psa_mac_abort().
+
+ * @param   operation   The operation object to set up. It must have been initialized as per the
+ *                      documentation for @ref psa_mac_operation_t and not yet in use.
+ * @param   key         Identifier of the key to use for the operation. It must remain valid until
+ *                      the operation terminates. It must allow the usage @ref
+ *                      PSA_KEY_USAGE_VERIFY_MESSAGE.
+ * @param   alg         The MAC algorithm to compute: a value of type @ref psa_algorithm_t such
+ *                      that @ref PSA_ALG_IS_MAC(@p alg) is true.
+ * @return  @ref PSA_SUCCESS                Success.
+ *          @ref PSA_ERROR_BAD_STATE        The following conditions can result in this error:
+ *                                          - The operation state is not valid: it must be inactive.
+ *                                          - The library requires initializing by a call to @ref
+ *                                          psa_crypto_init().
+ *          @ref PSA_ERROR_INVALID_HANDLE   @c key is not a valid key identifier.
+ *          @ref PSA_ERROR_NOT_PERMITTED    The key does not have the @ref
+ *                                          PSA_KEY_USAGE_VERIFY_MESSAGE flag, or it does not
+ *                                          permit the requested algorithm.
+ *          @ref PSA_ERROR_INVALID_ARGUMENT The following conditions can result in this error:
+ *                                          - @c alg is not a MAC algorithm.
+ *                                          - @c key is not compatible with @c alg.
+ *          @ref PSA_ERROR_NOT_SUPPORTED    The following conditions can result in this error:
+ *                                          - @c alg is not supported or is not a MAC algorithm.
+ *                                          - @c key is not supported for use with @c alg.
+ *          @ref PSA_ERROR_INSUFFICIENT_MEMORY
+ *          @ref PSA_ERROR_COMMUNICATION_FAILURE
+ *          @ref PSA_ERROR_CORRUPTION_DETECTED
+ *          @ref PSA_ERROR_STORAGE_FAILURE
+ *          @ref PSA_ERROR_DATA_CORRUPT
+ *          @ref PSA_ERROR_DATA_INVALID
+ */
 psa_status_t psa_mac_verify_setup(psa_mac_operation_t * operation,
                                   psa_key_id_t key,
                                   psa_algorithm_t alg);
+
+/**
+ * @brief   Remove non-essential copies of key material from memory.
+ *
+ *          For keys that have been created with the @ref PSA_KEY_USAGE_CACHE usage flag, an
+ *          implementation is permitted to make additional copies of the key material that are
+ *          not in storage and not for the purpose of ongoing operations.
+ *
+ *          This function will remove these extra copies of the key material from memory.
+ *
+ *          This function is not required to remove key material from memory in any of the
+ *          following situations:
+ *          - The key is currently in use in a cryptographic operation.
+ *          - The key is volatile.
+
+ * @param   key Identifier of the key to purge.
+ * @return  @ref PSA_SUCCESS                Success. The key material has been removed from memory,
+ *                                          if the key material is not currently required.
+ *          @ref PSA_ERROR_BAD_STATE        The library requires initializing by a call to @ref
+ *                                          psa_crypto_init().
+ *          @ref PSA_ERROR_INVALID_HANDLE   @c key is not a valid key identifier.
+ *          @ref PSA_ERROR_COMMUNICATION_FAILURE
+ *          @ref PSA_ERROR_CORRUPTION_DETECTED
+ *          @ref PSA_ERROR_STORAGE_FAILURE
+ *          @ref PSA_ERROR_DATA_CORRUPT
+ *          @ref PSA_ERROR_DATA_INVALID
+ */
 psa_status_t psa_purge_key(psa_key_id_t key);
+
+/**
+ * @brief   Perform a key agreement and return the raw shared secret.
+ *
+ * @warning The raw result of a key agreement algorithm such as finite-field Diffie-Hellman or
+ *          elliptic curve Diffie-Hellman has biases, and is not suitable for use as key material.
+ *          Instead it is recommended that the result is used as input to a key derivation
+ *          algorithm. To chain a key agreement with a key derivation, use @ref
+ *          psa_key_derivation_key_agreement() and other functions from the key derivation
+ *          interface.
+ *
+ * @param   alg             The key agreement algorithm to compute: a value of type @ref
+ *                          psa_algorithm_t such that @ref PSA_ALG_IS_RAW_KEY_AGREEMENT(@c alg)
+ *                          is true.
+ * @param   private_key     Identifier of the private key to use. It must allow the usage @ref
+ *                          PSA_KEY_USAGE_DERIVE.
+ * @param   peer_key        Public key of the peer. The peer key must be in the same format that
+ *                          @ref psa_import_key() accepts for the public key type corresponding to
+ *                          the type of private_key. That is, this function performs the equivalent
+ *                          of @ref psa_import_key(..., @p peer_key, @p peer_key_length), with key
+ *                          attributes indicating the public key type corresponding to the type of
+ *                          @c private_key. For example, for ECC keys, this means that @c peer_key
+ *                          is interpreted as a point on the curve that the private key is on. The
+ *                          standard formats for public keys are documented in the documentation of
+ *                          @ref psa_export_public_key().
+ * @param   peer_key_length Size of peer_key in bytes.
+ * @param   output          Buffer where the raw shared secret is to be written.
+ * @param   output_size     Size of the output buffer in bytes. This must be appropriate for the
+ *                          keys:
+ *                          - The required output size is @ref PSA_RAW_KEY_AGREEMENT_OUTPUT_SIZE
+ *                            (@p type, @p bits) where type is the type of @c private_key and @c
+ *                            bits is the bit-size of either @c private_key or the @c peer_key.
+ *                          - @ref PSA_RAW_KEY_AGREEMENT_OUTPUT_MAX_SIZE evaluates to the maximum
+ *                            output size of any supported raw key agreement algorithm.
+ * @param   output_length   On success, the number of bytes that make up the returned output.
+ *
+ * @return  @ref PSA_SUCCESS                Success. The first (*output_length) bytes of output
+ *                                          contain the raw shared secret.
+ *          @ref PSA_ERROR_BAD_STATE        The library requires initializing by a call to @ref
+ *                                          psa_crypto_init().
+ *          @ref PSA_ERROR_INVALID_HANDLE   @c private_key is not a valid key identifier.
+ *          @ref PSA_ERROR_NOT_PERMITTED    @c private_key does not have the @ref
+ *                                          PSA_KEY_USAGE_DERIVE flag, or it does not permit
+ *                                          the requested algorithm.
+ *          @ref PSA_ERROR_BUFFER_TOO_SMALL The size of the output buffer is too small.
+ *                                          @ref PSA_RAW_KEY_AGREEMENT_OUTPUT_SIZE() or @ref
+ *                                          PSA_RAW_KEY_AGREEMENT_OUTPUT_MAX_SIZE can be used to
+ *                                          determine a sufficient buffer size.
+ *          @ref PSA_ERROR_INVALID_ARGUMENT The following conditions can result in this error:
+ *                                          - @c alg is not a key agreement algorithm.
+ *                                          - @c private_key is not compatible with @c alg.
+ *                                          - @c peer_key is not a valid public key corresponding
+ *                                            to @c private_key.
+ *          @ref PSA_ERROR_NOT_SUPPORTED    The following conditions can result in this error:
+ *                                          - @c alg is not supported or is not a key agreement
+ *                                            algorithm.
+ *                                          - @c private_key is not supported for use with @c alg.
+ *          @ref PSA_ERROR_INSUFFICIENT_MEMORY
+ *          @ref PSA_ERROR_COMMUNICATION_FAILURE
+ *          @ref PSA_ERROR_CORRUPTION_DETECTED
+ *          @ref PSA_ERROR_STORAGE_FAILURE
+ *          @ref PSA_ERROR_DATA_CORRUPT
+ *          @ref PSA_ERROR_DATA_INVALID
+ */
 psa_status_t psa_raw_key_agreement(psa_algorithm_t alg,
                                    psa_key_id_t private_key,
                                    const uint8_t * peer_key,
@@ -2678,6 +3762,75 @@ psa_status_t psa_raw_key_agreement(psa_algorithm_t alg,
                                    uint8_t * output,
                                    size_t output_size,
                                    size_t * output_length);
+
+/**
+ * @brief   Sign an already-calculated hash with a private key.
+ *
+ *          With most signature mechanisms that follow the hash-and-sign paradigm, the hash input
+ *          to this function is the hash of the message to sign. The hash algorithm is encoded in
+ *          the signature algorithm.
+ *
+ *          Some hash-and-sign mechanisms apply a padding or encoding to the hash. In such cases,
+ *          the encoded hash must be passed to this function. The current version of this
+ *          specification defines one such signature algorithm: @ref PSA_ALG_RSA_PKCS1V15_SIGN_RAW.
+ *
+ * @note    To perform a hash-and-sign signature algorithm, the hash must be calculated before
+ *          passing it to this function. This can be done by calling @ref psa_hash_compute() or
+ *          with a multi-part hash operation. The correct hash algorithm to use can be determined
+ *          using @ref PSA_ALG_GET_HASH().
+ *
+ *          Alternatively, to hash and sign a message in a single call, use @ref psa_sign_message().
+ *
+ * @param   key                 Identifier of the key to use for the operation. It must be an
+ *                              asymmetric key pair. The key must allow the usage @ref
+ *                              PSA_KEY_USAGE_SIGN_HASH.
+ * @param   alg                 An asymmetric signature algorithm that separates the hash and sign
+ *                              operations: a value of type @ref psa_algorithm_t such that @ref
+ *                              PSA_ALG_IS_SIGN_HASH(@p alg) is true.
+ * @param   hash                The input to sign. This is usually the hash of a message. See the
+ *                              detailed description of this function and the description of
+ *                              individual signature algorithms for a detailed description of
+ *                              acceptable inputs.
+ * @param   hash_length         Size of the hash buffer in bytes.
+ * @param   signature           Buffer where the signature is to be written.
+ * @param   signature_size      Size of the signature buffer in bytes. This must be appropriate for
+ *                              the selected algorithm and key:
+ *                              - The required signature size is @ref PSA_SIGN_OUTPUT_SIZE(@p
+ *                                key_type, @p key_bits, @p alg) where @c key_type and @c key_bits
+ *                                are the type and bit-size respectively of @c key.
+ *                              - @ref PSA_SIGNATURE_MAX_SIZE evaluates to the maximum signature
+ *                                size of any supported signature algorithm.
+ * @param   signature_length    On success, the number of bytes that make up the returned signature
+ *                              value.
+ * @return  @ref PSA_SUCCESS                Success. The first @c (*signature_length) bytes of
+ *                                          @c signature contain the signature value.
+ *          @ref PSA_ERROR_BAD_STATE        The library requires initializing by a call to @ref
+ *                                          psa_crypto_init().
+ *          @ref PSA_ERROR_INVALID_HANDLE   @c key is not a valid key identifier.
+ *          @ref PSA_ERROR_NOT_PERMITTED    The key does not have the @ref PSA_KEY_USAGE_SIGN_HASH
+ *                                          flag, or it does not permit the requested algorithm.
+ *          @ref PSA_ERROR_BUFFER_TOO_SMALL The size of the signature buffer is too small.
+ *                                          @ref PSA_SIGN_OUTPUT_SIZE() or @ref
+ *                                          PSA_SIGNATURE_MAX_SIZE can be used to determine a
+ *                                          sufficient buffer size.
+ *          @ref PSA_ERROR_INVALID_ARGUMENT The following conditions can result in this error:
+ *                                          - @c alg is not an asymmetric signature algorithm.
+ *                                          - @c key is not an asymmetric key pair, that is
+ *                                            compatible with @c alg.
+ *                                          - @c hash_length is not valid for the algorithm and key
+ *                                            type.
+ *          @ref PSA_ERROR_NOT_SUPPORTED    The following conditions can result in this error:
+ *                                          - @c alg is not supported or is not an asymmetric
+ *                                            signature algorithm.
+ *                                          - @c key is not supported for use with alg.
+ *          @ref PSA_ERROR_INSUFFICIENT_ENTROPY
+ *          @ref PSA_ERROR_INSUFFICIENT_MEMORY
+ *          @ref PSA_ERROR_COMMUNICATION_FAILURE
+ *          @ref PSA_ERROR_CORRUPTION_DETECTED
+ *          @ref PSA_ERROR_STORAGE_FAILURE
+ *          @ref PSA_ERROR_DATA_CORRUPT
+ *          @ref PSA_ERROR_DATA_INVALID
+ */
 psa_status_t psa_sign_hash(psa_key_id_t key,
                            psa_algorithm_t alg,
                            const uint8_t * hash,
@@ -2685,6 +3838,64 @@ psa_status_t psa_sign_hash(psa_key_id_t key,
                            uint8_t * signature,
                            size_t signature_size,
                            size_t * signature_length);
+
+/**
+ * @brief   Sign a message with a private key. For hash-and-sign algorithms, this includes the
+ *          hashing step.
+ *
+ * @note    To perform a multi-part hash-and-sign signature algorithm, first use a multi-part hash
+ *          operation and then pass the resulting hash to @ref psa_sign_hash().
+ *          @ref PSA_ALG_GET_HASH(@p alg) can be used to determine the hash algorithm to use.
+ *
+ * @param   key                 Identifier of the key to use for the operation. It must be an
+ *                              asymmetric key pair. The key must allow the usage @ref
+ *                              PSA_KEY_USAGE_SIGN_MESSAGE.
+ * @param   alg                 An asymmetric signature algorithm: a value of type @ref
+ *                              psa_algorithm_t such that @ref PSA_ALG_IS_SIGN_MESSAGE(@p alg) is
+ *                              true.
+ * @param   input               The input message to sign.
+ * @param   input_length        Size of the input buffer in bytes.
+ * @param   signature           Buffer where the signature is to be written.
+ * @param   signature_size      Size of the signature buffer in bytes. This must be appropriate for
+ *                              the selected algorithm and key:
+ *                              - The required signature size is @ref PSA_SIGN_OUTPUT_SIZE
+ *                                (@p key_type, @p key_bits, @p alg) where @c key_type and
+ *                                @c key_bits are the type and bit-size respectively of @c key.
+ *                              - @ref PSA_SIGNATURE_MAX_SIZE evaluates to the maximum signature
+ *                                size of any supported signature algorithm.
+ * @param   signature_length    On success, the number of bytes that make up the returned signature
+ *                              value.
+ * @return  @ref PSA_SUCCESS                Success. The first @c (*signature_length) bytes of
+ *                                          @c signature contain the signature value.
+ *          @ref PSA_ERROR_BAD_STATE        The library requires initializing by a call to @ref
+ *                                          psa_crypto_init().
+ *          @ref PSA_ERROR_INVALID_HANDLE   @c key is not a valid key identifier.
+ *          @ref PSA_ERROR_NOT_PERMITTED    The key does not have the @ref
+ *                                          PSA_KEY_USAGE_SIGN_MESSAGE flag, or it does not permit
+ *                                          the requested algorithm.
+ *          @ref PSA_ERROR_BUFFER_TOO_SMALL The size of the signature buffer is too small.
+ *                                          @ref PSA_SIGN_OUTPUT_SIZE() or @ref
+ *                                          PSA_SIGNATURE_MAX_SIZE can be used to determine a
+ *                                          sufficient buffer size.
+ *          @ref PSA_ERROR_INVALID_ARGUMENT The following conditions can result in this error:
+ *                                          - @c alg is not an asymmetric signature algorithm.
+ *                                          - @c key is not an asymmetric key pair, that is
+ *                                            compatible with @c alg.
+ *                                          - @c input_length is too large for the algorithm and
+ *                                            key type.
+ *          @ref PSA_ERROR_NOT_SUPPORTED    The following conditions can result in this error:
+ *                                          - @c alg is not supported or is not an asymmetric
+ *                                            signature algorithm.
+ *                                          - @c key is not supported for use with @c alg.
+ *                                          - @c input_length is too large for the implementation.
+ *          @ref PSA_ERROR_INSUFFICIENT_ENTROPY
+ *          @ref PSA_ERROR_INSUFFICIENT_MEMORY
+ *          @ref PSA_ERROR_COMMUNICATION_FAILURE
+ *          @ref PSA_ERROR_CORRUPTION_DETECTED
+ *          @ref PSA_ERROR_STORAGE_FAILURE
+ *          @ref PSA_ERROR_DATA_CORRUPT
+ *          @ref PSA_ERROR_DATA_INVALID
+ */
 psa_status_t psa_sign_message(psa_key_id_t key,
                               psa_algorithm_t alg,
                               const uint8_t * input,
@@ -2694,52 +3905,66 @@ psa_status_t psa_sign_message(psa_key_id_t key,
                               size_t * signature_length);
 
 /**
- * @brief Verify the signature of a hash or short message using a public key.
+ * @brief   Verify the signature of a hash or short message using a public key.
  *
- * With most signature mechanisms that follow the hash-and-sign paradigm, the hash input to this function is the hash
- * of the message to sign. The hash algorithm is encoded in the signature algorithm.
- * Some hash-and-sign mechanisms apply a padding or encoding to the hash. In such cases, the encoded hash must be
- * passed to this function. The current version of this specification defines one such signature algorithm:
- * PSA_ALG_RSA_PKCS1V15_SIGN_RAW.
+ *          With most signature mechanisms that follow the hash-and-sign paradigm, the hash input
+ *          to this function is the hash of the message to sign. The hash algorithm is encoded in
+ *          the signature algorithm.
  *
- * @note To perform a hash-and-sign verification algorithm, the hash must be calculated before passing it to this
- * function. This can be done by calling psa_hash_compute() or with a multi-part hash operation. Alternatively, to hash
- * and verify a message signature in a single call, use psa_verify_message().
+ *          Some hash-and-sign mechanisms apply a padding or encoding to the hash. In such cases,
+ *          the encoded hash must be passed to this function. The current version of this
+ *          specification defines one such signature algorithm: @ref PSA_ALG_RSA_PKCS1V15_SIGN_RAW.
  *
- * @note When using secure elements as backends in this implementation, the key type can only be of type
- * PSA_KEY_TYPE_ECC_PUBLIC_KEY(curve) and must be stored on a secure element. To use the public key of a previously
- * generated key pair, please export the public key first and then import it as a separate key with its own attributes
- * and identifier.
+ * @note    To perform a hash-and-sign verification algorithm, the hash must be calculated before
+ *          passing it to this function. This can be done by calling @ref psa_hash_compute() or
+ *          with a multi-part hash operation. Alternatively, to hash and verify a message signature
+ *          in a single call, use @ref psa_verify_message().
  *
- * @param key               Identifier of the key to use for the operation. It must be a public key or an asymmetric
- *                          key pair. The key must allow the usage PSA_KEY_USAGE_VERIFY_HASH.
- * @param alg               An asymmetric signature algorithm that separates the hash and sign operations (PSA_ALG_XXX
- *                          value such that PSA_ALG_IS_SIGN_HASH(alg) is true), that is compatible with the type of key.
- * @param hash              The input whose signature is to be verified. This is usually the hash of a message. See the
- *                          detailed description of this function and the description of individual signature
- *                          algorithms for a detailed description of acceptable inputs.
+ * @note    When using secure elements as backends in this implementation, the key type can only be
+ *          of type @ref PSA_KEY_TYPE_ECC_PUBLIC_KEY(curve) and must be stored on a secure element.
+ *          To use the public key of a previously generated key pair, please export the public key
+ *          first and then import it as a separate key with its own attributes and identifier.
+ *
+ * @param key               Identifier of the key to use for the operation. It must be a public key
+ *                          or an asymmetric key pair. The key must allow the usage @ref
+ *                          PSA_KEY_USAGE_VERIFY_HASH.
+ * @param alg               An asymmetric signature algorithm that separates the hash and sign
+ *                          operations (PSA_ALG_XXX value such that @ref PSA_ALG_IS_SIGN_HASH(@p
+ *                          alg) is true), that is compatible with the type of key.
+ * @param hash              The input whose signature is to be verified. This is usually the hash
+ *                          of a message. See the detailed description of this function and the
+ *                          description of individual signature algorithms for a detailed
+ *                          description of acceptable inputs.
  * @param hash_length       Size of the hash buffer in bytes.
  * @param signature         Buffer containing the signature to verify.
  * @param signature_length  Size of the signature buffer in bytes.
- * @return psa_status_t
  *
- * PSA_SUCCESS                  The signature is valid.
- * PSA_ERROR_INVALID_HANDLE
- * PSA_ERROR_NOT_PERMITTED      The key does not have the PSA_KEY_USAGE_VERIFY_HASH flag, or it does not permit the
- *                              requested algorithm.
- * PSA_ERROR_INVALID_SIGNATURE  The calculation was performed successfully, but the passed signature
- *                              is not a valid signature.
- * PSA_ERROR_NOT_SUPPORTED
- * PSA_ERROR_INVALID_ARGUMENT
- * PSA_ERROR_INSUFFICIENT_MEMORY
- * PSA_ERROR_COMMUNICATION_FAILURE
- * PSA_ERROR_HARDWARE_FAILURE
- * PSA_ERROR_CORRUPTION_DETECTED
- * PSA_ERROR_STORAGE_FAILURE
- * PSA_ERROR_DATA_CORRUPT
- * PSA_ERROR_DATA_INVALID
- * PSA_ERROR_BAD_STATE          The library has not been previously initialized by psa_crypto_init(). It is
- *                              implementation-dependent whether a failure to initialize results in this error code.
+ * @return  @ref PSA_SUCCESS                    Success. The signature is valid.
+ *          @ref PSA_ERROR_BAD_STATE            The library requires initializing by a call to @ref
+ *                                              psa_crypto_init().
+ *          @ref PSA_ERROR_INVALID_HANDLE       @c key is not a valid key identifier.
+ *          @ref PSA_ERROR_NOT_PERMITTED        The key does not have the @ref
+ *                                              PSA_KEY_USAGE_VERIFY_HASH flag, or it does not
+ *                                              permit the requested algorithm.
+ *          @ref PSA_ERROR_INVALID_SIGNATURE    @c signature is not the result of signing hash with
+ *                                              algorithm @c alg using the private key
+ *                                              corresponding to @c key.
+ *          @ref PSA_ERROR_INVALID_ARGUMENT     The following conditions can result in this error:
+ *                                              - @c alg is not an asymmetric signature algorithm.
+ *                                              - @c key is not a public key or an asymmetric key
+ *                                                pair, that is compatible with @c alg.
+ *                                              - @c hash_length is not valid for the algorithm and
+ *                                                key type.
+ *          @ref PSA_ERROR_NOT_SUPPORTED        The following conditions can result in this error:
+ *                                              - @c alg is not supported or is not an asymmetric
+ *                                                signature algorithm.
+ *                                              - @c key is not supported for use with @c alg.
+ *          @ref PSA_ERROR_INSUFFICIENT_MEMORY
+ *          @ref PSA_ERROR_COMMUNICATION_FAILURE
+ *          @ref PSA_ERROR_CORRUPTION_DETECTED
+ *          @ref PSA_ERROR_STORAGE_FAILURE
+ *          @ref PSA_ERROR_DATA_CORRUPT
+ *          @ref PSA_ERROR_DATA_INVALID
  */
 psa_status_t psa_verify_hash(psa_key_id_t key,
                              psa_algorithm_t alg,
@@ -2747,6 +3972,56 @@ psa_status_t psa_verify_hash(psa_key_id_t key,
                              size_t hash_length,
                              const uint8_t * signature,
                              size_t signature_length);
+
+/**
+ * @brief   Verify the signature of a message with a public key. For hash-and-sign algorithms,
+ *          this includes the hashing step.
+ *
+ * @note    To perform a multi-part hash-and-sign signature verification algorithm, first use a
+ *          multi-part hash operation to hash the message and then pass the resulting hash to @ref
+ *          psa_verify_hash(). @ref PSA_ALG_GET_HASH(@p alg) can be used to determine the hash
+ *          algorithm to use.
+ *
+ * @param   key                 Identifier of the key to use for the operation. It must be a public
+ *                              key or an asymmetric key pair. The key must allow the usage @ref
+ *                              PSA_KEY_USAGE_VERIFY_MESSAGE.
+ * @param   alg                 An asymmetric signature algorithm: a value of type @ref
+ *                              psa_algorithm_t such that @ref PSA_ALG_IS_SIGN_MESSAGE(@p alg)
+ *                              is true.
+ * @param   input               The message whose signature is to be verified.
+ * @param   input_length        Size of the @c input buffer in bytes.
+ * @param   signature           Buffer containing the signature to verify.
+ * @param   signature_length    Size of the @c signature buffer in bytes.
+ *
+ * @return  @ref PSA_SUCCESS                    Success. The signature is valid.
+ *          @ref PSA_ERROR_BAD_STATE            The library requires initializing by a call to @ref
+ *                                              psa_crypto_init().
+ *          @ref PSA_ERROR_INVALID_HANDLE       @c key is not a valid key identifier.
+ *          @ref PSA_ERROR_NOT_PERMITTED        The key does not have the @ref
+ *                                              PSA_KEY_USAGE_VERIFY_MESSAGE flag, or it does not
+ *                                              permit the requested algorithm.
+ *          @ref PSA_ERROR_INVALID_SIGNATURE    @c signature is not the result of signing the input
+ *                                              message with algorithm @c alg using the private key
+ *                                              corresponding to @c key.
+ *          @ref PSA_ERROR_INVALID_ARGUMENT     The following conditions can result in this error:
+ *                                              - @c alg is not an asymmetric signature algorithm.
+ *                                              - @c key is not a public key or an asymmetric key
+ *                                                pair, that is compatible with @c alg.
+ *                                              - @c input_length is too large for the algorithm
+ *                                                and key type.
+ *          @ref PSA_ERROR_NOT_SUPPORTED        The following conditions can result in this error:
+ *                                              - @c alg is not supported or is not an asymmetric
+ *                                                signature algorithm.
+ *                                              - @c key is not supported for use with @c alg.
+ *                                              - @c input_length is too large for the
+ *                                                implementation.
+ *          @ref PSA_ERROR_INSUFFICIENT_MEMORY
+ *          @ref PSA_ERROR_COMMUNICATION_FAILURE
+ *          @ref PSA_ERROR_CORRUPTION_DETECTED
+ *          @ref PSA_ERROR_STORAGE_FAILURE
+ *          @ref PSA_ERROR_DATA_CORRUPT
+ *          @ref PSA_ERROR_DATA_INVALID
+ */
 psa_status_t psa_verify_message(psa_key_id_t key,
                                 psa_algorithm_t alg,
                                 const uint8_t * input,

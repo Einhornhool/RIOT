@@ -858,14 +858,23 @@
 #define PSA_MAX_PRIV_KEY_BUFFER_SIZE (PSA_BITS_TO_BYTES(PSA_MAX_PRIV_KEY_SIZE))
 #endif
 
+/**
+ * @brief   The maximum size of an asymmetric private key pair.
+ */
 #define PSA_MAX_ASYMMETRIC_KEYPAIR_SIZE     (PSA_BITS_TO_BYTES(PSA_MAX_PRIV_KEY_SIZE) + PSA_EXPORT_PUBLIC_KEY_MAX_SIZE)
 
+/**
+ * @brief   The maximum size of the used key data.
+ */
 #if IS_ACTIVE(CONFIG_PSA_SECURE_ELEMENT_ECC) || IS_ACTIVE(CONFIG_PSA_ECC)
 #define PSA_MAX_KEY_DATA_SIZE  (PSA_EXPORT_PUBLIC_KEY_MAX_SIZE)
 #else
 #define PSA_MAX_KEY_DATA_SIZE  (CONFIG_PSA_MAX_KEY_SIZE)
 #endif
 
+/**
+ * @brief   The maximum size of an unstructured key.
+ */
 #define PSA_MAX_UNSTRUCTURED_KEY_SIZE (CONFIG_PSA_MAX_KEY_SIZE)
 
 /**

@@ -25,6 +25,9 @@
 
 #include "psa/crypto_includes.h"
 
+/**
+ * @brief   Structure containing the hash contexts needed by the application.
+ */
 typedef union {
     unsigned dummy; /* Make the union non-empty even with no supported algorithms. */
 #if IS_ACTIVE(CONFIG_HASHES_MD5)
@@ -44,6 +47,9 @@ typedef union {
 #endif
 } psa_hash_context_t;
 
+/**
+ * @brief   Structure containing the cipher contexts needed by the application.
+ */
 typedef union {
     unsigned dummy;
 #if IS_ACTIVE(CONFIG_PSA_CIPHER_AES_128)
@@ -57,6 +63,10 @@ typedef union {
 #endif
 } psa_cipher_context_t;
 
+/**
+ * @brief   Structure containing the secure element specific cipher contexts needed by the
+ *          application.
+ */
 typedef struct {
     psa_encrypt_or_decrypt_t direction;
     union driver_context {

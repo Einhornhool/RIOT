@@ -123,7 +123,7 @@ typedef uint8_t psa_ecc_family_t;
  * This is an implementation-defined type. Applications that make assumptions about the content of
  * this object will result in in implementation-specific behavior, and are non-portable.
  */
-typedef uint32_t psa_key_derivation_operation_t; /* Implement! */
+typedef struct psa_key_derivation_operation_s psa_key_derivation_operation_t; /* Implement! */
 
 /**
  * @brief Encoding of the step of a key derivation.
@@ -309,7 +309,7 @@ typedef uint16_t psa_key_bits_t;
  * This is an implementation-defined type. Applications that make assumptions about the content of
  * this object will result in in implementation-specific behavior, and are non-portable.
  */
-typedef uint32_t psa_mac_operation_t; /* Implement! */
+typedef psa_mac_operation_s psa_mac_operation_t; /* Implement! */
 
 /**
  * @brief Function return status.
