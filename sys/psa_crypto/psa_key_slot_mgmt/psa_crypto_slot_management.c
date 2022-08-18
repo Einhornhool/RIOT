@@ -26,9 +26,10 @@
 
 #if IS_ACTIVE(CONFIG_PSA_SECURE_ELEMENT)
 /**
- * @brief Structure for a protected key slot.
+ * @brief   Structure for a protected key slot.
  *
- * These slots hold Slot Numbers for keys in protected storage and, if the key type is an asymmetric key pair, the public key.
+ *          These slots hold Slot Numbers for keys in protected storage and, if the key type is an
+ *          asymmetric key pair, the public key.
  */
 typedef struct {
     clist_node_t node;
@@ -43,15 +44,22 @@ typedef struct {
     } key;
 } psa_prot_key_slot_t;
 
+/**
+ * @brief   Array containing the protected key slots
+ */
 static psa_prot_key_slot_t protected_key_slots[PSA_PROTECTED_KEY_COUNT];
+
+/**
+ * @brief   List pointing to empty protected key slots
+ */
 static clist_node_t protected_list_empty;
 #endif /* CONFIG_PSA_SECURE_ELEMENT */
 
 #if IS_ACTIVE(CONFIG_PSA_ASYMMETRIC)
 /**
- * @brief Structure for asymmetric key pairs.
+ * @brief   Structure for asymmetric key pairs.
  *
- * Contains asymmetric private and public key pairs.
+ *          Contains asymmetric private and public key pairs.
  *
  */
 typedef struct {
@@ -66,29 +74,43 @@ typedef struct {
     } key;
 } psa_key_pair_slot_t;
 
+/**
+ * @brief   Array containing the asymmetric key slots
+ */
 static psa_key_pair_slot_t key_pair_slots[PSA_ASYMMETRIC_KEYPAIR_COUNT];
+
+/**
+ * @brief   List pointing to empty asymmetric key slots
+ */
 static clist_node_t key_pair_list_empty;
 #endif /* CONFIG_PSA_ASYMMETRIC */
 
+/**
+ * @brief   Array containing the single key slots
+ */
 static psa_key_slot_t single_key_slots[PSA_SINGLE_KEY_COUNT];
+
+/**
+ * @brief   List pointing to empty single key slots
+ */
 static clist_node_t single_key_list_empty;
 
 /**
- * @brief Global list of used key slots
+ * @brief   Global list of used key slots
  */
 static clist_node_t key_slot_list;
 
 /**
- * @brief Counter for volatile key IDs.
+ * @brief   Counter for volatile key IDs.
  */
 static psa_key_id_t key_id_count = PSA_KEY_ID_VOLATILE_MIN;
 
 /**
- * @brief Get the correct empty slot list, depending on the key type
+ * @brief   Get the correct empty slot list, depending on the key type
  *
- * @param attr
- * @return clist_node_t*   Pointer to the list the key is supposed to be stored in,
- *                         according to its attributes
+ * @param   attr
+ * @return  clist_node_t*   Pointer to the list the key is supposed to be stored in,
+ *                          according to its attributes
  */
 static clist_node_t * psa_get_empty_key_slot_list(const psa_key_attributes_t * attr)
 {
@@ -107,10 +129,6 @@ static clist_node_t * psa_get_empty_key_slot_list(const psa_key_attributes_t * a
 #endif /* CONFIG_PSA_SECURE_ELEMENT */
 }
 
-/**
- * @brief Initializes key slots with zeroes and creates empty lists to abstract key slot buffers.
- *
- */
 void psa_init_key_slots(void)
 {
     DEBUG("List Node Size: %d\n", sizeof(clist_node_t));
@@ -153,9 +171,9 @@ void psa_init_key_slots(void)
 }
 
 /**
- * @brief Wipe key slot with correct key slot size
+ * @brief   Wipe key slot with correct key slot size
  *
- * @param slot
+ * @param   slot    Key sloit to be wiped
  */
 static void psa_wipe_real_slot_type(psa_key_slot_t * slot)
 {
@@ -216,7 +234,17 @@ void psa_wipe_all_key_slots(void)
     };
 }
 
-/* Find a key slot with the desired key ID in key slot list */
+/**
+ * @brief   Find a key slot with the desired key ID in key slot list
+ *
+ *          This is a function used by the @ref clist_foreach function.
+ *
+ * @param   n   Pointer to clist node referencing the required key slot
+ * @param   arg ID of the required key
+ * @return  int
+ *          1 if the key is found
+ *          0 if the key is not found
+ */
 static int psa_get_node_with_id(clist_node_t * n, void * arg)
 {
     psa_key_slot_t * slot = container_of(n, psa_key_slot_t, node);
@@ -228,6 +256,17 @@ static int psa_get_node_with_id(clist_node_t * n, void * arg)
     return 0;
 }
 
+/**
+ * @brief   Find the key slot containing the key with a specified ID
+ *
+ * @param   id      ID of the required key
+ * @param   p_slot  Pointer to the slot that will contain the required key
+ *
+ * @return  @ref PSA_SUCCESS
+ *          @ref PSA_ERROR_DOES_NOT_EXIST
+ *          @ref PSA_ERROR_CORRUPTION_DETECTED
+ *          @ref PSA_ERROR_NOT_SUPPORTED
+ */
 static psa_status_t psa_get_and_lock_key_slot_in_memory(psa_key_id_t id, psa_key_slot_t **p_slot)
 {
     psa_status_t status = PSA_ERROR_CORRUPTION_DETECTED;
@@ -267,6 +306,16 @@ psa_status_t psa_get_and_lock_key_slot(psa_key_id_t id, psa_key_slot_t **p_slot)
     return status;
 }
 
+/**
+ * @brief   Allocate a free slot for a new key creation
+ *
+ * @param   p_slot  Pointer that will contain the free key slot.
+ * @param   attr    Attributes of type @ref psa_key_attrubutes_t for the key to be created
+ *
+ * @return  @ref PSA_SUCCESS
+ *          @ref PSA_ERROR_DOES_NOT_EXIST   No key slots for this type of key exist
+ *          @ref PSA_ERROR_INSUFFICIENT_STORAGE
+ */
 static psa_status_t psa_allocate_key_slot_in_list(psa_key_slot_t ** p_slot, const psa_key_attributes_t * attr)
 {
     clist_node_t * empty_list = psa_get_empty_key_slot_list(attr);

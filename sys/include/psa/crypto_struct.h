@@ -25,19 +25,6 @@
 #include "crypto_sizes.h"
 #include "crypto_contexts.h"
 
-/**
- * @brief   This macro returns a suitable initializer for an AEAD operation object of type
- *          @ref psa_aead_operation_t.
- */
-#define PSA_AEAD_OPERATION_INIT /* implementation-defined value */
-
-/**
- * @brief   Return an initial value for an AEAD operation object.
- *
- * @return  psa_aead_operation_s
- */
-psa_aead_operation_t psa_aead_operation_init(void);
-
 struct psa_hash_operation_s
 {
     psa_algorithm_t alg;
@@ -94,6 +81,29 @@ static inline struct psa_key_attributes_s psa_key_attributes_init(void)
     return v;
 }
 
+struct psa_aead_operation_s
+{
+    int dummy;
+};
+
+/**
+ * @brief   This macro returns a suitable initializer for an AEAD operation object of type
+ *          @ref psa_aead_operation_t.
+ */
+#define PSA_AEAD_OPERATION_INIT {0}
+
+/**
+ * @brief   Return an initial value for an AEAD operation object.
+ *
+ * @return  psa_aead_operation_s
+ */
+static inline psa_aead_operation_s psa_aead_operation_init(void)
+{
+    const struct psa_aead_operation_s v = PSA_AEAD_OPERATION_INIT;
+    return v;
+}
+
+
 struct psa_cipher_operation_s
 {
     uint8_t iv_required : 1;
@@ -109,8 +119,8 @@ struct psa_cipher_operation_s
 };
 
 /**
- * @brief This macro returns a suitable initializer for a cipher operation
- * object of type @ref psa_cipher_operation_t.
+ * @brief   This macro returns a suitable initializer for a cipher operation
+ *          object of type @ref psa_cipher_operation_t.
  */
 #define PSA_CIPHER_OPERATION_INIT {0}
 
@@ -134,7 +144,7 @@ struct psa_key_derivation_operation_s
 /**
  * @brief   Return an initial value for a key derivation operation object.
  *
- * @return  psa_key_derivation_operation_t
+ * @return  psa_key_derivation_operation_s
  */
 static inline struct psa_key_derivation_operation_s psa_key_derivation_operation_init(void)
 {

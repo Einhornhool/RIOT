@@ -10,22 +10,63 @@
 extern gpio_t internal_gpio;
 #endif
 
+/**
+ * @brief   AES block size supported by ATCA devices
+ */
 #define AES_128_BLOCK_SIZE      (16)
+
+/**
+ * @brief   AES key size supported by ATCA devices
+ */
 #define AES_128_KEY_SIZE        (16)
+
+/**
+ * @brief   Size of an ellipic curve public key supported by ATCA devices
+ */
 #define ECC_P256_PUB_KEY_SIZE   (64)
+
+/**
+ * @brief   Maximum IV length supported by ATCA devices
+ */
 #define ATCA_MAX_IV_LEN         (16)
 
+/**
+ * @brief   Check whether a specified algorithm is supported by this driver
+ *
+ * @param   alg Algorithm of type @ref psa_algorithm_t
+ *
+ * @return  int
+ *          1 if @c alg is supported
+ *          0 otherwise
+ */
 #define ALG_IS_SUPPORTED(alg)   \
     (   (alg == PSA_ALG_ECB_NO_PADDING) || \
         (alg == PSA_ALG_CBC_NO_PADDING) || \
         (alg == PSA_ALG_ECDSA(PSA_ALG_SHA_256)) || \
         (alg == PSA_ALG_HMAC(PSA_ALG_SHA_256)))
 
+/**
+ * @brief   Check whether a specified key size is supported by this driver
+ *
+ * @param   size    Size of the specified key
+ * @param   type    Type of the specified key
+ *
+ * @return  int
+ *          1 if @c size is supported
+ *          0 otherwise
+ */
 #define KEY_SIZE_IS_SUPPORTED(size, type) \
     (   (type == PSA_KEY_TYPE_AES && size == AES_128_KEY_SIZE) || \
         (PSA_KEY_TYPE_IS_ECC(type) && size == (ECC_P256_PUB_KEY_SIZE + 1)) || \
         (type == PSA_KEY_TYPE_HMAC && size == 32))
 
+/**
+ * @brief   Convert ATCA status values to PSA errors
+ *
+ * @param   error
+ *
+ * @return  @ref psa_status_t
+ */
 static psa_status_t atca_to_psa_error(ATCA_STATUS error)
 {
     switch(error) {
@@ -61,6 +102,13 @@ static psa_status_t atca_to_psa_error(ATCA_STATUS error)
 }
 
 /* Secure Element Cipher Functions */
+/**
+ * @brief   Set up a driver specific AES CBC mode operation
+ *
+ * @param   ctx
+ * @param   dev
+ * @param   key_slot
+ */
 static void atca_cbc_setup( atca_aes_cbc_ctx_t * ctx,
                             ATCADevice dev,
                             psa_key_slot_number_t key_slot)
@@ -77,7 +125,7 @@ psa_status_t atca_cipher_setup( psa_drv_se_context_t *drv_context,
                                 psa_algorithm_t algorithm,
                                 psa_encrypt_or_decrypt_t direction)
 {
-    ATCADevice dev = (ATCADevice) drv_context->drv_data;
+    ATCADevice dev = (ATCADevice) drv_context->transient_data;
     psa_se_cipher_context_t * ctx = (psa_se_cipher_context_t *) op_context;
 
     /* Only device type ATECC608 supports AES operations */
@@ -174,7 +222,7 @@ psa_status_t atca_cipher_ecb(   psa_drv_se_context_t *drv_context,
                                 size_t output_size)
 {
     ATCA_STATUS status;
-    ATCADevice dev = (ATCADevice) drv_context->drv_data;
+    ATCADevice dev = (ATCADevice) drv_context->transient_data;
     size_t offset;
 
     if (dev->mIface.mIfaceCFG->devtype != ATECC608) {
@@ -251,7 +299,7 @@ psa_status_t atca_import (  psa_drv_se_context_t *drv_context,
                             size_t *bits)
 {
     ATCA_STATUS status;
-    ATCADevice dev = (ATCADevice) drv_context->drv_data;
+    ATCADevice dev = (ATCADevice) drv_context->transient_data;
 
     if (!ALG_IS_SUPPORTED(attributes->policy.alg)) {
         return PSA_ERROR_NOT_SUPPORTED;
@@ -307,7 +355,7 @@ psa_status_t atca_generate_key( psa_drv_se_context_t *drv_context,
                                 uint8_t *pubkey, size_t pubkey_size, size_t *pubkey_length)
 {
     ATCA_STATUS status;
-    ATCADevice dev = (ATCADevice) drv_context->drv_data;
+    ATCADevice dev = (ATCADevice) drv_context->transient_data;
 
     if (!PSA_KEY_TYPE_IS_ECC(attributes->type)) {
         return PSA_ERROR_NOT_SUPPORTED;
@@ -349,7 +397,7 @@ psa_status_t atca_export_public_key(psa_drv_se_context_t *drv_context,
                                     size_t *p_data_length)
 {
     ATCA_STATUS status;
-    ATCADevice dev = (ATCADevice) drv_context->drv_data;
+    ATCADevice dev = (ATCADevice) drv_context->transient_data;
 
     if (data_size < ECC_P256_PUB_KEY_SIZE) {
         return PSA_ERROR_BUFFER_TOO_SMALL;
@@ -377,7 +425,7 @@ psa_status_t atca_sign( psa_drv_se_context_t *drv_context,
                         size_t *p_signature_length)
 {
     ATCA_STATUS status;
-    ATCADevice dev = (ATCADevice) drv_context->drv_data;
+    ATCADevice dev = (ATCADevice) drv_context->transient_data;
 
     if (alg != PSA_ALG_ECDSA(PSA_ALG_SHA_256)) {
         return PSA_ERROR_NOT_SUPPORTED;
@@ -413,7 +461,7 @@ psa_status_t atca_verify(   psa_drv_se_context_t *drv_context,
                             size_t signature_length)
 {
     ATCA_STATUS status;
-    ATCADevice dev = (ATCADevice) drv_context->drv_data;
+    ATCADevice dev = (ATCADevice) drv_context->transient_data;
 
     bool is_verified;
 
@@ -452,7 +500,7 @@ psa_status_t atca_generate_mac( psa_drv_se_context_t *drv_context,
                                 size_t *p_mac_length)
 {
     ATCA_STATUS status;
-    ATCADevice dev = (ATCADevice) drv_context->drv_data;
+    ATCADevice dev = (ATCADevice) drv_context->transient_data;
 
     DEBUG("ATCA_SE_DRIVER\n");
     if (!PSA_ALG_IS_HMAC(alg)) {

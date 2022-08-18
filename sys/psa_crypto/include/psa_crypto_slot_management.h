@@ -1,3 +1,24 @@
+/*
+ * Copyright (C) 2021 HAW Hamburg
+ *
+ * This file is subject to the terms and conditions of the GNU Lesser
+ * General Public License v2.1. See the file LICENSE in the top level
+ * directory for more details.
+ */
+
+/**
+ * @ingroup     sys_psa_crypto
+ * @{
+ *
+ * @file
+ * @brief       PSA key slot management function declarations
+ *
+ * @author      Lena Boeckmann <lena.boeckmann@haw-hamburg.de>
+ *
+ * @}
+ */
+
+
 #ifndef PSA_CRYPTO_SLOT_MANAGEMENT_H
 #define PSA_CRYPTO_SLOT_MANAGEMENT_H
 
@@ -5,41 +26,73 @@
 #include "psa/crypto.h"
 #include "psa_crypto_se_management.h"
 
+/**
+ * @brief   Number of allocated slots for keys in protected memory or secure elements.
+ */
 #define PSA_PROTECTED_KEY_COUNT         (CONFIG_PSA_PROTECTED_KEY_COUNT)
-#define PSA_ASYMMETRIC_KEYPAIR_COUNT    (CONFIG_PSA_ASYMMETRIC_KEYPAIR_COUNT)
-#define PSA_SINGLE_KEY_COUNT            (CONFIG_PSA_SINGLE_KEY_COUNT)
-#define PSA_KEY_SLOT_COUNT              (PSA_PROTECTED_KEY_COUNT + \
-                                         PSA_ASYMMETRIC_KEYPAIR_COUNT + \
-                                         PSA_SINGLE_KEY_COUNT)
 
+/**
+ * @brief   Number of allocated slots for asymmetric key pairs.
+ */
+#define PSA_ASYMMETRIC_KEYPAIR_COUNT    (CONFIG_PSA_ASYMMETRIC_KEYPAIR_COUNT)
+
+/**
+ * @brief   Number of allocated slots for single keys in local memory.
+ */
+#define PSA_SINGLE_KEY_COUNT            (CONFIG_PSA_SINGLE_KEY_COUNT)
+
+/**
+ * @brief   Complete number of available key slots
+ */
+#define PSA_KEY_SLOT_COUNT              (   PSA_PROTECTED_KEY_COUNT + \
+                                            PSA_ASYMMETRIC_KEYPAIR_COUNT + \
+                                            PSA_SINGLE_KEY_COUNT)
+
+/**
+ * @brief   Minimum key id for volatile keys.
+ *
+ *          This is used to assign volatile identifiers to created keys.
+ */
 #define PSA_KEY_ID_VOLATILE_MIN (PSA_KEY_ID_VENDOR_MIN)
+
+/**
+ * @brief   Maximum key id for volatile keys.
+ *
+ *          This is the maximum volatile identifiers that can be assigned to created keys.
+ */
 #define PSA_KEY_ID_VOLATILE_MAX (PSA_KEY_ID_VENDOR_MAX)
 
 /**
- * @brief Structure of a virtual key slot in local memory.
+ * @brief   Structure of a virtual key slot in local memory.
  *
- * A slot contains key attributes, a lock count and the key_data structure.
- * Key_data consists of the size of the stored key in bytes and a uint8_t data array large enough
- * to store the largest key used in the current build.
- * This type of key slot contains symmetric keys, asymmetric public keys or unstructured data.
+ *          A slot contains key attributes, a lock count and the @c key_data structure.
+ *          @c key_data consists of the size of the stored key in bytes and a @c uint8_t data array
+ *          large enough to store the largest key used in the current build. This type of key slot
+ *          contains symmetric keys, asymmetric public keys or unstructured data.
  */
 typedef struct {
     clist_node_t node;
     size_t lock_count;
     psa_key_attributes_t attr;
     struct key_data {
-        uint8_t data[PSA_MAX_KEY_DATA_SIZE]; /*!< Contains symmetric raw key, OR slot number for symmetric key in case of SE, OR asymmetric key pair structure */
-        size_t bytes; /*!< Contains actual size of symmetric key or size of asymmetric key pair  structure, TODO: Is there a better solution? */
+        uint8_t data[PSA_MAX_KEY_DATA_SIZE];
+        size_t bytes;
     } key;
 } psa_key_slot_t;
 
+
+/**
+ * @brief   Initializes the allocated key slots and prepares the internal key slot lists.
+ */
 void psa_init_key_slots(void);
 
-/** Check whether a key identifier is a volatile key identifier.
+/**
+ * @brief   Check whether a key identifier is a volatile key identifier.
  *
- * @param key_id    Key identifier to test.
+ * @param   key_id  Key identifier to test.
  *
- * @return  1       The key identifier is a volatile key identifier.
+ * @return  int
+ *          1       The key identifier is a volatile key identifier.
  *          0       The key identifier is not a volatile key identifier.
  */
 static inline int psa_key_id_is_volatile(psa_key_id_t key_id)
@@ -49,10 +102,12 @@ static inline int psa_key_id_is_volatile(psa_key_id_t key_id)
 }
 
 /**
- * @brief Check whether a key slot is locked
+ * @brief   Check whether a key slot is locked
  *
- * @param slot  Pointer to the slot that's supposed to be checked
- * @return int  1 if slot is locked, otherwise 0
+ * @param   slot    Pointer to the slot to be checked
+ *
+ * @return  int
+ *          1 if slot is locked, otherwise 0
  */
 static inline int psa_is_key_slot_locked(psa_key_slot_t *slot)
 {
@@ -60,18 +115,20 @@ static inline int psa_is_key_slot_locked(psa_key_slot_t *slot)
 }
 
 /**
- * @brief Get slot number in protected memory
+ * @brief   Get slot number in protected memory
  *
- * @param slot                      Pointer to the slot containing the protected slot number
- * @return psa_key_slot_number_t    Key slot number stored in the input slot
+ * @param   slot    Pointer to the slot containing the protected slot number
+ * @return  @ref psa_key_slot_number_t  Key slot number stored in the input slot
  */
 psa_key_slot_number_t * psa_key_slot_get_slot_number(const psa_key_slot_t *slot);
 
 /**
- * @brief Check whether a key is stored on an external device
+ * @brief   Check whether a key is stored on an external device
  *
- * @param lifetime          Lifetime value of the key that's supposed to be checked
- * @return int              1 if key is stored on external device, otherwise 0
+ * @param   lifetime    Lifetime value of the key that's supposed to be checked
+ *
+ * @return  int
+ *          1 if key is stored on external device, otherwise 0
  */
 static inline int psa_key_lifetime_is_external(psa_key_lifetime_t lifetime)
 {
@@ -79,106 +136,120 @@ static inline int psa_key_lifetime_is_external(psa_key_lifetime_t lifetime)
 }
 
 /**
- * @brief Wipe key slot and its contents. Wiped key slots can be reused.
+ * @brief   Wipe volatile key slot and its contents. Wiped key slots can be reused.
  *
- * @param slot              Pointer to the key slot to be wiped
- * @return psa_status_t     PSA_SUCCESS
- *                          PSA_ERROR_DOES_NOT_EXIST if slot does not exist
+ * @param   slot    Pointer to the key slot to be wiped
+ *
+ * @return  @ref PSA_SUCCESS
+ *          @ref PSA_ERROR_DOES_NOT_EXIST
  */
 psa_status_t psa_wipe_key_slot(psa_key_slot_t *slot);
 
 /**
- * @brief Wipe all existing key slots.
+ * @brief   Wipe all existing volatile key slots.
  */
 void psa_wipe_all_key_slots(void);
 
 /**
- * @brief Find a key slot in local memory and lock it.
+ * @brief   Find a key slot in local memory and lock it.
  *
- * @param[in] id            ID of the desired key
- * @param[out] slot         Pointer to the slot the desired key is stored in
- * @return psa_status_t     PSA_SUCCESS
- *                          PSA_ERROR_DOES_NOT_EXIST if key does not exist in memory
- *                          PSA_ERROR_NOT_SUPPORTED
+ * @param   id      ID of the key to be used
+ * @param   slot    Pointer to the slot the key is stored in
+ *
+ * @return  @ref PSA_SUCCESS
+ *          @ref PSA_ERROR_DOES_NOT_EXIST
+ *          @ref PSA_ERROR_NOT_SUPPORTED
  */
 psa_status_t psa_get_and_lock_key_slot(psa_key_id_t id, psa_key_slot_t **slot);
 
 /**
- * @brief Find a currently empty key slot.
+ * @brief   Find a currently empty key slot that is appropriate for the key.
  *
- * @param[out] id       Key ID of the newly generated or imported key
- * @param[in] attr      Attributes of the key that is supposed to be stored in the slot
- * @param[out] p_slot   Pointer to the empty slot in memory
- * @return psa_status_t PSA_SUCCESS
- *                      PSA_ERROR_INSUFFICIENT_STORAGE if no empty slot is left
+ * @param   id      Key ID of the newly generated or imported key
+ * @param   attr    Attributes of the key that is supposed to be stored in the slot
+ * @param   p_slot  Pointer to the empty slot in memory
+ *
+ * @return  @ref PSA_SUCCESS
+ *          @ref PSA_ERROR_INSUFFICIENT_STORAGE
  */
 psa_status_t psa_allocate_empty_key_slot(   psa_key_id_t *id,
                                             const psa_key_attributes_t * attr,
                                             psa_key_slot_t ** p_slot);
 
 /**
- * @brief Increase lock count
+ * @brief   Increase lock count
  *
- * @param slot              Slot to be locked
- * @return psa_status_t     PSA_SUCCESS
- *                          PSA_ERROR_CORRUPTION_DETECTED if slot lock count > SIZE_MAX
+ * @param   slot    Slot to be locked
+ *
+ * @return  @ref PSA_SUCCESS
+ *          @ref PSA_ERROR_CORRUPTION_DETECTED
  */
 psa_status_t psa_lock_key_slot(psa_key_slot_t *slot);
 
 /**
- * @brief Decrease lock count
+ * @brief   Decrease lock count
  *
- * @param slot          Slot to be unlocked
- * @return psa_status_t PSA_SUCCESS
- *                      PSA_ERROR_CORRUPTION_DETECTED if something goes wrong
+ * @param   slot    Slot to be unlocked
+ *
+ * @return  @ref PSA_SUCCESS
+ *          @ref PSA_ERROR_CORRUPTION_DETECTED
  */
 psa_status_t psa_unlock_key_slot(psa_key_slot_t *slot);
 
 /**
- * @brief Check if key location exists
+ * @brief   Check if key location exists
  *
- * @param[in] lifetime      Lifetime value of the key to be validated
- * @param[out] driver       Pointer to driver assigned to the existing key location, if it exists
- * @return psa_status_t     PSA_SUCCESS
- *                          PSA_ERROR_INVALID_ARGUMENT if location does not exist
+ * @param   lifetime    Lifetime value of the key to be validated
+ * @param   driver      Pointer to driver assigned to the existing key location, if it exists
+ *
+ * @return  @ref PSA_SUCCESS
+ *          @ref PSA_ERROR_INVALID_ARGUMENT
  */
-psa_status_t psa_validate_key_location(psa_key_lifetime_t lifetime, psa_se_drv_data_t **driver);
+psa_status_t psa_validate_key_location( psa_key_lifetime_t lifetime,
+                                        psa_se_drv_data_t **driver);
 
 /**
- * @brief Validate key persistence. Currently only volatile keys are supported.
+ * @brief   Validate key persistence. Currently only volatile keys are supported.
  *
- * @param lifetime          Lifetime of key to be validated
- * @return psa_status_t     PSA_SUCCESS
- *                          PSA_ERROR_NOT_SUPPORTED
+ * @param   lifetime    Lifetime of key to be validated
+ *
+ * @return  @ref PSA_SUCCESS
+ *          @ref PSA_ERROR_NOT_SUPPORTED
  */
 psa_status_t psa_validate_key_persistence(psa_key_lifetime_t lifetime);
 
 /**
- * @brief Check if provided key ID is either a valid user ID or vendor ID
+ * @brief   Check if provided key ID is either a valid user ID or vendor ID
  *
- * @param id            ID of key to be validated
- * @param vendor        If ID is supposed to be user or vendor ID
- * @return int          1 if valid
- *                      0 if invalid
+ * @param   id      ID of key to be validated
+ * @param   vendor  If ID is supposed to be user or vendor ID
+ *
+ * @return  int
+ *          1 if valid
+ *          0 if invalid
  */
 int psa_is_valid_key_id(psa_key_id_t id, int vendor);
 
 /**
- * @brief Get key data and key size from key slot
+ * @brief   Get key data and key size from key slot
  *
- * @param[in] slot          Slot the desired key is stored in
- * @param[out] key_data     Pointer to key data
- * @param[out] key_bytes    Pointer to key data size in bytes
+ * @param   slot        Slot the desired key is stored in
+ * @param   key_data    Pointer to key data
+ * @param   key_bytes   Pointer to key data size in bytes
  */
-void psa_get_key_data_from_key_slot(const psa_key_slot_t * slot, uint8_t ** key_data, size_t ** key_bytes);
+void psa_get_key_data_from_key_slot(const psa_key_slot_t * slot,
+                                    uint8_t ** key_data,
+                                    size_t ** key_bytes);
 
 /**
- * @brief Get public key data and size from key slot
+ * @brief   Get public key data and size from key slot
  *
- * @param[in] slot          Slot the desired key is stored in
- * @param[out] pubkey_data     Pointer to key data
- * @param[out] pubkey_bytes    Pointer to key data size in bytes
+ * @param   slot            Slot the desired key is stored in
+ * @param   pubkey_data     Pointer to key data
+ * @param   pubkey_bytes    Pointer to key data size in bytes
  */
-void psa_get_public_key_data_from_key_slot(const psa_key_slot_t * slot, uint8_t ** pubkey_data, size_t ** pubkey_bytes);
+void psa_get_public_key_data_from_key_slot( const psa_key_slot_t * slot,
+                                            uint8_t ** pubkey_data,
+                                            size_t ** pubkey_bytes);
 
 #endif /* CRYPTO_SLOT_MANAGEMENT_H */

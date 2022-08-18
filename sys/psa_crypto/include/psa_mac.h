@@ -11,12 +11,13 @@
  * @{
  *
  * @file
- * @brief       PSA Crypto MAC APIs
+ * @brief       Function declarations for low level wrapper functions for MAC operations.
  *
  * @author      Lena Boeckmann <lena.boeckmann@haw-hamburg.de>
  *
  * @}
  */
+
 
 #ifndef PSA_MAC_H
 #define PSA_MAC_H
@@ -25,15 +26,28 @@
 #include "psa/crypto.h"
 #include "psa/crypto_contexts.h"
 
-#if IS_ACTIVE(CONFIG_PSA_MAC_HMAC_SHA_256)
+/**
+ * @brief   Low level wrapper function to call a driver for a HMAC SHA256 computation
+ *
+ *          See @ref psa_mac_compute(...)
+ *
+ * @param attributes
+ * @param key_buffer
+ * @param key_buffer_size
+ * @param input
+ * @param input_length
+ * @param mac
+ * @param mac_size
+ * @param mac_length
+ * @return psa_status_t
+ */
 psa_status_t psa_mac_compute_hmac_sha256(   const psa_key_attributes_t * attributes,
-                                    const uint8_t * key_buffer,
-                                    size_t key_buffer_size,
-                                    const uint8_t * input,
-                                    size_t input_length,
-                                    uint8_t * mac,
-                                    size_t mac_size,
-                                    size_t * mac_length);
-#endif /* CONFIG_PSA_MAC_HMAC_SHA_256 */
+                                            const uint8_t * key_buffer,
+                                            size_t key_buffer_size,
+                                            const uint8_t * input,
+                                            size_t input_length,
+                                            uint8_t * mac,
+                                            size_t mac_size,
+                                            size_t * mac_length);
 
 #endif /* PSA_MAC_H */

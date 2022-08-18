@@ -1,6 +1,9 @@
 #include "psa_crypto_se_management.h"
 #include "psa_crypto_se_driver.h"
 
+/**
+ * @brief   Array containing the registered driver instances.
+ */
 static psa_se_drv_data_t driver_table[PSA_MAX_SE_COUNT];
 
 psa_status_t psa_register_secure_element(psa_key_location_t location, const psa_drv_se_t *methods, void * drv_data)
@@ -130,17 +133,17 @@ psa_status_t psa_destroy_se_key(psa_se_drv_data_t *driver,
 psa_status_t psa_load_se_persistent_data(const psa_se_drv_data_t *driver)
 {
     (void) driver;
-    return PSA_ERROR_GENERIC_ERROR;
+    return PSA_ERROR_NOT_SUPPORTED;
 }
 
 psa_status_t psa_save_se_persistent_data(const psa_se_drv_data_t *driver)
 {
     (void) driver;
-    return PSA_ERROR_GENERIC_ERROR;
+    return PSA_ERROR_NOT_SUPPORTED;
 }
 
 psa_status_t psa_destroy_se_persistent_data(psa_key_location_t location)
 {
     (void) location;
-    return PSA_ERROR_GENERIC_ERROR;
+    return PSA_ERROR_NOT_SUPPORTED;
 }

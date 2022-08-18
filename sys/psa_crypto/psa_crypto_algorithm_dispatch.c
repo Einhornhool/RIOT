@@ -161,7 +161,7 @@ psa_status_t psa_algorithm_dispatch_sign_hash(  const psa_key_attributes_t *attr
                                             size_t signature_size,
                                             size_t * signature_length)
 {
-    psa_asymmetric_keytype_t asym_key = PSA_INVALID_OPERATION;
+    psa_asym_key_t asym_key = PSA_INVALID_OPERATION;
     uint8_t * key_data = NULL;
     size_t * key_bytes = NULL;
 
@@ -204,7 +204,7 @@ psa_status_t psa_algorithm_dispatch_verify_hash(  const psa_key_attributes_t *at
                                             const uint8_t * signature,
                                             size_t signature_length)
 {
-    psa_asymmetric_keytype_t asym_key = PSA_INVALID_OPERATION;
+    psa_asym_key_t asym_key = PSA_INVALID_OPERATION;
     uint8_t * pubkey_data = NULL;
     size_t * pubkey_bytes = NULL;
 
@@ -246,9 +246,9 @@ psa_status_t psa_algorithm_dispatch_generate_key(   const psa_key_attributes_t *
     size_t * key_bytes = NULL;
     psa_get_key_data_from_key_slot(slot, &key_data, &key_bytes);
 
-    /* Only asymmetric key generation needs special key generation algorithms. Unstructured keys can be created by generating random bytes. */
+    /* Only asymmetric key generation needs special key generation algorithms. Symmetric keys can be created by generating random bytes. */
     if (PSA_KEY_TYPE_IS_ASYMMETRIC(attributes->type)) {
-        psa_asymmetric_keytype_t asym_key = PSA_INVALID_OPERATION;
+        psa_asym_key_t asym_key = PSA_INVALID_OPERATION;
         uint8_t * pubkey_data = NULL;
         size_t * pubkey_bytes = NULL;
         psa_get_public_key_data_from_key_slot(slot, &pubkey_data, &pubkey_bytes);
@@ -279,10 +279,6 @@ psa_status_t psa_algorithm_dispatch_generate_key(   const psa_key_attributes_t *
 
     return psa_builtin_generate_key(attributes, key_data, *key_bytes, key_bytes);
 }
-
-// psa_status_t psa_algorithm_dispatch_cipher_set_iv(  psa_cipher_operation_t *operation,
-//                                                 const uint8_t *iv,
-//                                                 size_t iv_length);
 
 psa_status_t psa_algorithm_dispatch_cipher_encrypt( const psa_key_attributes_t * attributes,
                                                     psa_algorithm_t alg,

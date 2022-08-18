@@ -40,14 +40,16 @@ extern gpio_t internal_gpio;
 static uint8_t lib_initialized = 0;
 
 /**
- * @brief Compares the content of two same-sized buffers while maintaining constant processing time
+ * @brief   Compares the content of two same-sized buffers while maintaining
+ *          constant processing time
  *
- * @param[in]   a Buffer A to compare with B
- * @param[in]   b Buffer B to compare with A
- * @param       n Size of the input buffers
+ * @param   a Buffer A to compare with B
+ * @param   b Buffer B to compare with A
+ * @param   n Size of the input buffers
  *
- * @return      0 if buffer contents are the same
- *              1 if buffer contents differ
+ * @return  int
+ *          0 if buffer contents are the same
+ *          1 if buffer contents differ
  */
 static inline int safer_memcmp(const uint8_t *a, const uint8_t *b, size_t n)
 {
@@ -289,15 +291,15 @@ psa_status_t psa_asymmetric_encrypt(psa_key_id_t key,
 }
 
 /**
- * @brief Checks whether a key's policy permits the usage of a given algorithm
+ * @brief   Checks whether a key's policy permits the usage of a given algorithm
  *
- * @param[in]   policy        Policy of the given key
- * @param       type          Type of the given key
- * @param       requested_alg Algorithm to be used
+ * @param   policy          Policy of the given key
+ * @param   type            Type of the given key
+ * @param   requested_alg   Algorithm to be used
  *
- * @return  PSA_SUCCESS
- *          PSA_ERROR_NOT_PERMITTED
- *          PSA_ERROR_INVALID_ARGUMENT  If @c requested_alg is not a valid algorithm
+ * @return  @ref PSA_SUCCESS
+ *          @ref PSA_ERROR_NOT_PERMITTED
+ *          @ref PSA_ERROR_INVALID_ARGUMENT  If @c requested_alg is not a valid algorithm
  */
 static psa_status_t psa_key_policy_permits( const psa_key_policy_t *policy,
                                             psa_key_type_t type,
@@ -315,21 +317,21 @@ static psa_status_t psa_key_policy_permits( const psa_key_policy_t *policy,
 }
 
 /**
- * @brief   Check whether the policy of the key associated with the given ID permits the requested usage and return
- *          the key slot.
+ * @brief   Check whether the policy of the key associated with the given ID permits the requested
+ *          usage and return the key slot.
  *
- * @param       id      ID of the key to be used
- * @param[out]  p_slot  Pointer to a @c psa_key_slot_t type to return the desired key slot.
- *                      NULL if something went wrong.
- * @param       usage   The requested usage of the key
- * @param       alg     The requested algorithm that uses the key
+ * @param   id      ID of the key to be used
+ * @param   p_slot  Pointer to a @c psa_key_slot_t type to return the desired key slot.
+ *                  @c NULL if something went wrong.
+ * @param   usage   The requested usage of the key
+ * @param   alg     The requested algorithm that uses the key
  *
- * @return  PSA_SUCCESS
- *          PSA_ERROR_NOT_PERMITTED
- *          PSA_ERROR_DOES_NOT_EXIST
- *          PSA_ERROR_INVALID_ARGUMENT
- *          PSA_ERROR_NOT_SUPPORTED
- *          PSA_ERROR_CORRUPTION_DETECTED
+ * @return  @ref PSA_SUCCESS
+ *          @ref PSA_ERROR_NOT_PERMITTED
+ *          @ref PSA_ERROR_DOES_NOT_EXIST
+ *          @ref PSA_ERROR_INVALID_ARGUMENT
+ *          @ref PSA_ERROR_NOT_SUPPORTED
+ *          @ref PSA_ERROR_CORRUPTION_DETECTED
  */
 static psa_status_t psa_get_and_lock_key_slot_with_policy(  psa_key_id_t id,
                                                             psa_key_slot_t **p_slot,
@@ -374,13 +376,16 @@ psa_status_t psa_cipher_abort(psa_cipher_operation_t * operation)
 }
 
 /**
- * @brief Setup a cipher encrypt or decrypt operation.
+ * @brief   Setup a cipher encrypt or decrypt operation.
  *
- * @param operation
- * @param key
- * @param alg
- * @param direction
- * @return psa_status_t
+ *          See @ref psa_cipher_encrypt_setup(...)
+ *          See @ref psa_cipher_decrypt_setup(...)
+ *
+ * @param   operation
+ * @param   key
+ * @param   alg
+ * @param   direction   Whether encrypt or decrypt, see @ref psa_encrypt_or_decrypt_t
+ * @return  @ref psa_status_t
  */
 static psa_status_t psa_cipher_setup(   psa_cipher_operation_t * operation,
                                         psa_key_id_t key,
@@ -435,6 +440,22 @@ static psa_status_t psa_cipher_setup(   psa_cipher_operation_t * operation,
     return ((status == PSA_SUCCESS) ? unlock_status : status);
 }
 
+/**
+ * @brief   Cipher encrypt and decrypt function
+ *
+ *          See @ref psa_cipher_encrypt(...)
+ *          See @ref psa_cipher_decrypt(...)
+ *
+ * @param   key
+ * @param   alg
+ * @param   input
+ * @param   input_length
+ * @param   output
+ * @param   output_size
+ * @param   output_length
+ * @param   direction       Whether to encrypt or decrypt, see @ref psa_encrypt_or_decrypt_t
+ * @return  @ref psa_status_t
+ */
 static psa_status_t psa_cipher_encrypt_decrypt( psa_key_id_t key,
                                                 psa_algorithm_t alg,
                                                 const uint8_t * input,
@@ -800,6 +821,14 @@ psa_status_t psa_hash_compute(psa_algorithm_t alg,
 }
 
 /* Key Management */
+/**
+ * @brief   Check whether the key policy is valid
+ *
+ * @param   policy  Policy of type @ref psa_key_policy_t of the key to be used
+ *
+ * @return  @ref PSA_SUCCESS
+ *          @ref PSA_ERROR_INVALID_ARGUMENT
+ */
 static psa_status_t psa_validate_key_policy(const psa_key_policy_t *policy)
 {
     if ((policy->usage & ~( PSA_KEY_USAGE_EXPORT |
@@ -817,6 +846,16 @@ static psa_status_t psa_validate_key_policy(const psa_key_policy_t *policy)
     return( PSA_SUCCESS );
 }
 
+/**
+ * @brief   Check whether the size of a symmetric key is supported
+ *
+ * @param   type    Type of the used key as @ref psa_key_type_t
+ * @param   bits    Size of the key as @c size_t
+ *
+ * @return  @ref PSA_SUCCESS
+ *          @ref PSA_ERROR_INVALID_ARGUMENT
+ *          @ref PSA_ERROR_NOT_SUPPORTED
+ */
 static psa_status_t psa_validate_unstructured_key_size(psa_key_type_t type, size_t bits)
 {
     switch(type) {
@@ -838,6 +877,16 @@ static psa_status_t psa_validate_unstructured_key_size(psa_key_type_t type, size
     return PSA_SUCCESS;
 }
 
+/**
+ * @brief   Check whether the key size is valid for key generation
+ *
+ * @param   type    Type of the used key as @ref psa_key_type_t
+ * @param   bits    Size of the key as @c size_t
+ *
+ * @return  @ref PSA_SUCCESS
+ *          @ref PSA_ERROR_INVALID_ARGUMENT
+ *          @ref PSA_ERROR_NOT_SUPPORTED
+ */
 static psa_status_t psa_validate_key_for_key_generation(psa_key_type_t type, size_t bits)
 {
     if (PSA_KEY_TYPE_IS_UNSTRUCTURED(type)) {
@@ -852,6 +901,17 @@ static psa_status_t psa_validate_key_for_key_generation(psa_key_type_t type, siz
     return PSA_ERROR_NOT_SUPPORTED;
 }
 
+/**
+ * @brief   Check validity of key attributes and get secure element driver in case the key is
+ *          stored on a secure element
+ *
+ * @param   attributes  Key attributes that are to be checked
+ * @param   p_drv       Pointer which will contain the SE driver, if one exists
+ *
+ * @return  @ref PSA_SUCCESS
+ *          @ref PSA_ERROR_INVALID_ARGUMENT
+ *          @ref PSA_ERROR_NOT_SUPPORTED
+ */
 static psa_status_t psa_validate_key_attributes(const psa_key_attributes_t *attributes, psa_se_drv_data_t **p_drv)
 {
     psa_status_t status = PSA_ERROR_INVALID_ARGUMENT;
@@ -890,6 +950,18 @@ static psa_status_t psa_validate_key_attributes(const psa_key_attributes_t *attr
     return PSA_SUCCESS;
 }
 
+/**
+ * @brief   Set up a key creation process.
+ *
+ *          Validate key attributes for key creation and find free slots and drivers if they exists.
+ *
+ * @param   method      Key creation method (see @ref psa_key_creation_method_t)
+ * @param   attributes  Key attributes of the key that should be created
+ * @param   p_slot      Pointer which will contain a key slot to store the key in
+ * @param   p_drv       Pointer to a SE driver if one exists for the given key location
+ *
+ * @return  @ref psa_status_t
+ */
 static psa_status_t psa_start_key_creation(psa_key_creation_method_t method, const psa_key_attributes_t *attributes, psa_key_slot_t **p_slot, psa_se_drv_data_t **p_drv)
 {
     psa_status_t status;
@@ -933,6 +1005,15 @@ static psa_status_t psa_start_key_creation(psa_key_creation_method_t method, con
     return PSA_SUCCESS;
 }
 
+/**
+ * @brief   Finish up key creation process
+ *
+ * @param   slot    Pointer to slot that the key is stored in
+ * @param   driver  SE driver, in case the key creation took place on a secure element
+ * @param   key     Pointer which will contain the key ID assigned to the key
+ *
+ * @return  @ref psa_status_t
+ */
 static psa_status_t psa_finish_key_creation(psa_key_slot_t *slot, psa_se_drv_data_t *driver, psa_key_id_t *key)
 {
     psa_status_t status = PSA_SUCCESS;
@@ -952,6 +1033,12 @@ static psa_status_t psa_finish_key_creation(psa_key_slot_t *slot, psa_se_drv_dat
     return status;
 }
 
+/**
+ * @brief   Abort key creation and clean up in case of failure
+ *
+ * @param   slot    Slot that the key has been written to
+ * @param   driver  SE driver, in case the key creation took place on a secure element
+ */
 static void psa_fail_key_creation(psa_key_slot_t *slot, psa_se_drv_data_t *driver)
 {
     (void) driver;
@@ -1001,7 +1088,21 @@ psa_status_t psa_export_key(psa_key_id_t key,
     return PSA_ERROR_NOT_SUPPORTED;
 }
 
-#if IS_ACTIVE(CONFIG_PSA_ASYMMETRIC) || IS_ACTIVE(CONFIG_PSA_SECURE_ELEMENT_ASYMMETRIC)
+// #if IS_ACTIVE(CONFIG_PSA_ASYMMETRIC) || IS_ACTIVE(CONFIG_PSA_SECURE_ELEMENT_ASYMMETRIC)
+/**
+ * @brief   Export asymmetric public key that is stored in local memory
+ *
+ *          See @ref psa_export_public_key
+ *
+ * @param   key_buffer
+ * @param   key_buffer_size
+ * @param   data
+ * @param   data_size
+ * @param   data_length
+ *
+ * @return  @ref PSA_SUCCESS
+ *          @ref PSA_ERROR_INVALID_ARGUMENT
+ */
 static psa_status_t psa_builtin_export_public_key( const uint8_t *key_buffer,
                                             size_t key_buffer_size,
                                             uint8_t * data,
@@ -1061,7 +1162,7 @@ psa_status_t psa_export_public_key(psa_key_id_t key,
     unlock_status = psa_unlock_key_slot(slot);
     return ((status == PSA_SUCCESS) ? unlock_status : status);
 }
-#endif
+// #endif
 
 psa_status_t psa_builtin_generate_key(const psa_key_attributes_t *attributes, uint8_t *key_buffer, size_t key_buffer_size, size_t *key_buffer_length)
 {
@@ -1348,6 +1449,17 @@ psa_status_t psa_mac_abort(psa_mac_operation_t * operation)
     return PSA_ERROR_NOT_SUPPORTED;
 }
 
+/**
+ * @brief   Validate algorithm and key for a MAC operation
+ *
+ * @param   attr        Attributes of the key that is supposed to be used
+ * @param   alg         Algorithm for performing the MAC operation
+ * @param   mac_size    Size of the MAC that is to be generated
+ *
+ * @return  @ref PSA_SUCCESS
+ *          @ref PSA_ERROR_NOT_SUPPORTED
+ *          @ref PSA_ERROR_INVALID_ARGUMENT
+ */
 static psa_status_t psa_mac_validate_alg_and_key(psa_key_attributes_t * attr, psa_algorithm_t alg, size_t * mac_size)
 {
     psa_key_type_t type = psa_get_key_type(attr);
@@ -1360,10 +1472,12 @@ static psa_status_t psa_mac_validate_alg_and_key(psa_key_attributes_t * attr, ps
     *mac_size = PSA_MAC_LENGTH(type, bits, alg);
 
     if (*mac_size < 4) {
-        /* A very short MAC is too short for security since it can be
-        * brute-forced. Ancient protocols with 32-bit MACs do exist,
-        * so we make this our minimum, even though 32 bits is still
-        * too small for security. */
+        /**
+         * A very short MAC is too short for security since it can be
+         * brute-forced. Ancient protocols with 32-bit MACs do exist,
+         * so we make this our minimum, even though 32 bits is still
+         * too small for security.
+         */
         return PSA_ERROR_NOT_SUPPORTED;
     }
 
