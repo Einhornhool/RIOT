@@ -1,7 +1,9 @@
 /*
- * Copyright © 2018-2022, Arm Limited or its affiliates. All rights reserved.
+ * Copyright (C) 2021 HAW Hamburg
  *
- * This file is subject to the terms and conditions of the ARM Non-Confidential Document Licence
+ * This file is subject to the terms and conditions of the GNU Lesser
+ * General Public License v2.1. See the file LICENSE in the top level
+ * directory for more details.
  */
 
 /**
@@ -9,7 +11,7 @@
  * @{
  *
  * @file
- * @brief       Function declarations for PSA Crypto API
+ * @brief       Function declarations for PSA Crypto
  *
  * @author      Lena Boeckmann <lena.boeckmann@haw-hamburg.de>
  *

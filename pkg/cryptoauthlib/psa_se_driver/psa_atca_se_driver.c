@@ -1,14 +1,29 @@
+/*
+ * Copyright (C) 2021 HAW Hamburg
+ *
+ * This file is subject to the terms and conditions of the GNU Lesser
+ * General Public License v2.1. See the file LICENSE in the top level
+ * directory for more details.
+ */
+
+/**
+ * @ingroup     sys_psa_crypto
+ * @{
+ *
+ * @file
+ * @brief       Glue code translating between PSA Crypto and the Microchip Cryptoauth Library APIs
+ *
+ * @author      Lena Boeckmann <lena.boeckmann@haw-hamburg.de>
+ *
+ * @}
+ */
+
 #include "atca_params.h"
 #include "psa/crypto.h"
 #include "psa_crypto_se_driver.h"
 
 #define ENABLE_DEBUG    (0)
 #include "debug.h"
-
-#if TEST_TIME
-#include "periph/gpio.h"
-extern gpio_t internal_gpio;
-#endif
 
 /**
  * @brief   AES block size supported by ATCA devices
@@ -313,13 +328,8 @@ psa_status_t atca_import (  psa_drv_se_context_t *drv_context,
         uint8_t buf_in[32] = {0};
         /* This implementation only uses the device's TEMPKEY Register for key import, which only accepts input sizes of 32 or 64 Bytes, so we copy a smaller key into a 32 Byte buffer that is padded with zeros */
         memcpy(buf_in, data, data_length);
-#if TEST_TIME
-        gpio_set(internal_gpio);
+
         status = calib_nonce_load(dev, NONCE_MODE_TARGET_TEMPKEY, buf_in, sizeof(buf_in));
-        gpio_clear(internal_gpio);
-#else
-        status = calib_nonce_load(dev, NONCE_MODE_TARGET_TEMPKEY, buf_in, sizeof(buf_in));
-#endif
         if (status != ATCA_SUCCESS) {
             DEBUG("ATCA Error: %d\n", status);
             return atca_to_psa_error(status);
@@ -330,13 +340,7 @@ psa_status_t atca_import (  psa_drv_se_context_t *drv_context,
     }
     else if (PSA_KEY_TYPE_IS_ECC_PUBLIC_KEY(attributes->type)) {
 
-#if TEST_TIME
-        gpio_set(internal_gpio);
         status = calib_write_pubkey(dev, key_slot, data + 1);
-        gpio_clear(internal_gpio);
-#else
-        status = calib_write_pubkey(dev, key_slot, data + 1);
-#endif
         if (status != ATCA_SUCCESS) {
             DEBUG("ATCA Error: %d\n", status);
             return atca_to_psa_error(status);
@@ -366,14 +370,8 @@ psa_status_t atca_generate_key( psa_drv_se_context_t *drv_context,
     }
 
     if (pubkey != NULL) {
-#if TEST_TIME
-        gpio_set(internal_gpio);
-        status = calib_genkey(dev, key_slot, &pubkey[1]);
-        gpio_clear(internal_gpio);
-#else
         /* The driver already exports the public key, in the correct format (uncompressed binary). We can just write the key into the pubkey buffer. First byte is reserved for format encoding (set below) */
         status = calib_genkey(dev, key_slot, &pubkey[1]);
-#endif
     }
     else {
         status = calib_genkey(dev, key_slot, NULL);
@@ -435,14 +433,7 @@ psa_status_t atca_sign( psa_drv_se_context_t *drv_context,
         return PSA_ERROR_INVALID_ARGUMENT;
     }
 
-#if TEST_TIME
-    gpio_set(internal_gpio);
     status = calib_sign(dev, key_slot, p_hash, p_signature);
-    gpio_clear(internal_gpio);
-#else
-    status = calib_sign(dev, key_slot, p_hash, p_signature);
-#endif
-
     if (status != ATCA_SUCCESS) {
         DEBUG("ATCA Error: %d\n", status);
         return atca_to_psa_error(status);
@@ -474,14 +465,7 @@ psa_status_t atca_verify(   psa_drv_se_context_t *drv_context,
         return PSA_ERROR_INVALID_ARGUMENT;
     }
 
-#if TEST_TIME
-    gpio_set(internal_gpio);
     status = calib_verify_stored(dev, p_hash, p_signature, key_slot, &is_verified);
-    gpio_clear(internal_gpio);
-#else
-    status = calib_verify_stored(dev, p_hash, p_signature, key_slot, &is_verified);
-#endif
-
     if (status != ATCA_SUCCESS) {
         DEBUG("ATCA Error: %d\n", status);
         return atca_to_psa_error(status);
@@ -511,13 +495,7 @@ psa_status_t atca_generate_mac( psa_drv_se_context_t *drv_context,
         return PSA_ERROR_BUFFER_TOO_SMALL;
     }
 
-#if TEST_TIME
-    gpio_set(internal_gpio);
     status = calib_sha_hmac(dev, p_input, input_length, key_slot, p_mac, SHA_MODE_TARGET_OUT_ONLY);
-    gpio_clear(internal_gpio);
-#else
-    status = calib_sha_hmac(dev, p_input, input_length, key_slot, p_mac, SHA_MODE_TARGET_OUT_ONLY);
-#endif
     if (status != ATCA_SUCCESS) {
         DEBUG("ATCA Error: %d\n", status);
         return atca_to_psa_error(status);

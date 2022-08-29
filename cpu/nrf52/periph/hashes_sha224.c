@@ -11,7 +11,7 @@
  * @{
  *
  * @file
- * @brief       Glue code for ARM Cryptocell driver support in PSA Crypto
+ * @brief       Glue code translating between PSA Crypto and the CryptoCell 310 driver APIs
  *
  * @author      Lena Boeckmann <lena.boeckmann@haw-hamburg.de>
  *

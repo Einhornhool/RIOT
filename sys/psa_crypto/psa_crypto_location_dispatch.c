@@ -11,7 +11,7 @@
  * @{
  *
  * @file
- * @brief       Wrapper to combine several available cryptographic backends.
+ * @brief       Dispatcher to dispatch calls to the PSA Crypto API to an available backend.
  *
  * @author      Lena Boeckmann <lena.boeckmann@haw-hamburg.de>
  *
@@ -28,11 +28,6 @@
 
 #define ENABLE_DEBUG    (0)
 #include "debug.h"
-
-#if TEST_TIME
-#include "periph/gpio.h"
-extern gpio_t internal_gpio;
-#endif
 
 psa_status_t psa_location_dispatch_generate_key(const psa_key_attributes_t *attributes,
                                                 psa_key_slot_t * slot)
@@ -150,88 +145,25 @@ psa_status_t psa_location_dispatch_cipher_decrypt_setup(psa_cipher_operation_t *
 }
 
 #if IS_ACTIVE(CONFIG_PSA_SECURE_ELEMENT)
-#if TEST_TIME
-static psa_status_t psa_se_cipher_encrypt_decrypt(  const psa_drv_se_t *drv,
-                                            psa_drv_se_context_t *drv_context,
-                                            const psa_key_attributes_t * attributes,
-                                            psa_algorithm_t alg,
-                                            psa_encrypt_or_decrypt_t direction,
-                                            psa_key_slot_number_t slot,
-                                            const uint8_t * input,
-                                            size_t input_length,
-                                            uint8_t * output,
-                                            size_t output_size,
-                                            size_t * output_length)
-{
-    psa_status_t status;
-    gpio_set(internal_gpio);
-    psa_cipher_operation_t operation = psa_cipher_operation_init();
-    gpio_clear(internal_gpio);
-    psa_se_cipher_context_t * se_ctx = &operation.backend_ctx.se_ctx;
-    size_t input_offset = 0;
-    size_t output_offset = 0;
-    *output_length = 0;
-
-    if (drv->cipher == NULL ||
-        drv->cipher->p_setup == NULL ||
-        drv->cipher->p_set_iv == NULL ||
-        drv->cipher->p_update == NULL ||
-        drv->cipher->p_finish == NULL) {
-        return PSA_ERROR_NOT_SUPPORTED;
-    }
-
-    gpio_set(internal_gpio);
-    status = drv->cipher->p_setup(drv_context, se_ctx, slot, alg, direction);
-    gpio_clear(internal_gpio);
-    if (status != PSA_SUCCESS) {
-        return status;
-    }
-
-    if (alg == PSA_ALG_CBC_NO_PADDING) {
-        operation.iv_required = 1;
-        operation.default_iv_length = PSA_CIPHER_IV_LENGTH(psa_get_key_type(attributes), alg);
-
-        if (direction == PSA_CRYPTO_DRIVER_ENCRYPT) {
-            /* In case of encryption, we need to generate and set an IV. The IV will be written into the first 16 bytes of the output buffer. */
-            size_t iv_length = 0;
-            gpio_set(internal_gpio);
-            status = psa_cipher_generate_iv(&operation, output, operation.default_iv_length, &iv_length);
-            gpio_clear(internal_gpio);
-
-            gpio_set(internal_gpio);
-            status = drv->cipher->p_set_iv(se_ctx, output, iv_length);
-            gpio_clear(internal_gpio);
-            if (status != PSA_SUCCESS) {
-                return status;
-            }
-            /* Increase output buffer offset to IV length to write ciphertext to buffer after IV */
-            output_offset += iv_length;
-            *output_length += iv_length;
-        }
-        else {
-            /* In case of decryption the IV to be used must be provided by the caller and is contained in the first 16 Bytes of the input buffer.  */
-            status = drv->cipher->p_set_iv(se_ctx, input, operation.default_iv_length);
-
-            /* Increase input buffer offset to IV length to start decryption
-            with actual cipher text */
-            input_offset += operation.default_iv_length;
-        }
-    }
-
-    gpio_set(internal_gpio);
-    status = drv->cipher->p_update(se_ctx, input + input_offset, input_length - input_offset, output + output_offset, output_size - output_offset, output_length);
-    if (status != PSA_SUCCESS) {
-        return status;
-    }
-
-    status = drv->cipher->p_finish(se_ctx, output, output_size, output_length);
-    gpio_clear(internal_gpio);
-    if (status != PSA_SUCCESS) {
-        return status;
-    }
-    return PSA_SUCCESS;
-}
-#else
+/**
+ * @brief   Single part function for cipher encryption and decryption on a secure element
+ *
+ *          Some secure elements don't provide single part operations for cipher encryption.
+ *          This is a wrapper function, to support those.
+ *
+ * @param   drv
+ * @param   drv_context
+ * @param   attributes
+ * @param   alg
+ * @param   direction
+ * @param   slot
+ * @param   input
+ * @param   input_length
+ * @param   output
+ * @param   output_size
+ * @param   output_length
+ * @return  @ref psa_status_t
+ */
 static psa_status_t psa_se_cipher_encrypt_decrypt(  const psa_drv_se_t *drv,
                                             psa_drv_se_context_t *drv_context,
                                             const psa_key_attributes_t * attributes,
@@ -302,8 +234,7 @@ static psa_status_t psa_se_cipher_encrypt_decrypt(  const psa_drv_se_t *drv,
     }
     return PSA_SUCCESS;
 }
-#endif /* TEST_TIME */
-#endif
+#endif /* CONFIG_PSA_SECURE_ELEMENT */
 
 psa_status_t psa_location_dispatch_cipher_encrypt(  const psa_key_attributes_t * attributes,
                                                     psa_algorithm_t alg,

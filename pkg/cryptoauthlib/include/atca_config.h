@@ -1,33 +1,52 @@
-/* Auto-generated config file atca_config.h */
+/*
+ * Copyright (C) 2022 HAW Hamburg
+ *
+ * This file is subject to the terms and conditions of the GNU Lesser
+ * General Public License v2.1. See the file LICENSE in the top level
+ * directory for more details.
+ */
+
+/**
+ * @ingroup     pkg_cryptoauthlib
+ * @{
+ *
+ * @file
+ * @brief       Minimal configuration for the library build.
+ *              For documentation please see https://github.com/MicrochipTech/cryptoauthlib#readme
+ *
+ * @author      Lena Boeckmann <lena.boeckmann@haw-hamburg.de>
+ *
+ */
+
 #ifndef ATCA_CONFIG_H
 #define ATCA_CONFIG_H
 
-#define ATCA_PRINTF
-#define ATCA_HAL_I2C
-#define ATCA_USE_ATCAB_FUNCTIONS
-
-/* Included device support */
-#define ATCA_ATECC508A_SUPPORT
-#define ATCA_ATECC608A_SUPPORT
-#define ATCA_NO_HEAP
-/** Define if cryptoauthlib is to use the maximum execution time method */
-/* #undef ATCA_NO_POLL */
-
-
-/* \brief How long to wait after an initial wake failure for the POST to
- *         complete.
- * If Power-on self test (POST) is enabled, the self test will run on waking
- * from sleep or during power-on, which delays the wake reply.
- */
-#ifndef ATCA_POST_DELAY_MSEC
-#define ATCA_POST_DELAY_MSEC 25
+#ifdef __cplusplus
+extern "C" {
 #endif
 
-/** Define platform malloc/free */
-#define ATCA_PLATFORM_MALLOC    malloc
-#define ATCA_PLATFORM_FREE      free
+/**
+ * @brief ATECC508A device support
+ */
+#define ATCA_ATECC508A_SUPPORT
 
+/**
+ * @brief ATECC608A device support
+ */
+#define ATCA_ATECC608A_SUPPORT
+
+/**
+ * @brief Map atca delay function to hal delay ms implementation
+ */
 #define atca_delay_ms   hal_delay_ms
+
+/**
+ * @brief Map atca delay function to hal delay us implementation
+ */
 #define atca_delay_us   hal_delay_us
 
-#endif // ATCA_CONFIG_H
+#ifdef __cplusplus
+}
+#endif
+#endif /* ATCA_CONFIG_H */
+/** @} */

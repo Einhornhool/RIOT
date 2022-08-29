@@ -32,11 +32,6 @@
 #define ENABLE_DEBUG    (0)
 #include "debug.h"
 
-#if TEST_TIME
-#include "periph/gpio.h"
-extern gpio_t internal_gpio;
-#endif
-
 static uint8_t lib_initialized = 0;
 
 /**
@@ -790,13 +785,7 @@ psa_status_t psa_hash_compute(psa_algorithm_t alg,
                               size_t hash_size,
                               size_t * hash_length)
 {
-#if TEST_TIME
-    gpio_set(internal_gpio);
     psa_hash_operation_t operation = PSA_HASH_OPERATION_INIT;
-    gpio_clear(internal_gpio);
-#else
-    psa_hash_operation_t operation = PSA_HASH_OPERATION_INIT;
-#endif
     psa_status_t status = PSA_ERROR_CORRUPTION_DETECTED;
 
     if (!lib_initialized) {
