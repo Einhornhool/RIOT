@@ -41,7 +41,7 @@ static uint8_t PLAINTEXT_LEN = 32;
 void cipher_aes_128(void)
 {
     psa_status_t status = PSA_ERROR_DOES_NOT_EXIST;
-    psa_key_id_t key_id = 0;
+    psa_key_id_t key_id = 3;
     psa_key_attributes_t attr = psa_key_attributes_init();
     psa_key_usage_t usage = PSA_KEY_USAGE_ENCRYPT;
 
@@ -56,11 +56,11 @@ void cipher_aes_128(void)
     psa_set_key_bits(&attr, 128);
     psa_set_key_type(&attr, PSA_KEY_TYPE_AES);
 
-#ifdef SECURE_ELEMENT
+//#ifdef SECURE_ELEMENT
     psa_key_lifetime_t lifetime = PSA_KEY_LIFETIME_FROM_PERSISTENCE_AND_LOCATION
-                                      (PSA_KEY_LIFETIME_VOLATILE, PSA_ATCA_LOCATION_DEV0);
+                                      (PSA_KEY_LIFETIME_PERSISTENT, PSA_KEY_LOCATION_LOCAL_STORAGE);
     psa_set_key_lifetime(&attr, lifetime);
-#endif
+//#endif
 
     status = psa_import_key(&attr, KEY_128, AES_128_KEY_SIZE, &key_id);
     if (status != PSA_SUCCESS) {

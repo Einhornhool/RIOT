@@ -41,7 +41,7 @@ static size_t HMAC_MSG_LEN = 32;
 void psa_hmac_sha256(void)
 {
     psa_key_attributes_t attr = psa_key_attributes_init();
-    psa_key_id_t key_id = 0;
+    psa_key_id_t key_id = 1;
     psa_key_usage_t usage = PSA_KEY_USAGE_SIGN_MESSAGE;
 
     size_t digest_size =
@@ -53,12 +53,13 @@ void psa_hmac_sha256(void)
     psa_set_key_usage_flags(&attr, usage);
     psa_set_key_bits(&attr, PSA_BYTES_TO_BITS(HMAC_KEY_LEN));
     psa_set_key_type(&attr, PSA_KEY_TYPE_HMAC);
+    psa_set_key_id(&attr, key_id);
 
-#ifdef SECURE_ELEMENT
+//#ifdef SECURE_ELEMENT
     psa_key_lifetime_t lifetime = PSA_KEY_LIFETIME_FROM_PERSISTENCE_AND_LOCATION(
-        PSA_KEY_LIFETIME_VOLATILE, PSA_ATCA_LOCATION_DEV0);
+        PSA_KEY_LIFETIME_PERSISTENT, PSA_KEY_LOCATION_LOCAL_STORAGE);
     psa_set_key_lifetime(&attr, lifetime);
-#endif
+//#endif
 
     psa_status_t status = PSA_ERROR_DOES_NOT_EXIST;
     status = psa_import_key(&attr, HMAC_KEY, HMAC_KEY_LEN, &key_id);

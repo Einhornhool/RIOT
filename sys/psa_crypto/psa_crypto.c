@@ -19,6 +19,7 @@
  */
 
 #include <stdio.h>
+#include <fcntl.h>
 #include "psa/crypto.h"
 #include "psa_crypto_se_driver.h"
 #include "psa_crypto_se_management.h"
@@ -28,11 +29,26 @@
 
 #include "random.h"
 #include "kernel_defines.h"
+#include "vfs.h"
+#include "fs/littlefs2_fs.h"
+#include "mtd.h"
 
 #define ENABLE_DEBUG    0
 #include "debug.h"
 
 static uint8_t lib_initialized = 0;
+
+extern mtd_dev_t *mtd0;
+littlefs2_desc_t psa_fs_desc = {
+    .lock = MUTEX_INIT,
+};
+
+#define FS_DRIVER littlefs2_file_system
+vfs_mount_t psa_vfs_mount = {
+    .fs = &FS_DRIVER,
+    .mount_point = "/sda",
+    .private_data = &psa_fs_desc,
+};
 
 /**
  * @brief   Compares the content of two same-sized buffers while maintaining
@@ -962,6 +978,7 @@ static psa_status_t psa_validate_key_attributes(const psa_key_attributes_t *attr
     if (status != PSA_SUCCESS) {
         return status;
     }
+            printf("_key_id: %d\n", key);
 
     if (PSA_KEY_LIFETIME_IS_VOLATILE(lifetime)) {
         if (key != 0) {
@@ -1053,8 +1070,9 @@ static psa_status_t psa_finish_key_creation(psa_key_slot_t *slot, psa_se_drv_dat
 {
     psa_status_t status = PSA_SUCCESS;
 
-    *key = PSA_KEY_ID_NULL;
-    /* TODO: Finish persistent key storage */
+    /* persistent key storage */
+    status = psa_persist_key_slot_in_storage(slot);  
+
     /* TODO: Finish SE key storage with transaction */
 
     if (status == PSA_SUCCESS) {
@@ -1392,10 +1410,13 @@ psa_status_t psa_import_key(const psa_key_attributes_t *attributes,
         return PSA_ERROR_BAD_STATE;
     }
 
-    *key = PSA_KEY_ID_NULL;
+    if (PSA_KEY_LIFETIME_IS_VOLATILE(attributes->lifetime)) {
+        *key = PSA_KEY_ID_NULL;
+    }
 
     /* Find empty slot */
     status = psa_start_key_creation(PSA_KEY_CREATION_IMPORT, attributes, &slot, &driver);
+
     if (status != PSA_SUCCESS) {
         psa_fail_key_creation(slot, driver);
         return status;
@@ -1606,6 +1627,7 @@ psa_status_t psa_mac_compute(psa_key_id_t key,
                                                mac_size, mac_length);
 
     unlock_status = psa_unlock_key_slot(slot);
+
     return ((status == PSA_SUCCESS) ? unlock_status : status);
 
 }
@@ -1851,3 +1873,4 @@ psa_status_t psa_verify_message(psa_key_id_t key,
     (void)signature_length;
     return PSA_ERROR_NOT_SUPPORTED;
 }
+
