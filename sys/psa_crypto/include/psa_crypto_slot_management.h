@@ -255,6 +255,21 @@ void psa_get_public_key_data_from_key_slot( const psa_key_slot_t *slot,
                                             uint8_t **pubkey_data,
                                             size_t **pubkey_data_len);
 
+/**
+ * @brief   Writes the given slot to a file
+ *
+ * @param   slot            Slot to persist in storage
+ */
+psa_status_t psa_persist_key_slot_in_storage(psa_key_slot_t *slot);
+
+/**
+ * @brief   Reads the slot with the given id from a file
+ *
+ * @param   id              Id of slot to be read from storage
+ * @param   slot            Output buffer to store slot in
+ */
+psa_status_t psa_get_persisted_key_slot_from_storage(psa_key_id_t id, psa_key_slot_t *slot);
+
 #ifdef __cplusplus
 }
 #endif

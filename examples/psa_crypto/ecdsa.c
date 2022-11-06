@@ -27,9 +27,9 @@
 
 void ecdsa(void)
 {
-    psa_key_id_t privkey_id;
+    psa_key_id_t privkey_id = 2;
     psa_key_attributes_t privkey_attr = psa_key_attributes_init();
-    psa_key_id_t pubkey_id;
+    psa_key_id_t pubkey_id = 3;
     psa_key_attributes_t pubkey_attr = psa_key_attributes_init();
 
     psa_key_usage_t usage = PSA_KEY_USAGE_SIGN_HASH | PSA_KEY_USAGE_VERIFY_HASH;
@@ -53,12 +53,13 @@ void ecdsa(void)
     psa_set_key_usage_flags(&privkey_attr, usage);
     psa_set_key_type(&privkey_attr, type);
     psa_set_key_bits(&privkey_attr, bits);
+    psa_set_key_id(&privkey_attr, privkey_id);
 
-#ifdef SECURE_ELEMENT
-    psa_key_lifetime_t lifetime = PSA_KEY_LIFETIME_FROM_PERSISTENCE_AND_LOCATION(
-        PSA_KEY_LIFETIME_VOLATILE, PSA_ATCA_LOCATION_DEV0);
+//#ifdef SECURE_ELEMENT
+    psa_key_lifetime_t lifetime = PSA_KEY_LIFETIME_FROM_PERSISTENCE_AND_LOCATION
+                                      (PSA_KEY_LIFETIME_PERSISTENT, PSA_KEY_LOCATION_LOCAL_STORAGE);
     psa_set_key_lifetime(&privkey_attr, lifetime);
-#endif
+//#endif
 
     psa_status_t status = PSA_ERROR_DOES_NOT_EXIST;
 
@@ -87,6 +88,7 @@ void ecdsa(void)
     psa_set_key_usage_flags(&pubkey_attr, PSA_KEY_USAGE_VERIFY_HASH);
     psa_set_key_bits(&pubkey_attr, PSA_BYTES_TO_BITS(bytes));
     psa_set_key_type(&pubkey_attr, PSA_KEY_TYPE_ECC_PUBLIC_KEY(PSA_ECC_FAMILY_SECP_R1));
+    psa_set_key_id(&pubkey_attr, pubkey_id);
 
     status = psa_import_key(&pubkey_attr, public_key, pubkey_length, &pubkey_id);
     if (status != PSA_SUCCESS) {

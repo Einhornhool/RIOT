@@ -35,8 +35,8 @@ int main(void)
     psa_crypto_init();
 
     psa_hmac_sha256();
-    cipher_aes_128();
-    ecdsa();
+    //cipher_aes_128();
+    // ecdsa();
 
 #ifdef MULTIPLE_SE
     cipher_aes_128_sec_se();

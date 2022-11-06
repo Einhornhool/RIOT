@@ -18,11 +18,20 @@
  * @}
  */
 
+#include <fcntl.h>
+
 #include "clist.h"
+#include "mtd.h"
+#include "vfs.h"
+#include "fs/littlefs2_fs.h"
 #include "psa_crypto_slot_management.h"
 
 #define ENABLE_DEBUG    0
 #include "debug.h"
+
+extern mtd_dev_t *mtd0;
+extern littlefs2_desc_t psa_fs_desc;
+extern vfs_mount_t psa_vfs_mount;
 
 #if (IS_ACTIVE(CONFIG_PSA_SECURE_ELEMENT))
 /**
@@ -307,10 +316,22 @@ psa_status_t psa_get_and_lock_key_slot(psa_key_id_t id, psa_key_slot_t **p_slot)
 
     status = psa_get_and_lock_key_slot_in_memory(id, p_slot);
     if (status != PSA_ERROR_DOES_NOT_EXIST) {
-        return status;
-    }
+        if (!psa_key_id_is_volatile(id)) {
+            /* get persistent key from storage and load into slot */
+            psa_key_slot_t slot;
+            status = psa_get_persisted_key_slot_from_storage(id, &slot);
 
-    /* TODO: get persistent key from storage and load into slot */
+            /* allocate new slot in list */
+            status = psa_allocate_empty_key_slot(&slot.attr.id, &slot.attr, p_slot);
+
+            printf("STATUS: %d\n", status);
+            if (status != PSA_SUCCESS) {
+                return status;
+            }
+            (*p_slot)->attr = slot.attr;
+            (*p_slot)->key = slot.key;
+        }
+    }
 
     return status;
 }
@@ -379,7 +400,13 @@ psa_status_t psa_allocate_empty_key_slot(   psa_key_id_t *id,
             *id = 0;
             return status;
         }
-        *id = key_id_count++;
+        if (PSA_KEY_LIFETIME_IS_VOLATILE(attr->lifetime)) {
+            *id = key_id_count++;
+        } else if (!psa_key_id_is_volatile(attr->id)) {
+            *id = attr->id;
+        } else {
+            return PSA_ERROR_INVALID_ARGUMENT; // TODO: INVALID_LIFETIME?
+        }
         *p_slot = new_slot;
 
         return PSA_SUCCESS;
@@ -440,11 +467,7 @@ psa_status_t psa_validate_key_location(psa_key_lifetime_t lifetime, psa_se_drv_d
 
 psa_status_t psa_validate_key_persistence(psa_key_lifetime_t lifetime)
 {
-    if (PSA_KEY_LIFETIME_IS_VOLATILE(lifetime)) {
-        return PSA_SUCCESS;
-    }
-    /* TODO: Implement persistent key storage */
-    return PSA_ERROR_NOT_SUPPORTED;
+    return PSA_SUCCESS;
 }
 
 int psa_is_valid_key_id(psa_key_id_t id, int vendor)
@@ -524,4 +547,145 @@ void psa_get_public_key_data_from_key_slot(const psa_key_slot_t *slot, uint8_t *
     *pubkey_data = ((psa_prot_key_slot_t *)slot)->key.pubkey_data;
     *pubkey_data_len = &((psa_prot_key_slot_t *)slot)->key.pubkey_data_len;
 #endif
+}
+
+psa_status_t psa_persist_key_slot_in_storage(psa_key_slot_t *slot)
+{
+    /* persistence > 0 means not volatile */
+    if (psa_key_id_is_volatile(slot->attr.id) == 0 && PSA_KEY_LIFETIME_GET_PERSISTENCE(slot->attr.lifetime) > 0) {
+        /* TODO: Remove this later */
+        psa_fs_desc.dev = mtd0;
+        printf("SAVE_KEY_ID: %d\n", slot->attr.id);
+
+        /* mount vfs */
+        int res = vfs_mount(&psa_vfs_mount);
+
+        if (res < 0) {
+            DEBUG("[psa_crypto] persist key: Error while mounting %s ... (%d) ... try format\n", psa_vfs_mount.mount_point, res);
+
+            /* format to fix mount */
+            DEBUG("[psa_crypto] persist key: formatting %s....\t", psa_vfs_mount.mount_point);
+            if (vfs_format(&psa_vfs_mount) < 0) {
+                DEBUG("[Failed]\n");
+                return 1;
+            }
+            else {
+                DEBUG("[OK]\n");
+            }
+
+            /* try to mount again */
+            res = vfs_mount(&psa_vfs_mount);
+            if (res != 0) {
+                return -1;
+            }
+        }
+
+        /* persist key */
+
+        /* dir path needs to be as long as mount point + psa_key_id_t as string */
+        int uint32_t_max_string_len = 10;
+        char string_path[strlen(psa_vfs_mount.mount_point) + uint32_t_max_string_len];
+
+        sprintf(string_path, "%s/%d", psa_vfs_mount.mount_point, slot->attr.id);
+
+        int fd = vfs_open(string_path, O_CREAT | O_RDWR, 0);
+
+        if (fd <= 0) {
+            DEBUG("[psa_crypto] persist key: Can not open file: %d\n", fd);
+        }
+
+        if (vfs_write(fd, slot, sizeof(psa_key_slot_t)) < 0) {
+            DEBUG("[psa_crypto] persist key: Can not write to file: %d\n", fd);
+        }
+
+        printf("WRITE_KEY_ID: %d\n", slot->attr.id);
+
+        if (vfs_close(fd) != 0) {
+            DEBUG("[psa_crypto] persist key: Can not close file: %d\n", fd);
+        }
+
+        /* unmount vfs */
+        res = vfs_umount(&psa_vfs_mount);
+
+        if (res < 0) {
+            DEBUG("[psa_crypto] persist key: Error while unmounting %s...\n", psa_vfs_mount.mount_point);
+            return 1;
+        }
+    } else {
+        return PSA_ERROR_INVALID_ARGUMENT;
+    }
+
+    return PSA_SUCCESS;
+}
+
+psa_status_t psa_get_persisted_key_slot_from_storage(psa_key_id_t id, psa_key_slot_t *slot)
+{
+    psa_status_t status = PSA_ERROR_CORRUPTION_DETECTED;
+
+    /* TODO: Remove this later */
+    psa_fs_desc.dev = mtd0;
+
+    if (!psa_key_id_is_volatile(id)) {
+        /* mount vfs */
+        int res = vfs_mount(&psa_vfs_mount);
+
+        if (res < 0) {
+            DEBUG("[psa_crypto] read persisted key: Error while mounting %s ... (%d) ... try format\n", psa_vfs_mount.mount_point, res);
+
+            /* format to fix mount */
+            DEBUG("[psa_crypto] read persisted key: formatting %s....\t", psa_vfs_mount.mount_point);
+            if (vfs_format(&psa_vfs_mount) < 0) {
+                DEBUG("[Failed]\n");
+                return 1;
+            }
+            else {
+                DEBUG("[OK]\n");
+            }
+
+            /* try to mount again */
+            res = vfs_mount(&psa_vfs_mount);
+            if (res != 0) {
+                return -1;
+            }
+        }
+
+        /* read persisted key */
+
+        /* dir path needs to be as long as mount point + psa_key_id_t as string */
+        int uint32_t_max_string_len = 10;
+        char string_path[strlen(psa_vfs_mount.mount_point) + uint32_t_max_string_len];
+
+        sprintf(string_path, "%s/%d", psa_vfs_mount.mount_point, id);
+
+        int fd = vfs_open(string_path, O_RDONLY, 0);
+
+        if (fd <= 0) {
+            DEBUG("[psa_crypto] read persisted key: Can not open file: %d\n", fd);
+        }
+
+        if (vfs_read(fd, slot, sizeof(psa_key_slot_t)) < 0) {
+            DEBUG("[psa_crypto] read persisted key: Can not read from file\n");
+        }
+        else {
+            printf("READ_KEY_ID: %d\n", slot->attr.id);
+        }
+
+        if (vfs_close(fd) != 0) {
+            DEBUG("[psa_crypto] read persisted key: Can not close file: %d\n", fd);
+        }
+
+        /* unmount vfs */
+        res = vfs_umount(&psa_vfs_mount);
+
+        if (res < 0) {
+            DEBUG("[psa_crypto] read persisted key: Error while unmounting %s...\n", psa_vfs_mount.mount_point);
+            return 1;
+        }
+
+        return status;
+    } else {
+        return PSA_ERROR_INVALID_ARGUMENT;
+    }
+
+    return PSA_SUCCESS;
 }
