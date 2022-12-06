@@ -703,15 +703,13 @@ psa_status_t psa_hash_finish(psa_hash_operation_t *operation,
     }
     psa_status_t status =
         psa_algorithm_dispatch_hash_finish(operation, hash, hash_size, hash_length);
-    if (status != PSA_SUCCESS) {
-        /* Make sure operation becomes inactive after successful execution */
-        psa_hash_abort(operation);
-        return status;
+    if (status == PSA_SUCCESS) {
+        *hash_length = actual_hash_length;
     }
 
-    *hash_length = actual_hash_length;
-
-    return PSA_SUCCESS;
+    /* Make sure operation becomes inactive after successful execution */
+    psa_hash_abort(operation);
+    return status;
 }
 
 psa_status_t psa_hash_verify(psa_hash_operation_t *operation,
