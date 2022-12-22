@@ -1,0 +1,205 @@
+From 1a6c6a3c5e10e6d5b0fdb450affa7bfb38526a08 Mon Sep 17 00:00:00 2001
+From: Lena Boeckmann <lena.boeckmann@haw-hamburg.de>
+Date: Sun, 6 Nov 2022 16:48:15 +0100
+Subject: [PATCH 1/2] Change vector names to avoid collisions
+
+---
+ .../dev_apis/crypto/common/test_crypto_common.c  | 10 +++++-----
+ .../dev_apis/crypto/common/test_crypto_common.h  | 10 +++++-----
+ api-tests/dev_apis/crypto/test_c028/test_data.h  | 12 ++++++------
+ api-tests/dev_apis/crypto/test_c030/test_data.h  | 16 ++++++++--------
+ 4 files changed, 24 insertions(+), 24 deletions(-)
+
+diff --git a/api-tests/dev_apis/crypto/common/test_crypto_common.c b/api-tests/dev_apis/crypto/common/test_crypto_common.c
+index 53c4336..98cf88f 100644
+--- a/api-tests/dev_apis/crypto/common/test_crypto_common.c
++++ b/api-tests/dev_apis/crypto/common/test_crypto_common.c
+@@ -456,25 +456,25 @@ const uint8_t signature_6[] = {0xC6, 0x54, 0x59, 0xB1, 0xC9, 0x50, 0x8F, 0xE6, 0
+ 0xF6, 0xAF, 0xFC, 0x0F, 0xB0, 0x4B, 0xEA, 0x36, 0x0C, 0x92, 0xE5, 0x64, 0x4A, 0x60, 0x41, 0xB2,
+ 0xF4, 0x53, 0x49, 0xD4, 0x22};
+ 
+-const uint8_t hmac_sha224[] = {
++const uint8_t psa_tests_hmac_sha224[] = {
+  0x2D, 0x39, 0x37, 0x90, 0xE1, 0xDA, 0x9A, 0x86, 0xEC, 0x0D, 0x1B, 0x17, 0x59, 0xC1, 0x23, 0xF9,
+  0xBA, 0xA4, 0x38, 0xF9, 0x11, 0xA7, 0x3F, 0xEA, 0x1E, 0x9E, 0xA1, 0x7D};
+ 
+-const uint8_t hmac_sha224_invalid[] = {
++const uint8_t psa_tests_hmac_sha224_invalid[] = {
+  0x2D, 0x39, 0x37, 0x90, 0xE1, 0xDA, 0x9A, 0x86, 0xEC, 0x0D, 0x1B, 0x17, 0x59, 0xC1, 0x23, 0xF9,
+  0xBA, 0xA4, 0x38, 0xF9, 0x11, 0xA5, 0x3F, 0xEA, 0x1E, 0x9E, 0xA1, 0x7D};
+ 
+-const uint8_t hmac_sha256[] = {
++const uint8_t psa_tests_hmac_sha256[] = {
+  0xFA, 0xEB, 0x2B, 0x64, 0x77, 0x79, 0xEE, 0x1B, 0x5C, 0x97, 0x0B, 0xBC, 0x28, 0x0E, 0xE5, 0x1D,
+  0xE9, 0x79, 0x22, 0x9D, 0xE8, 0x4A, 0x94, 0xA1, 0xA4, 0x2C, 0x84, 0x76, 0xD1, 0xBF, 0xE9, 0x3F};
+ 
+-const uint8_t hmac_sha512[] = {
++const uint8_t psa_tests_hmac_sha512[] = {
+  0x46, 0x31, 0x33, 0x41, 0x39, 0xCB, 0x97, 0x3A, 0xCD, 0x7C, 0xF2, 0x2C, 0xA0, 0x89, 0x1B, 0x55,
+  0x0F, 0x58, 0x76, 0x25, 0x9E, 0x72, 0x7C, 0x91, 0xF7, 0xEC, 0x78, 0x75, 0x2A, 0xF9, 0x52, 0x13,
+  0x91, 0xD1, 0x35, 0x52, 0x7F, 0xF2, 0xC3, 0x67, 0x43, 0x99, 0xDC, 0x20, 0x2A, 0xC4, 0x77, 0xB4,
+  0x4C, 0x51, 0xD0, 0xFE, 0x1D, 0xB6, 0xC8, 0x28, 0x34, 0x02, 0x6A, 0x6D, 0x8D, 0xD3, 0x20, 0xDB};
+ 
+-const uint8_t cmac_aes_128[] = {0x7F, 0x97, 0x9B, 0xA0, 0xFF, 0xF1, 0x35, 0x98, 0x61, 0x38, 0xF2,
++const uint8_t psa_tests_cmac_aes_128[] = {0x7F, 0x97, 0x9B, 0xA0, 0xFF, 0xF1, 0x35, 0x98, 0x61, 0x38, 0xF2,
+                                 0xAB, 0x05, 0x4B, 0x28, 0x4B};
+ 
+ /* test inputs */
+diff --git a/api-tests/dev_apis/crypto/common/test_crypto_common.h b/api-tests/dev_apis/crypto/common/test_crypto_common.h
+index dd99d9a..8ef97bb 100644
+--- a/api-tests/dev_apis/crypto/common/test_crypto_common.h
++++ b/api-tests/dev_apis/crypto/common/test_crypto_common.h
+@@ -112,11 +112,11 @@ extern const uint8_t signature_4_invalid[];
+ extern const uint8_t signature_5[];
+ extern const uint8_t signature_6[];
+ 
+-extern const uint8_t hmac_sha224[];
+-extern const uint8_t hmac_sha224_invalid[];
+-extern const uint8_t hmac_sha256[];
+-extern const uint8_t hmac_sha512[];
+-extern const uint8_t cmac_aes_128[];
++extern const uint8_t psa_tests_hmac_sha224[];
++extern const uint8_t psa_tests_hmac_sha224_invalid[];
++extern const uint8_t psa_tests_hmac_sha256[];
++extern const uint8_t psa_tests_hmac_sha512[];
++extern const uint8_t psa_tests_cmac_aes_128[];
+ 
+ extern uint8_t expected_output[BUFFER_SIZE];
+ 
+diff --git a/api-tests/dev_apis/crypto/test_c028/test_data.h b/api-tests/dev_apis/crypto/test_c028/test_data.h
+index 6387390..2ad4e6e 100644
+--- a/api-tests/dev_apis/crypto/test_c028/test_data.h
++++ b/api-tests/dev_apis/crypto/test_c028/test_data.h
+@@ -51,7 +51,7 @@ static const test_data check1[] = {
+     .mac                 = expected_output,
+     .mac_size            = BUFFER_SIZE,
+     .expected_mac_length = 28,
+-    .expected_mac        = hmac_sha224,
++    .expected_mac        = psa_tests_hmac_sha224,
+     .operation_state     = 1,
+     .expected_status     = PSA_SUCCESS
+ },
+@@ -70,7 +70,7 @@ static const test_data check1[] = {
+     .mac                 = expected_output,
+     .mac_size            = BUFFER_SIZE,
+     .expected_mac_length = 32,
+-    .expected_mac        = hmac_sha256,
++    .expected_mac        = psa_tests_hmac_sha256,
+     .operation_state     = 1,
+     .expected_status     = PSA_SUCCESS
+ },
+@@ -89,7 +89,7 @@ static const test_data check1[] = {
+     .mac                 = expected_output,
+     .mac_size            = BUFFER_SIZE,
+     .expected_mac_length = 64,
+-    .expected_mac        = hmac_sha512,
++    .expected_mac        = psa_tests_hmac_sha512,
+     .operation_state     = 1,
+     .expected_status     = PSA_SUCCESS
+ },
+@@ -108,7 +108,7 @@ static const test_data check1[] = {
+     .mac                 = expected_output,
+     .mac_size            = BUFFER_SIZE,
+     .expected_mac_length = 8,
+-    .expected_mac        = hmac_sha224,
++    .expected_mac        = psa_tests_hmac_sha224,
+     .operation_state     = 1,
+     .expected_status     = PSA_SUCCESS
+ },
+@@ -142,7 +142,7 @@ static const test_data check1[] = {
+     .mac                 = expected_output,
+     .mac_size            = BUFFER_SIZE,
+     .expected_mac_length = 28,
+-    .expected_mac        = hmac_sha224,
++    .expected_mac        = psa_tests_hmac_sha224,
+     .operation_state     = 0,
+     .expected_status     = PSA_ERROR_BAD_STATE
+ },
+@@ -163,7 +163,7 @@ static const test_data check1[] = {
+     .mac                 = expected_output,
+     .mac_size            = BUFFER_SIZE,
+     .expected_mac_length = 16,
+-    .expected_mac        = cmac_aes_128,
++    .expected_mac        = psa_tests_cmac_aes_128,
+     .operation_state     = 1,
+     .expected_status     = PSA_SUCCESS
+ },
+diff --git a/api-tests/dev_apis/crypto/test_c030/test_data.h b/api-tests/dev_apis/crypto/test_c030/test_data.h
+index db8f79b..f3b4e78 100644
+--- a/api-tests/dev_apis/crypto/test_c030/test_data.h
++++ b/api-tests/dev_apis/crypto/test_c030/test_data.h
+@@ -44,7 +44,7 @@ static const test_data check1[] = {
+     .data_length     = 64,
+     .input           = input_bytes_data,
+     .input_length    = 16,
+-    .mac             = hmac_sha224,
++    .mac             = psa_tests_hmac_sha224,
+     .mac_length      = 28,
+     .operation_state = 1,
+     .expected_status = PSA_SUCCESS
+@@ -61,7 +61,7 @@ static const test_data check1[] = {
+     .data_length     = 64,
+     .input           = input_bytes_data,
+     .input_length    = 16,
+-    .mac             = hmac_sha256,
++    .mac             = psa_tests_hmac_sha256,
+     .mac_length      = 32,
+     .operation_state = 1,
+     .expected_status = PSA_SUCCESS
+@@ -78,7 +78,7 @@ static const test_data check1[] = {
+     .data_length     = 64,
+     .input           = input_bytes_data,
+     .input_length    = 16,
+-    .mac             = hmac_sha512,
++    .mac             = psa_tests_hmac_sha512,
+     .mac_length      = 64,
+     .operation_state = 1,
+     .expected_status = PSA_SUCCESS
+@@ -95,7 +95,7 @@ static const test_data check1[] = {
+     .data_length     = 64,
+     .input           = input_bytes_data,
+     .input_length    = 16,
+-    .mac             = hmac_sha224,
++    .mac             = psa_tests_hmac_sha224,
+     .mac_length      = 8,
+     .operation_state = 1,
+     .expected_status = PSA_SUCCESS
+@@ -110,7 +110,7 @@ static const test_data check1[] = {
+     .data_length     = 64,
+     .input           = input_bytes_data,
+     .input_length    = 16,
+-    .mac             = hmac_sha224,
++    .mac             = psa_tests_hmac_sha224,
+     .mac_length      = 30,
+     .operation_state = 1,
+     .expected_status = PSA_ERROR_INVALID_SIGNATURE
+@@ -125,7 +125,7 @@ static const test_data check1[] = {
+     .data_length     = 64,
+     .input           = input_bytes_data,
+     .input_length    = 16,
+-    .mac             = hmac_sha224_invalid,
++    .mac             = psa_tests_hmac_sha224_invalid,
+     .mac_length      = 28,
+     .operation_state = 1,
+     .expected_status = PSA_ERROR_INVALID_SIGNATURE
+@@ -140,7 +140,7 @@ static const test_data check1[] = {
+     .data_length     = 64,
+     .input           = input_bytes_data,
+     .input_length    = 16,
+-    .mac             = hmac_sha224,
++    .mac             = psa_tests_hmac_sha224,
+     .mac_length      = 28,
+     .operation_state = 0,
+     .expected_status = PSA_ERROR_BAD_STATE
+@@ -159,7 +159,7 @@ static const test_data check1[] = {
+     .data_length     = AES_16B_KEY_SIZE,
+     .input           = input_bytes_data,
+     .input_length    = 16,
+-    .mac             = cmac_aes_128,
++    .mac             = psa_tests_cmac_aes_128,
+     .mac_length      = 16,
+     .operation_state = 1,
+     .expected_status = PSA_SUCCESS
+-- 
+2.38.0
+

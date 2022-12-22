@@ -1,0 +1,25 @@
+From 56be82f7ef0b1dd1978227ba9b0c9ad8f27191a6 Mon Sep 17 00:00:00 2001
+From: Lena Boeckmann <lena.boeckmann@haw-hamburg.de>
+Date: Sun, 6 Nov 2022 16:50:36 +0100
+Subject: [PATCH 2/2] Add FPU to armv7m target
+
+---
+ api-tests/tools/cmake/compiler/GNUARM.cmake | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/api-tests/tools/cmake/compiler/GNUARM.cmake b/api-tests/tools/cmake/compiler/GNUARM.cmake
+index 20102e1..23de873 100644
+--- a/api-tests/tools/cmake/compiler/GNUARM.cmake
++++ b/api-tests/tools/cmake/compiler/GNUARM.cmake
+@@ -51,7 +51,7 @@ foreach(_LNG IN ITEMS "C" "ASM")
+ endforeach()
+ 
+ if(${CPU_ARCH} STREQUAL armv7m)
+-	set(TARGET_SWITCH "-march=armv7-m")
++	set(TARGET_SWITCH "-march=armv7-m -mfloat-abi=hard -mfpu=fpv4-sp-d16")
+ elseif(${CPU_ARCH} STREQUAL armv8m_ml)
+ 	set(TARGET_SWITCH "-march=armv8-m.main -mcmse")
+ elseif(${CPU_ARCH} STREQUAL armv8m_bl)
+-- 
+2.38.0
+
