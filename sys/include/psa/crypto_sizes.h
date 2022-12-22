@@ -479,7 +479,7 @@ extern "C" {
  * @param   input_length Size of the input in bytes.
  */
 #define PSA_CIPHER_DECRYPT_OUTPUT_MAX_SIZE(input_length) \
-/* implementation-defined value */
+    (input_length)
 
 /**
  * @brief   The maximum size of the output of @ref psa_cipher_decrypt(), in bytes.
@@ -500,7 +500,7 @@ extern "C" {
  *          are incompatible.
  */
 #define PSA_CIPHER_DECRYPT_OUTPUT_SIZE(key_type, alg, input_length) \
-    (input_length)
+    (input_length - PSA_CIPHER_IV_LENGTH(key_type, alg))
 
 /**
  * @brief   A sufficient output buffer size for @ref psa_cipher_encrypt(), for any of the supported
@@ -514,7 +514,7 @@ extern "C" {
  * @param   input_length Size of the input in bytes.
  */
 #define PSA_CIPHER_ENCRYPT_OUTPUT_MAX_SIZE(input_length) \
-/* implementation-defined value */
+    (PSA_CIPHER_ENCRYPT_OUTPUT_SIZE(PSA_KEY_TYPE_AES, PSA_ALG_CBC_NO_PADDING, input_length))
 
 /**
  * @brief   The maximum size of the output of @ref psa_cipher_encrypt(), in bytes.

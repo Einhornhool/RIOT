@@ -272,7 +272,7 @@ static int psa_get_node_with_id(clist_node_t *n, void *arg)
  * @param   p_slot  Pointer to the slot that will contain the required key
  *
  * @return  @ref PSA_SUCCESS
- *          @ref PSA_ERROR_DOES_NOT_EXIST
+ *          @ref PSA_ERROR_INVALID_HANDLE
  *          @ref PSA_ERROR_CORRUPTION_DETECTED
  *          @ref PSA_ERROR_NOT_SUPPORTED
  */
@@ -283,7 +283,7 @@ static psa_status_t psa_get_and_lock_key_slot_in_memory(psa_key_id_t id, psa_key
     if (psa_key_id_is_volatile(id)) {
         clist_node_t *slot_node = clist_foreach(&key_slot_list, psa_get_node_with_id, &id);
         if (slot_node == NULL) {
-            return PSA_ERROR_DOES_NOT_EXIST;
+            return PSA_ERROR_INVALID_HANDLE;
         }
 
         psa_key_slot_t *slot = container_of(slot_node, psa_key_slot_t, node);
