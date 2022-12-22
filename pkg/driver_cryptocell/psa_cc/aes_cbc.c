@@ -68,6 +68,8 @@ psa_status_t psa_cipher_cbc_aes_128_encrypt(const psa_key_attributes_t *attribut
     if (status != PSA_SUCCESS) {
         return status;
     }
+
+    *output_length = output_size;
     return PSA_SUCCESS;
 }
 
@@ -109,5 +111,7 @@ psa_status_t psa_cipher_cbc_aes_128_decrypt(const psa_key_attributes_t *attribut
     if (status != PSA_SUCCESS) {
         return status;
     }
+
+    *output_length = PSA_CIPHER_DECRYPT_OUTPUT_SIZE(attributes->type, alg, input_length);
     return PSA_SUCCESS;
 }
