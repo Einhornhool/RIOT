@@ -22,7 +22,11 @@ USEMODULE += psa_mac_hmac_sha_256
 USEMODULE += psa_asymmetric
 USEMODULE += psa_asymmetric_ecc_p256r1
 
-ifdef SECURE_ELEMENT
+ifdef SECUREMARK_LEGACY
+  USEMODULE += picolibc
+  #CFLAGS += -DTHREAD_STACKSIZE_MAIN=\(12*THREAD_STACKSIZE_DEFAULT\)
+  KCONFIG_ADD_CONFIG += $(APPDIR)/app.config.test.smleg
+else ifdef SECURE_ELEMENT
   CFLAGS += -DSECURE_ELEMENT
   CFLAGS += -DTHREAD_STACKSIZE_MAIN=\(8*THREAD_STACKSIZE_DEFAULT\)
   USEMODULE += psa_secure_element
@@ -59,5 +63,6 @@ else
 endif
 
 SHOULD_RUN_KCONFIG :=
+export TEST_KCONFIG = 1
 
 include $(RIOTBASE)/Makefile.include
