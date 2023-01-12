@@ -29,6 +29,16 @@ extern "C" {
 #include "psa/crypto_includes.h"
 
 /**
+ * @brief   Structure containing the contexts of an AEAD operation
+ */
+typedef union {
+    unsigned dummy; /**< Make the union non-empty even with no supported algorithms. */
+#if IS_USED(MODULE_PSA_AEAD_AES_128) || defined(DOXYGEN)
+    psa_aead_aes_128_ctx_t aead_aes_128; /**< AEAD AES 128 context */
+#endif
+} psa_aead_context_t;
+
+/**
  * @brief   Structure containing the hash contexts needed by the application.
  */
 typedef union {

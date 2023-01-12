@@ -102,7 +102,11 @@ static inline struct psa_key_attributes_s psa_key_attributes_init(void)
  * @note    Not implemented, yet
  */
 struct psa_aead_operation_s {
-    int dummy;  /**< Not implemented, yet */
+    psa_algorithm_t alg;
+    uint8_t nonce[PSA_AEAD_NONCE_MAX_SIZE];
+    size_t nonce_length;
+    uint8_t nonce_set;
+    psa_aead_context_t aead_ctx;
 };
 
 /**

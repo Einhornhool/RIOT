@@ -59,6 +59,7 @@ psa_status_t psa_cipher_cbc_aes_128_encrypt(const psa_key_attributes_t *attribut
                                     key_buffer_size, output, input, input_length,
                                     output + iv_length, output_length, PSA_CRYPTO_DRIVER_ENCRYPT);
 
+    (void) output_size;
     return status;
 }
 
@@ -84,5 +85,6 @@ psa_status_t psa_cipher_cbc_aes_128_decrypt(const psa_key_attributes_t *attribut
                                     key_buffer_size, input, input + operation.default_iv_length,
                                     input_length - operation.default_iv_length, output, output_length, PSA_CRYPTO_DRIVER_DECRYPT);
 
+    (void) output_size;
     return status;
 }

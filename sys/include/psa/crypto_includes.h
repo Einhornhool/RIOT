@@ -35,6 +35,10 @@ extern "C" {
 #include "hashes/psa/riot_hashes.h"
 #endif
 
+#if IS_USED(MODULE_PSA_MBEDTLS_HASHES_SHA256)
+#include "psa_mbedtls_hashes_ctx.h"
+#endif
+
 #if IS_USED(MODULE_PERIPH_CIPHER_AES_128_CBC)
 #include "psa_periph_aes_ctx.h"
 #endif

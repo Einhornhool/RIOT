@@ -29,6 +29,53 @@
 #define ENABLE_DEBUG    0
 #include "debug.h"
 
+psa_status_t psa_location_dispatch_aead_decrypt_setup(psa_aead_operation_t *operation,
+                                                      const psa_key_attributes_t *attributes,
+                                                      const psa_key_slot_t *slot,
+                                                      psa_algorithm_t alg)
+{
+    return psa_algorithm_dispatch_aead_decrypt_setup(operation, attributes, slot, alg);
+}
+
+psa_status_t psa_location_dispatch_aead_encrypt_setup(psa_aead_operation_t *operation,
+                                                      const psa_key_attributes_t *attributes,
+                                                      const psa_key_slot_t *slot,
+                                                      psa_algorithm_t alg)
+{
+    return psa_algorithm_dispatch_aead_encrypt_setup(operation, attributes, slot, alg);
+}
+
+psa_status_t psa_location_dispatch_aead_finish(psa_aead_operation_t *operation,
+                                               const psa_key_slot_t *slot,
+                                               uint8_t *ciphertext,
+                                               size_t ciphertext_size,
+                                               size_t *ciphertext_length,
+                                               uint8_t *tag,
+                                               size_t tag_size,
+                                               size_t *tag_length)
+{
+    return psa_algorithm_dispatch_aead_finish(operation, slot, ciphertext, ciphertext_size, ciphertext_length, tag, tag_size, tag_length);
+}
+
+psa_status_t psa_location_dispatch_aead_update(psa_aead_operation_t *operation,
+                                               const psa_key_slot_t *slot,
+                                               const uint8_t *input,
+                                               size_t input_length,
+                                               uint8_t *output,
+                                               size_t output_size,
+                                               size_t *output_length)
+{
+    return psa_algorithm_dispatch_aead_update(operation, slot, input, input_length, output, output_size, output_length);
+}
+
+psa_status_t psa_location_dispatch_aead_update_ad(psa_aead_operation_t * operation,
+                                                  const psa_key_slot_t *slot,
+                                                  const uint8_t *input,
+                                                  size_t input_length)
+{
+    return psa_algorithm_dispatch_aead_update_ad(operation, slot, input, input_length);
+}
+
 psa_status_t psa_location_dispatch_generate_key(const psa_key_attributes_t *attributes,
                                                 psa_key_slot_t *slot)
 {

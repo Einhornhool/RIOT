@@ -27,6 +27,80 @@
 #include "psa_ciphers.h"
 #include "psa_crypto_operation_encoder.h"
 
+psa_status_t psa_algorithm_dispatch_aead_decrypt_setup(psa_aead_operation_t *operation,
+                                                      const psa_key_attributes_t *attributes,
+                                                      const psa_key_slot_t *slot,
+                                                      psa_algorithm_t alg)
+{
+    (void) operation;
+    (void) attributes;
+    (void) slot;
+    (void) alg;
+    return PSA_ERROR_NOT_SUPPORTED;
+}
+
+psa_status_t psa_algorithm_dispatch_aead_encrypt_setup(psa_aead_operation_t *operation,
+                                                      const psa_key_attributes_t *attributes,
+                                                      const psa_key_slot_t *slot,
+                                                      psa_algorithm_t alg)
+{
+    (void) operation;
+    (void) attributes;
+    (void) slot;
+    (void) alg;
+    return PSA_ERROR_NOT_SUPPORTED;
+}
+
+psa_status_t psa_algorithm_dispatch_aead_finish(psa_aead_operation_t *operation,
+                                               const psa_key_slot_t *slot,
+                                               uint8_t *ciphertext,
+                                               size_t ciphertext_size,
+                                               size_t *ciphertext_length,
+                                               uint8_t *tag,
+                                               size_t tag_size,
+                                               size_t *tag_length)
+{
+    (void) operation;
+    (void) slot;
+    (void) ciphertext;
+    (void) ciphertext_size;
+    (void) ciphertext_length;
+    (void) tag;
+    (void) tag_size;
+    (void) tag_length;
+    return PSA_ERROR_NOT_SUPPORTED;
+}
+
+psa_status_t psa_algorithm_dispatch_aead_update(psa_aead_operation_t *operation,
+                                               const psa_key_slot_t *slot,
+                                               const uint8_t *input,
+                                               size_t input_length,
+                                               uint8_t *output,
+                                               size_t output_size,
+                                               size_t *output_length)
+{
+    (void) operation;
+    (void) slot;
+    (void) input;
+    (void) input_length;
+    (void) output;
+    (void) output_size;
+    (void) output_length;
+    return PSA_ERROR_NOT_SUPPORTED;
+}
+
+psa_status_t psa_algorithm_dispatch_aead_update_ad(psa_aead_operation_t * operation,
+                                                  const psa_key_slot_t *slot,
+                                                  const uint8_t *input,
+                                                  size_t input_length)
+{
+    (void) operation;
+    (void) slot;
+    (void) input;
+    (void) input_length;
+    return PSA_ERROR_NOT_SUPPORTED;
+}
+
 psa_status_t psa_algorithm_dispatch_hash_setup(psa_hash_operation_t *operation,
                                                psa_algorithm_t alg)
 {

@@ -57,6 +57,85 @@ static inline int safer_memcmp(const uint8_t *a, const uint8_t *b, size_t n)
     return diff;
 }
 
+/**
+ * @brief   Checks whether a key's policy permits the usage of a given algorithm
+ *
+ * @param   policy          Policy of the given key
+ * @param   type            Type of the given key
+ * @param   requested_alg   Algorithm to be used
+ *
+ * @return  @ref PSA_SUCCESS
+ *          @ref PSA_ERROR_NOT_PERMITTED
+ *          @ref PSA_ERROR_INVALID_ARGUMENT  If @c requested_alg is not a valid algorithm
+ */
+static psa_status_t psa_key_policy_permits( const psa_key_policy_t *policy,
+                                            psa_key_type_t type,
+                                            psa_algorithm_t requested_alg)
+{
+    if (requested_alg == 0) {
+        return PSA_ERROR_INVALID_ARGUMENT;
+    }
+    if (policy->alg == requested_alg) {
+        return PSA_SUCCESS;
+    }
+
+    (void)type;
+    return PSA_ERROR_NOT_PERMITTED;
+}
+
+/**
+ * @brief   Check whether the policy of the key associated with the given ID permits the requested
+ *          usage and return the key slot.
+ *
+ * @param   id      ID of the key to be used
+ * @param   p_slot  Pointer to a @c psa_key_slot_t type to return the desired key slot.
+ *                  @c NULL if something went wrong.
+ * @param   usage   The requested usage of the key
+ * @param   alg     The requested algorithm that uses the key
+ *
+ * @return  @ref PSA_SUCCESS
+ *          @ref PSA_ERROR_NOT_PERMITTED
+ *          @ref PSA_ERROR_DOES_NOT_EXIST
+ *          @ref PSA_ERROR_INVALID_ARGUMENT
+ *          @ref PSA_ERROR_NOT_SUPPORTED
+ *          @ref PSA_ERROR_CORRUPTION_DETECTED
+ */
+static psa_status_t psa_get_and_lock_key_slot_with_policy(  psa_key_id_t id,
+                                                            psa_key_slot_t **p_slot,
+                                                            psa_key_usage_t usage,
+                                                            psa_algorithm_t alg)
+{
+    psa_status_t status = PSA_ERROR_CORRUPTION_DETECTED;
+    psa_key_slot_t *slot;
+
+    status = psa_get_and_lock_key_slot(id, p_slot);
+    if (status != PSA_SUCCESS) {
+        return status;
+    }
+    slot = *p_slot;
+
+    if (PSA_KEY_TYPE_IS_PUBLIC_KEY(slot->attr.type)) {
+        /* Export is always permitted for asymmetric public keys */
+        usage &= ~PSA_KEY_USAGE_EXPORT;
+    }
+
+    if ((slot->attr.policy.usage & usage) != usage) {
+        *p_slot = NULL;
+        psa_unlock_key_slot(slot);
+        return PSA_ERROR_NOT_PERMITTED;
+    }
+
+    if (alg != 0) {
+        status = psa_key_policy_permits( &slot->attr.policy, slot->attr.type, alg);
+        if (status != PSA_SUCCESS) {
+            *p_slot = NULL;
+            psa_unlock_key_slot(slot);
+            return status;
+        }
+    }
+    return PSA_SUCCESS;
+}
+
 psa_status_t psa_crypto_init(void)
 {
     lib_initialized = 1;
@@ -70,7 +149,7 @@ psa_status_t psa_crypto_init(void)
 
 psa_status_t psa_aead_abort(psa_aead_operation_t *operation)
 {
-    (void)operation;
+    (void) operation;
     return PSA_ERROR_NOT_SUPPORTED;
 }
 
@@ -100,14 +179,61 @@ psa_status_t psa_aead_decrypt(  psa_key_id_t key,
     return PSA_ERROR_NOT_SUPPORTED;
 }
 
+static psa_status_t psa_aead_setup(psa_aead_operation_t *operation,
+                                   psa_key_id_t key,
+                                   psa_algorithm_t alg,
+                                   psa_encrypt_or_decrypt_t direction)
+{
+    psa_status_t status = PSA_ERROR_CORRUPTION_DETECTED;
+    psa_status_t unlock_status = PSA_ERROR_CORRUPTION_DETECTED;
+    psa_key_slot_t *slot;
+    psa_key_usage_t usage = (direction == PSA_CRYPTO_DRIVER_ENCRYPT ?
+                             PSA_KEY_USAGE_ENCRYPT :
+                             PSA_KEY_USAGE_DECRYPT);
+
+    if (!lib_initialized || operation->alg != 0) {
+        return PSA_ERROR_BAD_STATE;
+    }
+
+    if (!operation) {
+        return PSA_ERROR_INVALID_ARGUMENT;
+    }
+
+    if (!PSA_ALG_IS_AEAD(alg)) {
+        return PSA_ERROR_INVALID_ARGUMENT;
+    }
+
+    status = psa_get_and_lock_key_slot_with_policy(key, &slot, usage, alg);
+    if (status != PSA_SUCCESS) {
+        psa_aead_abort(operation);
+        unlock_status = psa_unlock_key_slot(slot);
+        return status;
+    }
+
+    operation->nonce_set = 0;
+
+    psa_key_attributes_t attr = slot->attr;
+
+    if (direction == PSA_CRYPTO_DRIVER_ENCRYPT) {
+        status = psa_location_dispatch_aead_encrypt_setup(operation, &attr, slot, alg);
+    }
+    else if (direction == PSA_CRYPTO_DRIVER_DECRYPT) {
+        status = psa_location_dispatch_aead_decrypt_setup(operation, &attr, slot, alg);
+    }
+
+    if (status != PSA_SUCCESS) {
+        psa_aead_abort(operation);
+    }
+
+    unlock_status = psa_unlock_key_slot(slot);
+    return ((status == PSA_SUCCESS) ? unlock_status : status);
+}
+
 psa_status_t psa_aead_decrypt_setup(psa_aead_operation_t *operation,
                                     psa_key_id_t key,
                                     psa_algorithm_t alg)
 {
-    (void)operation;
-    (void)key;
-    (void)alg;
-    return PSA_ERROR_NOT_SUPPORTED;
+    return psa_aead_setup(operation, key, alg, PSA_CRYPTO_DRIVER_DECRYPT);
 }
 
 psa_status_t psa_aead_encrypt(  psa_key_id_t key,
@@ -140,10 +266,7 @@ psa_status_t psa_aead_encrypt_setup(psa_aead_operation_t *operation,
                                     psa_key_id_t key,
                                     psa_algorithm_t alg)
 {
-    (void)operation;
-    (void)key;
-    (void)alg;
-    return PSA_ERROR_NOT_SUPPORTED;
+    return psa_aead_setup(operation, key, alg, PSA_CRYPTO_DRIVER_ENCRYPT);
 }
 
 psa_status_t psa_aead_finish(   psa_aead_operation_t *operation,
@@ -169,11 +292,30 @@ psa_status_t psa_aead_generate_nonce(   psa_aead_operation_t *operation,
                                         size_t nonce_size,
                                         size_t *nonce_length)
 {
-    (void)operation;
-    (void)nonce;
-    (void)nonce_size;
-    (void)nonce_length;
-    return PSA_ERROR_NOT_SUPPORTED;
+    psa_status_t status = PSA_ERROR_CORRUPTION_DETECTED;
+
+    if (!lib_initialized || operation->nonce_set) {
+        psa_aead_abort(operation);
+        return PSA_ERROR_BAD_STATE;
+    }
+
+    if (!operation || !nonce || !nonce_length) {
+        psa_aead_abort(operation);
+        return PSA_ERROR_INVALID_ARGUMENT;
+    }
+
+    *nonce_length = 0;
+
+    status = psa_generate_random(nonce, nonce_size);
+    if (status != PSA_SUCCESS) {
+        psa_aead_abort(operation);
+        return status;
+    }
+
+    operation->nonce_set = 1;
+    *nonce_length = nonce_size;
+
+    return status;
 }
 
 psa_status_t psa_aead_set_lengths(  psa_aead_operation_t *operation,
@@ -280,85 +422,6 @@ psa_status_t psa_asymmetric_encrypt(psa_key_id_t key,
     (void)output_size;
     (void)output_length;
     return PSA_ERROR_NOT_SUPPORTED;
-}
-
-/**
- * @brief   Checks whether a key's policy permits the usage of a given algorithm
- *
- * @param   policy          Policy of the given key
- * @param   type            Type of the given key
- * @param   requested_alg   Algorithm to be used
- *
- * @return  @ref PSA_SUCCESS
- *          @ref PSA_ERROR_NOT_PERMITTED
- *          @ref PSA_ERROR_INVALID_ARGUMENT  If @c requested_alg is not a valid algorithm
- */
-static psa_status_t psa_key_policy_permits( const psa_key_policy_t *policy,
-                                            psa_key_type_t type,
-                                            psa_algorithm_t requested_alg)
-{
-    if (requested_alg == 0) {
-        return PSA_ERROR_INVALID_ARGUMENT;
-    }
-    if (policy->alg == requested_alg) {
-        return PSA_SUCCESS;
-    }
-
-    (void)type;
-    return PSA_ERROR_NOT_PERMITTED;
-}
-
-/**
- * @brief   Check whether the policy of the key associated with the given ID permits the requested
- *          usage and return the key slot.
- *
- * @param   id      ID of the key to be used
- * @param   p_slot  Pointer to a @c psa_key_slot_t type to return the desired key slot.
- *                  @c NULL if something went wrong.
- * @param   usage   The requested usage of the key
- * @param   alg     The requested algorithm that uses the key
- *
- * @return  @ref PSA_SUCCESS
- *          @ref PSA_ERROR_NOT_PERMITTED
- *          @ref PSA_ERROR_DOES_NOT_EXIST
- *          @ref PSA_ERROR_INVALID_ARGUMENT
- *          @ref PSA_ERROR_NOT_SUPPORTED
- *          @ref PSA_ERROR_CORRUPTION_DETECTED
- */
-static psa_status_t psa_get_and_lock_key_slot_with_policy(  psa_key_id_t id,
-                                                            psa_key_slot_t **p_slot,
-                                                            psa_key_usage_t usage,
-                                                            psa_algorithm_t alg)
-{
-    psa_status_t status = PSA_ERROR_CORRUPTION_DETECTED;
-    psa_key_slot_t *slot;
-
-    status = psa_get_and_lock_key_slot(id, p_slot);
-    if (status != PSA_SUCCESS) {
-        return status;
-    }
-    slot = *p_slot;
-
-    if (PSA_KEY_TYPE_IS_PUBLIC_KEY(slot->attr.type)) {
-        /* Export is always permitted for asymmetric public keys */
-        usage &= ~PSA_KEY_USAGE_EXPORT;
-    }
-
-    if ((slot->attr.policy.usage & usage) != usage) {
-        *p_slot = NULL;
-        psa_unlock_key_slot(slot);
-        return PSA_ERROR_NOT_PERMITTED;
-    }
-
-    if (alg != 0) {
-        status = psa_key_policy_permits( &slot->attr.policy, slot->attr.type, alg);
-        if (status != PSA_SUCCESS) {
-            *p_slot = NULL;
-            psa_unlock_key_slot(slot);
-            return status;
-        }
-    }
-    return PSA_SUCCESS;
 }
 
 psa_status_t psa_cipher_abort(psa_cipher_operation_t *operation)
@@ -1390,7 +1453,7 @@ psa_status_t psa_import_key(const psa_key_attributes_t *attributes,
         return PSA_ERROR_INVALID_ARGUMENT;
     }
 
-    if (attributes->bits != 0 && attributes->bits > data_length) {
+    if (attributes->bits != 0 && attributes->bits > PSA_BYTES_TO_BITS(data_length)) {
         return PSA_ERROR_INVALID_ARGUMENT;
     }
 
