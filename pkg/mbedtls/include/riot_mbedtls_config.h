@@ -31,6 +31,8 @@
 #ifndef RIOT_MBEDTLS_CONFIG_H
 #define RIOT_MBEDTLS_CONFIG_H
 
+#ifdef DONT_USE_THIS
+
 #if defined(_MSC_VER) && !defined(_CRT_SECURE_NO_DEPRECATE)
 #define _CRT_SECURE_NO_DEPRECATE 1
 #endif
@@ -234,6 +236,8 @@ extern "C" {
 #ifdef __cplusplus
 }
 #endif
+
+#endif /* DONT_USE_THIS */
 
 #endif /* RIOT_MBEDTLS_CONFIG_H */
 /** @} */

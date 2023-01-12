@@ -3,7 +3,17 @@ INCLUDES += -I$(PKGDIRBASE)/mbedtls/include/mbedtls
 
 INCLUDES += -I$(RIOTPKG)/mbedtls/include
 
-CFLAGS += -DMBEDTLS_CONFIG_FILE='<riot_mbedtls_config.h>'
+ifneq (,$(filter native,$(BOARD)))
+CFLAGS += -Wno-pedantic
+endif
+
+ifdef SECUREMARK_LEGACY
+  CFLAGS += -DMBEDTLS_CONFIG_FILE='<securemark_legacy_config.h>'
+else ifdef SECUREMARK_PSA
+  CFLAGS += -DMBEDTLS_CONFIG_FILE='<securemark_psa_config.h>'
+else
+  CFLAGS += -DMBEDTLS_CONFIG_FILE='<riot_mbedtls_config.h>'
+endif
 
 # these PSEUDOMODULES can be used to enable/disable an entropy source
 PSEUDOMODULES += mbedtls_entropy_source_hwrng
@@ -23,4 +33,12 @@ ifneq (,$(filter entropy_source_adc_noise,$(USEMODULE)))
     CFLAGS += -DCONFIG_ENTROPY_SOURCE_ADC_COND=0
     CFLAGS += -DCONFIG_ENTROPY_SOURCE_ADC_HEALTH_TEST=1
   endif
+endif
+
+ifneq (,$(filter psa_mbedtls_%, $(USEMODULE)))
+  PSEUDOMODULES += psa_mbedtls_ecc_p256
+  PSEUDOMODULES += psa_mbedtls_hashes_sha256
+  PSEUDOMODULES += psa_mbedtls_error_conversion
+  DIRS += $(RIOTPKG)/mbedtls/psa_mbedtls
+  INCLUDES += -I$(RIOTBASE)/sys/psa_crypto/include
 endif
