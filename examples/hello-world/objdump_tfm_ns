@@ -1,0 +1,1737 @@
+
+
+
+
+00000000 l       *ABS*	00000000 __FPU_USED
+00000000 l    d  .ARM.attributes	00000000 .ARM.attributes
+00000000 l    d  .comment	00000000 .comment
+00000000 l    d  .debug_abbrev	00000000 .debug_abbrev
+00000000 l    d  .debug_aranges	00000000 .debug_aranges
+00000000 l    d  .debug_frame	00000000 .debug_frame
+00000000 l    d  .debug_info	00000000 .debug_info
+00000000 l    d  .debug_line	00000000 .debug_line
+00000000 l    d  .debug_loc	00000000 .debug_loc
+00000000 l    d  .debug_ranges	00000000 .debug_ranges
+00000000 l    d  .debug_str	00000000 .debug_str
+00000000 l    df *ABS*	00000000 
+00000000 l    df *ABS*	00000000 abort.c
+00000000 l    df *ABS*	00000000 assert.c
+00000000 l    df *ABS*	00000000 close.c
+00000000 l    df *ABS*	00000000 closer.c
+00000000 l    df *ABS*	00000000 crt0.o
+00000000 l    df *ABS*	00000000 crti.o
+00000000 l    df *ABS*	00000000 crtn.o
+00000000 l    df *ABS*	00000000 crtstuff.c
+00000000 l    df *ABS*	00000000 crtstuff.c
+00000000 l    df *ABS*	00000000 Driver_USART.c
+00000000 l    df *ABS*	00000000 exit.c
+00000000 l    df *ABS*	00000000 _exit.c
+00000000 l    df *ABS*	00000000 fflush.c
+00000000 l    df *ABS*	00000000 findfp.c
+00000000 l    df *ABS*	00000000 fprintf.c
+00000000 l    df *ABS*	00000000 fstat.c
+00000000 l    df *ABS*	00000000 fstatr.c
+00000000 l    df *ABS*	00000000 fwalk.c
+00000000 l    df *ABS*	00000000 getpid.c
+00000000 l    df *ABS*	00000000 impure.c
+00000000 l    df *ABS*	00000000 init.c
+00000000 l    df *ABS*	00000000 irq_armv8mml.S
+00000000 l    df *ABS*	00000000 isatty.c
+00000000 l    df *ABS*	00000000 isattyr.c
+00000000 l    df *ABS*	00000000 kill.c
+00000000 l    df *ABS*	00000000 lock.c
+00000000 l    df *ABS*	00000000 lseek.c
+00000000 l    df *ABS*	00000000 lseekr.c
+00000000 l    df *ABS*	00000000 main_ns.c
+00000000 l    df *ABS*	00000000 makebuf.c
+00000000 l    df *ABS*	00000000 memchr-stub.c
+00000000 l    df *ABS*	00000000 memcpy-stub.c
+00000000 l    df *ABS*	00000000 memset.c
+00000000 l    df *ABS*	00000000 mlock.c
+00000000 l    df *ABS*	00000000 nano-mallocr.c
+00000000 l    df *ABS*	00000000 nano-mallocr.c
+00000000 l    df *ABS*	00000000 nano-vfprintf.c
+00000000 l    df *ABS*	00000000 nano-vfprintf_i.c
+00000000 l    df *ABS*	00000000 nrfx_uarte.c
+00000000 l    df *ABS*	00000000 os_systick.c
+00000000 l    df *ABS*	00000000 os_wrapper_cmsis_rtos_v2.c
+00000000 l    df *ABS*	00000000 read.c
+00000000 l    df *ABS*	00000000 readr.c
+00000000 l    df *ABS*	00000000 reent.c
+00000000 l    df *ABS*	00000000 RTX_Config.c
+00000000 l    df *ABS*	00000000 rtx_kernel.c
+00000000 l    df *ABS*	00000000 rtx_lib.c
+00000000 l    df *ABS*	00000000 rtx_memory.c
+00000000 l    df *ABS*	00000000 rtx_mempool.c
+00000000 l    df *ABS*	00000000 rtx_msgqueue.c
+00000000 l    df *ABS*	00000000 rtx_mutex.c
+00000000 l    df *ABS*	00000000 rtx_system.c
+00000000 l    df *ABS*	00000000 rtx_thread.c
+00000000 l    df *ABS*	00000000 rtx_timer.c
+00000000 l    df *ABS*	00000000 sbrk.c
+00000000 l    df *ABS*	00000000 sbrkr.c
+00000000 l    df *ABS*	00000000 signal.c
+00000000 l    df *ABS*	00000000 signalr.c
+00000000 l    df *ABS*	00000000 startup_nrf9160.c
+00000000 l    df *ABS*	00000000 stdio.c
+00000000 l    df *ABS*	00000000 system_nrf9160.c
+00000000 l    df *ABS*	00000000 test_app.c
+00000000 l    df *ABS*	00000000 tfm_log_raw.c
+00000000 l    df *ABS*	00000000 tfm_ns_interface_rtos.c
+00000000 l    df *ABS*	00000000 tz_shim_layer.c
+00000000 l    df *ABS*	00000000 uart_stdout.c
+00000000 l    df *ABS*	00000000 wbuf.c
+00000000 l    df *ABS*	00000000 writer.c
+00000000 l    df *ABS*	00000000 wsetup.c
+00000000 l    d  .stab	00000000 .stab
+00000000 l    d  .stabstr	00000000 .stabstr
+00000001 l       *ABS*	00000000 ARMv8MML
+00000001 l       *ABS*	00000000 DOMAIN_NS
+00000001 l       *ABS*	00000000 __GCC
+00000001 l       *ABS*	00000000 _RTE_
+00000014 l       *ABS*	00000000 I_T_RUN_OFS
+00000022 l       *ABS*	00000000 TCB_SF_OFS
+00000030 l       *ABS*	00000000 TCB_SM_OFS
+00000038 l       *ABS*	00000000 TCB_SP_OFS
+00000040 l       *ABS*	00000000 TCB_TZM_OFS
+000001e0 g       *ABS*	00000000 __stack_size__
+0000020f l       *ABS*	00000000 __UVISION_VERSION
+00000335 l       *ABS*	00000000 __GCC_VERSION
+00001000 g       *ABS*	00000000 __heap_size__
+000023d0 g       *ABS*	00000000 bss_size
+00050400 g     O .text	00000144 __Vectors
+00050400 l    d  .text	00000000 .text
+00050544 g       .text	00000000 __Vectors_End
+00050544 g       .text	00000000 __Vectors_Size
+00050544 l     F .text	00000000 __do_global_dtors_aux
+00050568 l     F .text	00000000 frame_dummy
+00050584  w    F .text	00000000 _stack_init
+0005058c g     F .text	00000000 _mainCRTStartup
+0005058c g     F .text	00000000 _start
+00050600  w    F .text	0000000e tfm_ns_platform_init
+0005060e  w    F .text	0000000e tfm_ns_cp_init
+0005061c g     F .text	0000004c main
+00050668  w    F .text	00000006 NMI_Handler
+0005066e  w    F .text	00000006 HardFault_Handler
+00050674  w    F .text	00000006 MemManage_Handler
+0005067a  w    F .text	00000006 BusFault_Handler
+00050680  w    F .text	00000006 UsageFault_Handler
+00050686  w    F .text	00000006 SecureFault_Handler
+0005068c  w    F .text	00000006 DebugMon_Handler
+00050692  w    F .text	00000006 SPU_IRQHandler
+00050698  w    F .text	00000006 CLOCK_POWER_IRQHandler
+0005069e  w    F .text	00000006 UARTE0_SPIM0_SPIS0_TWIM0_TWIS0_IRQHandler
+000506a4  w    F .text	00000006 UARTE1_SPIM1_SPIS1_TWIM1_TWIS1_IRQHandler
+000506aa  w    F .text	00000006 UARTE2_SPIM2_SPIS2_TWIM2_TWIS2_IRQHandler
+000506b0  w    F .text	00000006 UARTE3_SPIM3_SPIS3_TWIM3_TWIS3_IRQHandler
+000506b6  w    F .text	00000006 GPIOTE0_IRQHandler
+000506bc  w    F .text	00000006 SAADC_IRQHandler
+000506c2  w    F .text	00000006 TIMER0_IRQHandler
+000506c8  w    F .text	00000006 TIMER1_IRQHandler
+000506ce  w    F .text	00000006 TIMER2_IRQHandler
+000506d4  w    F .text	00000006 RTC0_IRQHandler
+000506da  w    F .text	00000006 RTC1_IRQHandler
+000506e0  w    F .text	00000006 WDT_IRQHandler
+000506e6  w    F .text	00000006 EGU0_IRQHandler
+000506ec  w    F .text	00000006 EGU1_IRQHandler
+000506f2  w    F .text	00000006 EGU2_IRQHandler
+000506f8  w    F .text	00000006 EGU3_IRQHandler
+000506fe  w    F .text	00000006 EGU4_IRQHandler
+00050704  w    F .text	00000006 EGU5_IRQHandler
+0005070a  w    F .text	00000006 PWM0_IRQHandler
+00050710  w    F .text	00000006 PWM1_IRQHandler
+00050716  w    F .text	00000006 PWM2_IRQHandler
+0005071c  w    F .text	00000006 PWM3_IRQHandler
+00050722  w    F .text	00000006 PDM_IRQHandler
+00050728  w    F .text	00000006 I2S_IRQHandler
+0005072e  w    F .text	00000006 IPC_IRQHandler
+00050734  w    F .text	00000006 FPU_IRQHandler
+0005073a  w    F .text	00000006 GPIOTE1_IRQHandler
+00050740  w    F .text	00000006 KMU_IRQHandler
+00050746  w    F .text	00000006 CRYPTOCELL_IRQHandler
+0005074c g     F .text	000000c4 Reset_Handler
+00050810 g     F .text	0000000e TZ_InitContextSystem_S
+0005081e g     F .text	00000014 TZ_AllocModuleContext_S
+00050832 g     F .text	00000014 TZ_FreeModuleContext_S
+00050846 g     F .text	00000014 TZ_LoadContext_S
+0005085a g     F .text	00000014 TZ_StoreContext_S
+0005086e  w    F .text	0000000a osRtxIdleThread
+00050878  w    F .text	00000030 osRtxErrorNotify
+000508a8  w    F .text	0000000c software_init_hook
+000508b4 g     F .text	00000028 os_wrapper_mutex_create
+000508dc l     F .text	00000040 _tfm_flush_formatted_buffer
+0005091c l     F .text	00000038 _tfm_string_output
+00050954 l     F .text	000000b8 _tfm_dec_num_output
+00050a0c l     F .text	00000078 _tfm_hex_num_output
+00050a84 l     F .text	00000248 _tfm_log_vprintf
+00050ccc g     F .text	0000002c tfm_log_printf
+00050cf8 g     F .text	0000004c stdio_output_string
+00050d44 g     F .text	00000020 _write
+00050d64 g     F .text	00000080 stdio_init
+00050de4 l     F .text	00000024 nrfx_is_in_ram
+00050e08 l     F .text	00000030 nrf_uarte_configure
+00050e38 l     F .text	0000001c nrf_uarte_baudrate_set
+00050e54 l     F .text	00000028 ARM_USART_GetVersion
+00050e7c l     F .text	00000012 ARM_USART_GetCapabilities
+00050e90 l     F .text	00000064 ARM_USARTx_Initialize
+00050ef4 l     F .text	00000020 ARM_USARTx_Uninitialize
+00050f14 l     F .text	00000024 ARM_USARTx_PowerControl
+00050f38 l     F .text	000000c4 ARM_USARTx_Send
+00050ffc l     F .text	00000064 ARM_USARTx_Receive
+00051060 l     F .text	0000001a ARM_USART_Transfer
+0005107a l     F .text	00000016 ARM_USARTx_GetTxCount
+00051090 l     F .text	00000016 ARM_USARTx_GetRxCount
+000510a8 l     F .text	000002d8 ARM_USARTx_Control
+00051380 l     F .text	00000016 ARM_USART_GetStatus
+00051396 l     F .text	00000018 ARM_USART_SetModemControl
+000513ae l     F .text	00000016 ARM_USART_GetModemStatus
+000513c4 l     F .text	00000020 ARM_USART0_Initialize
+000513e4 l     F .text	00000014 ARM_USART0_Uninitialize
+000513f8 l     F .text	00000024 ARM_USART0_PowerControl
+0005141c l     F .text	00000024 ARM_USART0_Send
+00051440 l     F .text	00000024 ARM_USART0_Receive
+00051464 l     F .text	00000014 ARM_USART0_GetTxCount
+00051478 l     F .text	00000014 ARM_USART0_GetRxCount
+0005148c l     F .text	00000024 ARM_USART0_Control
+000514b0 l     F .text	00000038 __NVIC_EnableIRQ
+000514e8 l     F .text	00000048 __NVIC_DisableIRQ
+00051530 l     F .text	00000054 __NVIC_SetPriority
+00051584 l     F .text	00000024 nrfx_is_in_ram
+000515a8 l     F .text	00000018 nrfx_get_irq_number
+000515c0 l     F .text	00000030 nrfx_coredep_delay_us
+000515f0 l     F .text	00000016 nrf_event_readback
+00051606 l     F .text	0000002a nrf_uarte_event_clear
+00051630 l     F .text	00000028 nrf_uarte_event_check
+00051658 l     F .text	00000024 nrf_uarte_shorts_enable
+0005167c l     F .text	00000026 nrf_uarte_shorts_disable
+000516a2 l     F .text	0000001c nrf_uarte_int_enable
+000516be l     F .text	0000001c nrf_uarte_int_disable
+000516da l     F .text	00000024 nrf_uarte_errorsrc_get_and_clear
+000516fe l     F .text	0000001a nrf_uarte_enable
+00051718 l     F .text	0000001a nrf_uarte_disable
+00051732 l     F .text	00000026 nrf_uarte_txrx_pins_set
+00051758 l     F .text	0000001e nrf_uarte_txrx_pins_disconnect
+00051776 l     F .text	00000018 nrf_uarte_tx_pin_get
+0005178e l     F .text	00000018 nrf_uarte_rx_pin_get
+000517a6 l     F .text	00000018 nrf_uarte_rts_pin_get
+000517be l     F .text	00000018 nrf_uarte_cts_pin_get
+000517d6 l     F .text	00000026 nrf_uarte_hwfc_pins_set
+000517fc l     F .text	0000001e nrf_uarte_hwfc_pins_disconnect
+0005181a l     F .text	00000020 nrf_uarte_task_trigger
+0005183a l     F .text	00000030 nrf_uarte_configure
+0005186a l     F .text	0000001c nrf_uarte_baudrate_set
+00051886 l     F .text	00000026 nrf_uarte_tx_buffer_set
+000518ac l     F .text	00000026 nrf_uarte_rx_buffer_set
+000518d4 l     F .text	00000060 nrf_gpio_pin_port_decode
+00051934 l     F .text	0000005c nrf_gpio_cfg
+00051990 l     F .text	00000024 nrf_gpio_cfg_output
+000519b4 l     F .text	00000028 nrf_gpio_cfg_input
+000519dc l     F .text	00000024 nrf_gpio_cfg_default
+00051a00 l     F .text	0000002a nrf_gpio_pin_set
+00051a2a l     F .text	0000001a nrf_gpio_port_out_set
+00051a44 l     F .text	00000048 nrf_gpio_pin_present_check
+00051a8c l     F .text	00000026 nrf_gpio_pin_port_number_extract
+00051ab2 l     F .text	000000fe apply_config
+00051bb0 l     F .text	00000094 interrupts_enable
+00051c44 l     F .text	00000034 interrupts_disable
+00051c78 l     F .text	000000d0 pins_to_default
+00051d48 l     F .text	00000094 apply_workaround_for_enable_anomaly
+00051ddc g     F .text	000000e4 nrfx_uarte_init
+00051ec0 g     F .text	000000d4 nrfx_uarte_uninit
+00051f94 g     F .text	000001bc nrfx_uarte_tx
+00052150 g     F .text	00000038 nrfx_uarte_tx_in_progress
+00052188 g     F .text	00000278 nrfx_uarte_rx
+00052400 g     F .text	0000001c SystemCoreClockUpdate
+0005241c g     F .text	0000000c SystemInit
+00052428 g     F .text	00000014 test_app
+0005243c g     F .text	0000009c SVC_Handler
+00052464 l       .text	00000000 SVC_Context
+00052472 l       .text	00000000 SVC_ContextSave
+00052480 l       .text	00000000 SVC_ContextSave1
+00052488 l       .text	00000000 SVC_ContextSave2
+0005248e l       .text	00000000 SVC_ContextSwitch
+00052490 l       .text	00000000 SVC_ContextRestore
+0005249c l       .text	00000000 SVC_ContextRestore1
+000524b6 l       .text	00000000 SVC_ContextRestore2
+000524ba l       .text	00000000 SVC_Exit
+000524bc l       .text	00000000 SVC_User
+000524d8 g     F .text	0000000e PendSV_Handler
+000524e6 g     F .text	0000000e SysTick_Handler
+000524f4 g     F .text	00000062 Sys_Context
+00052500 l       .text	00000000 Sys_ContextSave
+0005251a l       .text	00000000 Sys_ContextSave1
+00052522 l       .text	00000000 Sys_ContextSave2
+00052528 l       .text	00000000 Sys_ContextSwitch
+0005252a l       .text	00000000 Sys_ContextRestore
+00052536 l       .text	00000000 Sys_ContextRestore1
+00052550 l       .text	00000000 Sys_ContextRestore2
+00052554 l       .text	00000000 Sys_ContextExit
+00052560 g     F .text	00000074 osRtxTick_Handler
+000525d4 g     F .text	000000a8 osRtxPendSV_Handler
+0005267c g     F .text	00000074 osRtxPostProcess
+000526f0 l     F .text	0000016c svcRtxMessageQueueNew
+0005285c l     F .text	00000188 svcRtxMessageQueueGet
+000529e4 l     F .text	00000108 svcRtxMessageQueuePut
+00052aec l     F .text	00000152 osRtxMessageQueuePostProcess
+00052c40 g     F .text	00000024 osMessageQueueNew
+00052c64 g     F .text	0000007c osMessageQueuePut
+00052ce0 g     F .text	000000bc osMessageQueueGet
+00052d9c g     F .text	00000048 osRtxMemoryPoolInit
+00052de4 g     F .text	00000036 osRtxMemoryPoolAlloc
+00052e1c g     F .text	0000004a osRtxMemoryPoolFree
+00052e68  w    F .text	0000003a osRtxMemoryInit
+00052ea4  w    F .text	0000007a osRtxMemoryAlloc
+00052f20  w    F .text	00000076 osRtxMemoryFree
+00052f98 l     F .text	0000006c svcRtxMutexNew
+00053004 g     F .text	00000044 osRtxMutexOwnerRelease
+00053048 g     F .text	00000024 osMutexNew
+0005306c g     F .text	0000000c osThreadExit
+00053078 l     F .text	00000060 osRtxThreadFree
+000530d8 l     F .text	00000100 osRtxThreadPostProcess
+000531d8 g     F .text	00000044 osRtxThreadListPut
+0005321c g     F .text	00000012 osRtxThreadListGet
+00053230 g     F .text	00000012 osRtxThreadListRemove
+00053244 g     F .text	00000054 osRtxThreadReadyPut
+00053298 g     F .text	00000078 osRtxThreadDelayTick
+00053310 g     F .text	00000006 osRtxThreadRegPtr
+00053318  w    F .text	00000028 osRtxThreadStackCheck
+00053340 g     F .text	00000014 osRtxThreadSwitch
+00053354 g     F .text	00000120 osRtxThreadDispatch
+00053474 g     F .text	00000098 osRtxThreadWaitExit
+0005350c l     F .text	000002b0 svcRtxThreadNew
+000537bc l     F .text	000000f0 svcRtxThreadExit
+000538ac g     F .text	000000b4 osRtxThreadWaitEnter
+00053960 g     F .text	00000040 osRtxThreadStartup
+000539a0 g     F .text	00000024 osThreadNew
+000539c4 l     F .text	0000016c svcRtxKernelInitialize
+00053b30 l     F .text	000000a0 svcRtxKernelStart
+00053bd0  w    F .text	00000002 osRtxKernelPreInit
+00053bd4 g     F .text	0000002c osKernelInitialize
+00053c00 g     F .text	00000024 osKernelStart
+00053c24  w    F .text	00000048 OS_Tick_Setup
+00053c6c  w    F .text	0000002c OS_Tick_Enable
+00053c98  w    F .text	0000000c OS_Tick_AcknowledgeIRQ
+00053ca4  w    F .text	00000006 OS_Tick_GetIRQn
+00053cac l     F .text	000000c8 osRtxTimerTick
+00053d74  w    F .text	0000003c osRtxTimerThread
+00053db0 g     F .text	0000002c tfm_ns_interface_init
+00053ddc g     F .text	0000003c __assert_func
+00053e18 g     F .text	00000028 exit
+00053e40 g     F .text	00000024 fiprintf
+00053e40 g     F .text	00000024 fprintf
+00053e64 g     F .text	00000048 __libc_init_array
+00053eac g     F .text	0000001a memcpy
+00053ec6 g     F .text	00000010 memset
+00053ed6 l     F .text	0000002a __sfputc_r
+00053f00 g     F .text	00000024 __sfputs_r
+00053f24 g     F .text	00000260 _vfiprintf_r
+00053f24 g     F .text	00000260 _vfprintf_r
+00054184 g     F .text	000000e0 _printf_common
+00054264 g     F .text	0000024c _printf_i
+000544b0 g     F .text	000000a4 __swbuf_r
+00054554 g     F .text	000000dc __swsetup_r
+00054630 g     F .text	0000000e abort
+00054640 g     F .text	00000100 __sflush_r
+00054740 g     F .text	00000078 _fflush_r
+000547b8 l     F .text	00000048 std
+00054800 g     F .text	0000000c _cleanup_r
+0005480c g     F .text	0000002c __sfmoreglue
+00054838 g     F .text	0000000c __sfp_lock_acquire
+00054844 g     F .text	0000000c __sfp_lock_release
+00054850 g     F .text	0000000c __sinit_lock_acquire
+0005485c g     F .text	0000000c __sinit_lock_release
+00054868 g     F .text	00000070 __sinit
+000548d8 g     F .text	0000008c __sfp
+00054964 g     F .text	0000003e _fwalk_reent
+000549a2 g     F .text	00000002 __retarget_lock_init_recursive
+000549a4 g     F .text	00000002 __retarget_lock_acquire_recursive
+000549a6 g     F .text	00000002 __retarget_lock_release_recursive
+000549a8 g     F .text	0000004a __swhatbuf_r
+000549f4 g     F .text	00000080 __smakebuf_r
+00054a74 g     F .text	0000001c memchr
+00054a90 g     F .text	00000094 _free_r
+00054b24 l     F .text	00000040 sbrk_aligned
+00054b64 g     F .text	000000e8 _malloc_r
+00054c4c g     F .text	00000020 _sbrk_r
+00054c6c g     F .text	00000050 _raise_r
+00054cbc g     F .text	00000010 raise
+00054ccc g     F .text	00000024 _kill_r
+00054cf0 g     F .text	00000004 _getpid_r
+00054cf4 g     F .text	00000022 __sread
+00054d16 g     F .text	00000038 __swrite
+00054d4e g     F .text	00000024 __sseek
+00054d72 g     F .text	00000008 __sclose
+00054d7c g     F .text	00000024 _write_r
+00054da0 g     F .text	00000020 _close_r
+00054dc0 g     F .text	00000024 _fstat_r
+00054de4 g     F .text	00000020 _isatty_r
+00054e04 g     F .text	00000024 _lseek_r
+00054e28 g     F .text	0000000c __malloc_lock
+00054e34 g     F .text	0000000c __malloc_unlock
+00054e40 g     F .text	00000024 _read_r
+00054e64 g     F .text	00000010 _close
+00054e74 g     F .text	00000010 _fstat
+00054e84 g     F .text	00000010 _getpid
+00054e94 g     F .text	00000010 _isatty
+00054ea4 g     F .text	00000010 _kill
+00054eb4 g     F .text	00000010 _lseek
+00054ec4 g     F .text	00000010 _read
+00054ed4 g     F .text	00000020 _sbrk
+00054ef4 g     F .text	00000002 _exit
+00054ef8 g     F .text	00000000 _init
+00054f04 g     F .text	00000000 _fini
+00054f3c l     O .text	00000024 thread_attr
+00054f60 l     O .text	00000024 os_idle_thread_attr
+00054f84 l     O .text	00000024 os_timer_thread_attr
+00054fa8 l     O .text	00000018 os_timer_mq_attr
+00054fc0 g     O .text	00000068 osRtxConfig
+00055028 g     O .text	00000038 os_cb_sections
+00055060  w    O .text	00000004 osRtxUserSVC
+00055064 g     O .text	00000010 hex_digits_lo
+00055074 g     O .text	00000010 hex_digits_up
+00055108 l     O .text	0000000b __func__.1
+00055114 l     O .text	00000004 DriverVersion
+00055118 g     O .text	00000038 Driver_USART0
+000553f8 l     O .text	00000019 __func__.4
+00055420 l     O .text	00000006 delay_machine_code.3
+00055428 l     O .text	00000010 __func__.2
+00055438 l     O .text	0000000e __func__.1
+00055448 l     O .text	0000000e __func__.0
+000554a4 g     O .text	00000004 _global_impure_ptr
+000554dc g     O .text	00000020 __sf_fake_stderr
+000554fc g     O .text	00000020 __sf_fake_stdin
+0005551c g     O .text	00000020 __sf_fake_stdout
+0005553c l     O .text	00000000 __EH_FRAME_BEGIN__
+0005553c l     O .text	00000000 __FRAME_END__
+00055540 g       .text	00000000 __exidx_start
+00055540 l    d  .ARM.exidx	00000000 .ARM.exidx
+00055548 g       .ARM.exidx	00000000 __exidx_end
+00055548 g       .copy.table	00000000 __copy_table_start__
+00055548 l    d  .copy.table	00000000 .copy.table
+00055560 g       .copy.table	00000000 __copy_table_end__
+00055560 g       .zero.table	00000000 __zero_table_start__
+00055560 l    d  .zero.table	00000000 .zero.table
+00055570 g       .zero.table	00000000 __etext
+00055570 g       .zero.table	00000000 __zero_table_end__
+20016000 g       .data	00000000 __data_start__
+20016000 l    d  .data	00000000 .data
+20016000 l     O .data	00000004 thread_func
+20016004 l     O .data	00000020 UART0_initial_config
+20016024 l     O .data	00000020 UART0_Resources
+20016044 g     O .data	00000004 SystemCoreClock
+20016048 g     O .data	000000a4 osRtxInfo
+200160ec g     O .data	00000004 _impure_ptr
+200160f0 l     O .data	00000060 impure_data
+20016150 l       .data	00000000 __init_array_start
+20016150 l       .data	00000000 __preinit_array_end
+20016150 l       .data	00000000 __preinit_array_start
+20016150 l     O .data	00000000 __frame_dummy_init_array_entry
+20016154 l       .data	00000000 __init_array_end
+20016154 l     O .data	00000000 __do_global_dtors_aux_fini_array_entry
+20016158 g       .bss	00000000 __bss_start__
+20016158 g       .data	00000000 __data_end__
+20016158 l       .bss	00000001 completed.1
+20016158 l    d  .bss	00000000 .bss
+2001615c l       .bss	00000018 object.0
+20016178 l     O .bss	00002000 os_mem
+20018178 l     O .bss	00000040 os_isr_queue
+200181b8 l     O .bss	00000044 os_idle_thread_cb
+200181fc l     O .bss	00000044 os_timer_thread_cb
+20018240 l     O .bss	00000100 os_idle_thread_stack
+20018340 l     O .bss	00000100 os_timer_thread_stack
+20018440 l     O .bss	00000034 os_timer_mq_cb
+20018474 l     O .bss	00000050 os_timer_mq_data
+200184c4 l     O .bss	00000048 m_cb
+2001850c l     O .bss	00000001 PendST
+20018510 l     O .bss	00000004 ns_lock_handle
+20018514 g     O .bss	00000001 __lock___malloc_recursive_mutex
+20018515 g     O .bss	00000001 __lock___sfp_recursive_mutex
+20018516 g     O .bss	00000001 __lock___sinit_recursive_mutex
+20018518 g     O .bss	00000004 __malloc_free_list
+2001851c g     O .bss	00000004 __malloc_sbrk_start
+20018520 g     O .bss	00000004 errno
+20018524 l     O .bss	00000004 heap_end.0
+20018528 g       .bss	00000000 __bss_end__
+20018540 g       .stack	00000000 __StackLimit
+20018540 l    d  .stack	00000000 .stack
+20018720 g       .heap	00000000 end
+20018720 g       .heap	00000000 __end__
+20018720 g       .heap	00000000 __HeapBase
+20018720 g       .stack	00000000 __stack
+20018720 g       .stack	00000000 __StackTop
+20018720 l    d  .heap	00000000 .heap
+20019720 g       .heap	00000000 __heap_limit
+20019720 g       .heap	00000000 __HeapLimit
+bin/nrf9160dk/pkg-build/trusted_firmware_m/bin/tfm_ns.elf:     file format elf32-littlearm
+SYMBOL TABLE:
+00000000 a __FPU_USED
+00000001 a ARMv8MML
+00000001 a DOMAIN_NS
+00000001 a __GCC
+00000001 a _RTE_
+00000014 a I_T_RUN_OFS
+00000022 a TCB_SF_OFS
+00000030 a TCB_SM_OFS
+00000038 a TCB_SP_OFS
+00000040 a TCB_TZM_OFS
+000001e0 A __stack_size__
+0000020f a __UVISION_VERSION
+00000335 a __GCC_VERSION
+00001000 A __heap_size__
+000023d0 A bss_size
+00050400 t $d
+00050400 T __Vectors
+00050544 t $t
+00050544 T __Vectors_End
+00050544 T __Vectors_Size
+00050545 t __do_global_dtors_aux
+0005055c t $d
+00050568 t $t
+00050569 t frame_dummy
+00050578 t $d
+00050584 t $t
+00050585 W _stack_init
+0005058d T _mainCRTStartup
+0005058d T _start
+000505e0 t $d
+00050600 t $t
+00050601 W tfm_ns_platform_init
+0005060e t $t
+0005060f W tfm_ns_cp_init
+0005061c t $t
+0005061d T main
+0005065c t $d
+00050668 t $t
+00050669 W NMI_Handler
+0005066e t $t
+0005066f W HardFault_Handler
+00050674 t $t
+00050675 W MemManage_Handler
+0005067a t $t
+0005067b W BusFault_Handler
+00050680 t $t
+00050681 W UsageFault_Handler
+00050686 t $t
+00050687 W SecureFault_Handler
+0005068c t $t
+0005068d W DebugMon_Handler
+00050692 t $t
+00050693 W SPU_IRQHandler
+00050698 t $t
+00050699 W CLOCK_POWER_IRQHandler
+0005069e t $t
+0005069f W UARTE0_SPIM0_SPIS0_TWIM0_TWIS0_IRQHandler
+000506a4 t $t
+000506a5 W UARTE1_SPIM1_SPIS1_TWIM1_TWIS1_IRQHandler
+000506aa t $t
+000506ab W UARTE2_SPIM2_SPIS2_TWIM2_TWIS2_IRQHandler
+000506b0 t $t
+000506b1 W UARTE3_SPIM3_SPIS3_TWIM3_TWIS3_IRQHandler
+000506b6 t $t
+000506b7 W GPIOTE0_IRQHandler
+000506bc t $t
+000506bd W SAADC_IRQHandler
+000506c2 t $t
+000506c3 W TIMER0_IRQHandler
+000506c8 t $t
+000506c9 W TIMER1_IRQHandler
+000506ce t $t
+000506cf W TIMER2_IRQHandler
+000506d4 t $t
+000506d5 W RTC0_IRQHandler
+000506da t $t
+000506db W RTC1_IRQHandler
+000506e0 t $t
+000506e1 W WDT_IRQHandler
+000506e6 t $t
+000506e7 W EGU0_IRQHandler
+000506ec t $t
+000506ed W EGU1_IRQHandler
+000506f2 t $t
+000506f3 W EGU2_IRQHandler
+000506f8 t $t
+000506f9 W EGU3_IRQHandler
+000506fe t $t
+000506ff W EGU4_IRQHandler
+00050704 t $t
+00050705 W EGU5_IRQHandler
+0005070a t $t
+0005070b W PWM0_IRQHandler
+00050710 t $t
+00050711 W PWM1_IRQHandler
+00050716 t $t
+00050717 W PWM2_IRQHandler
+0005071c t $t
+0005071d W PWM3_IRQHandler
+00050722 t $t
+00050723 W PDM_IRQHandler
+00050728 t $t
+00050729 W I2S_IRQHandler
+0005072e t $t
+0005072f W IPC_IRQHandler
+00050734 t $t
+00050735 W FPU_IRQHandler
+0005073a t $t
+0005073b W GPIOTE1_IRQHandler
+00050740 t $t
+00050741 W KMU_IRQHandler
+00050746 t $t
+00050747 W CRYPTOCELL_IRQHandler
+0005074c t $t
+0005074d T Reset_Handler
+000507f8 t $d
+00050810 t $t
+00050811 T TZ_InitContextSystem_S
+0005081e t $t
+0005081f T TZ_AllocModuleContext_S
+00050832 t $t
+00050833 T TZ_FreeModuleContext_S
+00050846 t $t
+00050847 T TZ_LoadContext_S
+0005085a t $t
+0005085b T TZ_StoreContext_S
+0005086e t $t
+0005086f W osRtxIdleThread
+00050878 t $t
+00050879 W osRtxErrorNotify
+00050890 t $d
+000508a4 t $t
+000508a8 t $t
+000508a9 W software_init_hook
+000508b4 t $t
+000508b5 T os_wrapper_mutex_create
+000508dc t $t
+000508dd t _tfm_flush_formatted_buffer
+0005091c t $t
+0005091d t _tfm_string_output
+00050954 t $t
+00050955 t _tfm_dec_num_output
+00050a08 t $d
+00050a0c t $t
+00050a0d t _tfm_hex_num_output
+00050a84 t $t
+00050a85 t _tfm_log_vprintf
+00050ad4 t $d
+00050b58 t $t
+00050cbc t $d
+00050ccc t $t
+00050ccd T tfm_log_printf
+00050cf8 t $t
+00050cf9 T stdio_output_string
+00050d40 t $d
+00050d44 t $t
+00050d45 T _write
+00050d64 t $t
+00050d65 T stdio_init
+00050dd4 t $d
+00050de4 t $t
+00050de5 t nrfx_is_in_ram
+00050e08 t $t
+00050e09 t nrf_uarte_configure
+00050e38 t $t
+00050e39 t nrf_uarte_baudrate_set
+00050e54 t $t
+00050e55 t ARM_USART_GetVersion
+00050e78 t $d
+00050e7c t $t
+00050e7d t ARM_USART_GetCapabilities
+00050e90 t $t
+00050e91 t ARM_USARTx_Initialize
+00050ef0 t $d
+00050ef4 t $t
+00050ef5 t ARM_USARTx_Uninitialize
+00050f14 t $t
+00050f15 t ARM_USARTx_PowerControl
+00050f38 t $t
+00050f39 t ARM_USARTx_Send
+00050ff4 t $d
+00050ffc t $t
+00050ffd t ARM_USARTx_Receive
+00051058 t $d
+00051060 t $t
+00051061 t ARM_USART_Transfer
+0005107a t $t
+0005107b t ARM_USARTx_GetTxCount
+00051090 t $t
+00051091 t ARM_USARTx_GetRxCount
+000510a8 t $t
+000510a9 t ARM_USARTx_Control
+00051360 t $d
+00051380 t $t
+00051381 t ARM_USART_GetStatus
+00051396 t $t
+00051397 t ARM_USART_SetModemControl
+000513ae t $t
+000513af t ARM_USART_GetModemStatus
+000513c4 t $t
+000513c5 t ARM_USART0_Initialize
+000513e0 t $d
+000513e4 t $t
+000513e5 t ARM_USART0_Uninitialize
+000513f4 t $d
+000513f8 t $t
+000513f9 t ARM_USART0_PowerControl
+00051418 t $d
+0005141c t $t
+0005141d t ARM_USART0_Send
+0005143c t $d
+00051440 t $t
+00051441 t ARM_USART0_Receive
+00051460 t $d
+00051464 t $t
+00051465 t ARM_USART0_GetTxCount
+00051474 t $d
+00051478 t $t
+00051479 t ARM_USART0_GetRxCount
+00051488 t $d
+0005148c t $t
+0005148d t ARM_USART0_Control
+000514ac t $d
+000514b0 t $t
+000514b1 t __NVIC_EnableIRQ
+000514e4 t $d
+000514e8 t $t
+000514e9 t __NVIC_DisableIRQ
+0005152c t $d
+00051530 t $t
+00051531 t __NVIC_SetPriority
+0005157c t $d
+00051584 t $t
+00051585 t nrfx_is_in_ram
+000515a8 t $t
+000515a9 t nrfx_get_irq_number
+000515c0 t $t
+000515c1 t nrfx_coredep_delay_us
+000515ec t $d
+000515f0 t $t
+000515f1 t nrf_event_readback
+00051606 t $t
+00051607 t nrf_uarte_event_clear
+00051630 t $t
+00051631 t nrf_uarte_event_check
+00051658 t $t
+00051659 t nrf_uarte_shorts_enable
+0005167c t $t
+0005167d t nrf_uarte_shorts_disable
+000516a2 t $t
+000516a3 t nrf_uarte_int_enable
+000516be t $t
+000516bf t nrf_uarte_int_disable
+000516da t $t
+000516db t nrf_uarte_errorsrc_get_and_clear
+000516fe t $t
+000516ff t nrf_uarte_enable
+00051718 t $t
+00051719 t nrf_uarte_disable
+00051732 t $t
+00051733 t nrf_uarte_txrx_pins_set
+00051758 t $t
+00051759 t nrf_uarte_txrx_pins_disconnect
+00051776 t $t
+00051777 t nrf_uarte_tx_pin_get
+0005178e t $t
+0005178f t nrf_uarte_rx_pin_get
+000517a6 t $t
+000517a7 t nrf_uarte_rts_pin_get
+000517be t $t
+000517bf t nrf_uarte_cts_pin_get
+000517d6 t $t
+000517d7 t nrf_uarte_hwfc_pins_set
+000517fc t $t
+000517fd t nrf_uarte_hwfc_pins_disconnect
+0005181a t $t
+0005181b t nrf_uarte_task_trigger
+0005183a t $t
+0005183b t nrf_uarte_configure
+0005186a t $t
+0005186b t nrf_uarte_baudrate_set
+00051886 t $t
+00051887 t nrf_uarte_tx_buffer_set
+000518ac t $t
+000518ad t nrf_uarte_rx_buffer_set
+000518d4 t $t
+000518d5 t nrf_gpio_pin_port_decode
+00051920 t $d
+00051934 t $t
+00051935 t nrf_gpio_cfg
+00051990 t $t
+00051991 t nrf_gpio_cfg_output
+000519b4 t $t
+000519b5 t nrf_gpio_cfg_input
+000519dc t $t
+000519dd t nrf_gpio_cfg_default
+00051a00 t $t
+00051a01 t nrf_gpio_pin_set
+00051a2a t $t
+00051a2b t nrf_gpio_port_out_set
+00051a44 t $t
+00051a45 t nrf_gpio_pin_present_check
+00051a8c t $t
+00051a8d t nrf_gpio_pin_port_number_extract
+00051ab2 t $t
+00051ab3 t apply_config
+00051bb0 t $t
+00051bb1 t interrupts_enable
+00051c40 t $d
+00051c44 t $t
+00051c45 t interrupts_disable
+00051c74 t $d
+00051c78 t $t
+00051c79 t pins_to_default
+00051d44 t $d
+00051d48 t $t
+00051d49 t apply_workaround_for_enable_anomaly
+00051ddc t $t
+00051ddd T nrfx_uarte_init
+00051ea8 t $d
+00051ec0 t $t
+00051ec1 T nrfx_uarte_uninit
+00051f90 t $d
+00051f94 t $t
+00051f95 T nrfx_uarte_tx
+00052124 t $d
+00052150 t $t
+00052151 T nrfx_uarte_tx_in_progress
+00052184 t $d
+00052188 t $t
+00052189 T nrfx_uarte_rx
+000523d0 t $d
+00052400 t $t
+00052401 T SystemCoreClockUpdate
+00052414 t $d
+0005241c t $t
+0005241d T SystemInit
+00052428 t $t
+00052429 T test_app
+00052438 t $d
+0005243c t $t
+0005243d T SVC_Handler
+00052464 t SVC_Context
+00052472 t SVC_ContextSave
+00052480 t SVC_ContextSave1
+00052488 t SVC_ContextSave2
+0005248e t SVC_ContextSwitch
+00052490 t SVC_ContextRestore
+0005249c t SVC_ContextRestore1
+000524b6 t SVC_ContextRestore2
+000524ba t SVC_Exit
+000524bc t SVC_User
+000524d9 T PendSV_Handler
+000524e7 T SysTick_Handler
+000524f5 T Sys_Context
+00052500 t Sys_ContextSave
+0005251a t Sys_ContextSave1
+00052522 t Sys_ContextSave2
+00052528 t Sys_ContextSwitch
+0005252a t Sys_ContextRestore
+00052536 t Sys_ContextRestore1
+00052550 t Sys_ContextRestore2
+00052554 t Sys_ContextExit
+00052556 t $d
+00052558 t $d
+00052560 t $t
+00052561 T osRtxTick_Handler
+000525d0 t $d
+000525d4 t $t
+000525d5 T osRtxPendSV_Handler
+0005262c t $d
+00052650 t $t
+00052678 t $d
+0005267c t $t
+0005267d T osRtxPostProcess
+000526e8 t $d
+000526f0 t $t
+000526f1 t svcRtxMessageQueueNew
+00052854 t $d
+0005285c t $t
+0005285d t svcRtxMessageQueueGet
+000529e0 t $d
+000529e4 t $t
+000529e5 t svcRtxMessageQueuePut
+00052ae8 t $d
+00052aec t $t
+00052aed t osRtxMessageQueuePostProcess
+00052c40 t $t
+00052c41 T osMessageQueueNew
+00052c60 t $d
+00052c64 t $t
+00052c65 T osMessageQueuePut
+00052cdc t $d
+00052ce0 t $t
+00052ce1 T osMessageQueueGet
+00052d98 t $d
+00052d9c t $t
+00052d9d T osRtxMemoryPoolInit
+00052de4 t $t
+00052de5 T osRtxMemoryPoolAlloc
+00052e1c t $t
+00052e1d T osRtxMemoryPoolFree
+00052e68 t $t
+00052e69 W osRtxMemoryInit
+00052ea4 t $t
+00052ea5 W osRtxMemoryAlloc
+00052f20 t $t
+00052f21 W osRtxMemoryFree
+00052f98 t $t
+00052f99 t svcRtxMutexNew
+00053000 t $d
+00053004 t $t
+00053005 T osRtxMutexOwnerRelease
+00053048 t $t
+00053049 T osMutexNew
+00053068 t $d
+0005306c t $t
+0005306d T osThreadExit
+00053074 t $d
+00053078 t $t
+00053079 t osRtxThreadFree
+000530d4 t $d
+000530d8 t $t
+000530d9 t osRtxThreadPostProcess
+000531d0 t $d
+000531d8 t $t
+000531d9 T osRtxThreadListPut
+0005321c t $t
+0005321d T osRtxThreadListGet
+00053230 t $t
+00053231 T osRtxThreadListRemove
+00053244 t $t
+00053245 T osRtxThreadReadyPut
+00053294 t $d
+00053298 t $t
+00053299 T osRtxThreadDelayTick
+0005330c t $d
+00053310 t $t
+00053311 T osRtxThreadRegPtr
+00053318 t $t
+00053319 W osRtxThreadStackCheck
+00053338 t $d
+00053340 t $t
+00053341 T osRtxThreadSwitch
+00053350 t $d
+00053354 t $t
+00053355 T osRtxThreadDispatch
+0005346c t $d
+00053474 t $t
+00053475 T osRtxThreadWaitExit
+00053508 t $d
+0005350c t $t
+0005350d t svcRtxThreadNew
+000537a4 t $d
+000537bc t $t
+000537bd t svcRtxThreadExit
+000538a4 t $d
+000538ac t $t
+000538ad T osRtxThreadWaitEnter
+00053958 t $d
+00053960 t $t
+00053961 T osRtxThreadStartup
+00053990 t $d
+000539a0 t $t
+000539a1 T osThreadNew
+000539c0 t $d
+000539c4 t $t
+000539c5 t svcRtxKernelInitialize
+00053b28 t $d
+00053b30 t $t
+00053b31 t svcRtxKernelStart
+00053bbc t $d
+00053bd0 t $t
+00053bd1 W osRtxKernelPreInit
+00053bd4 t $t
+00053bd5 T osKernelInitialize
+00053bfc t $d
+00053c00 t $t
+00053c01 T osKernelStart
+00053c20 t $d
+00053c24 t $t
+00053c25 W OS_Tick_Setup
+00053c5c t $d
+00053c6c t $t
+00053c6d W OS_Tick_Enable
+00053c8c t $d
+00053c98 t $t
+00053c99 W OS_Tick_AcknowledgeIRQ
+00053ca0 t $d
+00053ca4 t $t
+00053ca5 W OS_Tick_GetIRQn
+00053cac t $t
+00053cad t osRtxTimerTick
+00053d70 t $d
+00053d74 t $t
+00053d75 W osRtxTimerThread
+00053da4 t $d
+00053db0 t $t
+00053db1 T tfm_ns_interface_init
+00053dd8 t $d
+00053ddc t $t
+00053ddd T __assert_func
+00053e08 t $d
+00053e18 t $t
+00053e19 T exit
+00053e38 t $d
+00053e40 t $t
+00053e41 T fiprintf
+00053e41 T fprintf
+00053e60 t $d
+00053e64 t $t
+00053e65 T __libc_init_array
+00053e9c t $d
+00053eac t $t
+00053ead T memcpy
+00053ec6 t $t
+00053ec7 T memset
+00053ed6 t $t
+00053ed7 t __sfputc_r
+00053f00 t $t
+00053f01 T __sfputs_r
+00053f24 t $t
+00053f25 T _vfiprintf_r
+00053f25 T _vfprintf_r
+00054164 t $d
+00054184 t $t
+00054185 T _printf_common
+00054264 t $t
+00054265 T _printf_i
+000542a4 t $d
+000542fc t $t
+000544a8 t $d
+000544b0 t $t
+000544b1 T __swbuf_r
+00054548 t $d
+00054554 t $t
+00054555 T __swsetup_r
+00054620 t $d
+00054630 t $t
+00054631 T abort
+00054640 t $t
+00054641 T __sflush_r
+0005473c t $d
+00054740 t $t
+00054741 T _fflush_r
+000547ac t $d
+000547b8 t $t
+000547b9 t std
+000547f0 t $d
+00054800 t $t
+00054801 T _cleanup_r
+00054808 t $d
+0005480c t $t
+0005480d T __sfmoreglue
+00054838 t $t
+00054839 T __sfp_lock_acquire
+00054840 t $d
+00054844 t $t
+00054845 T __sfp_lock_release
+0005484c t $d
+00054850 t $t
+00054851 T __sinit_lock_acquire
+00054858 t $d
+0005485c t $t
+0005485d T __sinit_lock_release
+00054864 t $d
+00054868 t $t
+00054869 T __sinit
+000548d0 t $d
+000548d8 t $t
+000548d9 T __sfp
+0005495c t $d
+00054964 t $t
+00054965 T _fwalk_reent
+000549a2 t $t
+000549a3 T __retarget_lock_init_recursive
+000549a4 t $t
+000549a5 T __retarget_lock_acquire_recursive
+000549a6 t $t
+000549a7 T __retarget_lock_release_recursive
+000549a8 t $t
+000549a9 T __swhatbuf_r
+000549f4 t $t
+000549f5 T __smakebuf_r
+00054a70 t $d
+00054a74 t $t
+00054a75 T memchr
+00054a90 t $t
+00054a91 T _free_r
+00054b20 t $d
+00054b24 t $t
+00054b25 t sbrk_aligned
+00054b60 t $d
+00054b64 t $t
+00054b65 T _malloc_r
+00054c48 t $d
+00054c4c t $t
+00054c4d T _sbrk_r
+00054c68 t $d
+00054c6c t $t
+00054c6d T _raise_r
+00054cbc t $t
+00054cbd T raise
+00054cc8 t $d
+00054ccc t $t
+00054ccd T _kill_r
+00054cec t $d
+00054cf0 t $t
+00054cf1 T _getpid_r
+00054cf4 t $t
+00054cf5 T __sread
+00054d16 t $t
+00054d17 T __swrite
+00054d4e t $t
+00054d4f T __sseek
+00054d72 t $t
+00054d73 T __sclose
+00054d7c t $t
+00054d7d T _write_r
+00054d9c t $d
+00054da0 t $t
+00054da1 T _close_r
+00054dbc t $d
+00054dc0 t $t
+00054dc1 T _fstat_r
+00054de0 t $d
+00054de4 t $t
+00054de5 T _isatty_r
+00054e00 t $d
+00054e04 t $t
+00054e05 T _lseek_r
+00054e24 t $d
+00054e28 t $t
+00054e29 T __malloc_lock
+00054e30 t $d
+00054e34 t $t
+00054e35 T __malloc_unlock
+00054e3c t $d
+00054e40 t $t
+00054e41 T _read_r
+00054e60 t $d
+00054e64 t $t
+00054e65 T _close
+00054e70 t $d
+00054e74 t $t
+00054e75 T _fstat
+00054e80 t $d
+00054e84 t $t
+00054e85 T _getpid
+00054e90 t $d
+00054e94 t $t
+00054e95 T _isatty
+00054ea0 t $d
+00054ea4 t $t
+00054ea5 T _kill
+00054eb0 t $d
+00054eb4 t $t
+00054eb5 T _lseek
+00054ec0 t $d
+00054ec4 t $t
+00054ec5 T _read
+00054ed0 t $d
+00054ed4 t $t
+00054ed5 T _sbrk
+00054eec t $d
+00054ef4 t $t
+00054ef5 T _exit
+00054ef8 t $t
+00054ef9 T _init
+00054efc t $t
+00054f04 t $t
+00054f05 T _fini
+00054f08 t $t
+00054f10 t $d
+00054f3c t $d
+00054f3c t thread_attr
+00054f60 t $d
+00054f60 t os_idle_thread_attr
+00054f84 t $d
+00054f84 t os_timer_thread_attr
+00054fa8 t $d
+00054fa8 t os_timer_mq_attr
+00054fc0 t $d
+00054fc0 T osRtxConfig
+00055028 T os_cb_sections
+00055060 t $d
+00055060 V osRtxUserSVC
+00055064 t $d
+00055064 T hex_digits_lo
+00055074 t $d
+00055074 T hex_digits_up
+00055084 t $d
+0005509c t $d
+00055108 t $d
+00055108 t __func__.1
+00055114 t $d
+00055114 t DriverVersion
+00055118 t $d
+00055118 T Driver_USART0
+00055150 t $d
+000553f8 t $d
+000553f8 t __func__.4
+00055420 t $d
+00055420 t delay_machine_code.3
+00055428 t $d
+00055428 t __func__.2
+00055438 t $d
+00055438 t __func__.1
+00055448 t $d
+00055448 t __func__.0
+00055458 t $d
+0005545c t $d
+00055467 t $d
+000554a4 t $d
+000554a4 T _global_impure_ptr
+000554a8 t $d
+000554b9 t $d
+000554dc t $d
+000554dc T __sf_fake_stderr
+000554fc t $d
+000554fc T __sf_fake_stdin
+0005551c t $d
+0005551c T __sf_fake_stdout
+0005553c t $d
+0005553c t __EH_FRAME_BEGIN__
+0005553c t __FRAME_END__
+00055540 r $d
+00055540 T __exidx_start
+00055548 D __copy_table_start__
+00055548 r $d
+00055548 R __exidx_end
+00055560 D __copy_table_end__
+00055560 D __zero_table_start__
+00055570 D __etext
+00055570 D __zero_table_end__
+20016000 d $d
+20016000 D __data_start__
+20016000 d thread_func
+20016004 d $d
+20016004 d UART0_initial_config
+20016024 d $d
+20016024 d UART0_Resources
+20016044 d $d
+20016044 D SystemCoreClock
+20016048 d $d
+20016048 D osRtxInfo
+200160ec d $d
+200160ec D _impure_ptr
+200160f0 d $d
+200160f0 d impure_data
+20016150 d $d
+20016150 d __frame_dummy_init_array_entry
+20016150 d __init_array_start
+20016150 d __preinit_array_end
+20016150 d __preinit_array_start
+20016154 d $d
+20016154 d __do_global_dtors_aux_fini_array_entry
+20016154 d __init_array_end
+20016158 b $d
+20016158 B __bss_start__
+20016158 b completed.1
+20016158 D __data_end__
+2001615c b object.0
+20016178 b $d
+20016178 b os_mem
+20018178 b os_isr_queue
+200181b8 b $d
+200181b8 b os_idle_thread_cb
+200181fc b os_timer_thread_cb
+20018240 b $d
+20018240 b os_idle_thread_stack
+20018340 b os_timer_thread_stack
+20018440 b $d
+20018440 b os_timer_mq_cb
+20018474 b $d
+20018474 b os_timer_mq_data
+200184c4 b $d
+200184c4 b m_cb
+2001850c b $d
+2001850c b PendST
+20018510 b $d
+20018510 b ns_lock_handle
+20018514 b $d
+20018514 B __lock___malloc_recursive_mutex
+20018515 b $d
+20018515 B __lock___sfp_recursive_mutex
+20018516 b $d
+20018516 B __lock___sinit_recursive_mutex
+20018518 b $d
+20018518 B __malloc_free_list
+2001851c b $d
+2001851c B __malloc_sbrk_start
+20018520 b $d
+20018520 B errno
+20018524 b $d
+20018524 b heap_end.0
+20018528 B __bss_end__
+20018540 B __StackLimit
+20018720 B __end__
+20018720 B end
+20018720 B __HeapBase
+20018720 B __stack
+20018720 B __StackTop
+20019720 B __heap_limit
+20019720 B __HeapLimit
+
+
+
+
+00000000 l       *ABS*	00000000 __FPU_USED
+00000000 l    d  .ARM.attributes	00000000 .ARM.attributes
+00000000 l    d  .comment	00000000 .comment
+00000000 l    d  .debug_abbrev	00000000 .debug_abbrev
+00000000 l    d  .debug_aranges	00000000 .debug_aranges
+00000000 l    d  .debug_frame	00000000 .debug_frame
+00000000 l    d  .debug_info	00000000 .debug_info
+00000000 l    d  .debug_line	00000000 .debug_line
+00000000 l    d  .debug_loc	00000000 .debug_loc
+00000000 l    d  .debug_ranges	00000000 .debug_ranges
+00000000 l    d  .debug_str	00000000 .debug_str
+00000000 l    df *ABS*	00000000 
+00000000 l    df *ABS*	00000000 abort.c
+00000000 l    df *ABS*	00000000 assert.c
+00000000 l    df *ABS*	00000000 close.c
+00000000 l    df *ABS*	00000000 closer.c
+00000000 l    df *ABS*	00000000 crt0.o
+00000000 l    df *ABS*	00000000 crti.o
+00000000 l    df *ABS*	00000000 crtn.o
+00000000 l    df *ABS*	00000000 crtstuff.c
+00000000 l    df *ABS*	00000000 crtstuff.c
+00000000 l    df *ABS*	00000000 Driver_USART.c
+00000000 l    df *ABS*	00000000 exit.c
+00000000 l    df *ABS*	00000000 _exit.c
+00000000 l    df *ABS*	00000000 fflush.c
+00000000 l    df *ABS*	00000000 findfp.c
+00000000 l    df *ABS*	00000000 fprintf.c
+00000000 l    df *ABS*	00000000 fstat.c
+00000000 l    df *ABS*	00000000 fstatr.c
+00000000 l    df *ABS*	00000000 fwalk.c
+00000000 l    df *ABS*	00000000 getpid.c
+00000000 l    df *ABS*	00000000 impure.c
+00000000 l    df *ABS*	00000000 init.c
+00000000 l    df *ABS*	00000000 irq_armv8mml.S
+00000000 l    df *ABS*	00000000 isatty.c
+00000000 l    df *ABS*	00000000 isattyr.c
+00000000 l    df *ABS*	00000000 kill.c
+00000000 l    df *ABS*	00000000 lock.c
+00000000 l    df *ABS*	00000000 lseek.c
+00000000 l    df *ABS*	00000000 lseekr.c
+00000000 l    df *ABS*	00000000 main_ns.c
+00000000 l    df *ABS*	00000000 makebuf.c
+00000000 l    df *ABS*	00000000 memchr-stub.c
+00000000 l    df *ABS*	00000000 memcpy-stub.c
+00000000 l    df *ABS*	00000000 memset.c
+00000000 l    df *ABS*	00000000 mlock.c
+00000000 l    df *ABS*	00000000 nano-mallocr.c
+00000000 l    df *ABS*	00000000 nano-mallocr.c
+00000000 l    df *ABS*	00000000 nano-vfprintf.c
+00000000 l    df *ABS*	00000000 nano-vfprintf_i.c
+00000000 l    df *ABS*	00000000 nrfx_uarte.c
+00000000 l    df *ABS*	00000000 os_systick.c
+00000000 l    df *ABS*	00000000 os_wrapper_cmsis_rtos_v2.c
+00000000 l    df *ABS*	00000000 read.c
+00000000 l    df *ABS*	00000000 readr.c
+00000000 l    df *ABS*	00000000 reent.c
+00000000 l    df *ABS*	00000000 RTX_Config.c
+00000000 l    df *ABS*	00000000 rtx_kernel.c
+00000000 l    df *ABS*	00000000 rtx_lib.c
+00000000 l    df *ABS*	00000000 rtx_memory.c
+00000000 l    df *ABS*	00000000 rtx_mempool.c
+00000000 l    df *ABS*	00000000 rtx_msgqueue.c
+00000000 l    df *ABS*	00000000 rtx_mutex.c
+00000000 l    df *ABS*	00000000 rtx_system.c
+00000000 l    df *ABS*	00000000 rtx_thread.c
+00000000 l    df *ABS*	00000000 rtx_timer.c
+00000000 l    df *ABS*	00000000 sbrk.c
+00000000 l    df *ABS*	00000000 sbrkr.c
+00000000 l    df *ABS*	00000000 signal.c
+00000000 l    df *ABS*	00000000 signalr.c
+00000000 l    df *ABS*	00000000 startup_nrf9160.c
+00000000 l    df *ABS*	00000000 stdio.c
+00000000 l    df *ABS*	00000000 system_nrf9160.c
+00000000 l    df *ABS*	00000000 test_app.c
+00000000 l    df *ABS*	00000000 tfm_log_raw.c
+00000000 l    df *ABS*	00000000 tfm_ns_interface_rtos.c
+00000000 l    df *ABS*	00000000 tz_shim_layer.c
+00000000 l    df *ABS*	00000000 uart_stdout.c
+00000000 l    df *ABS*	00000000 wbuf.c
+00000000 l    df *ABS*	00000000 writer.c
+00000000 l    df *ABS*	00000000 wsetup.c
+00000000 l    d  .stab	00000000 .stab
+00000000 l    d  .stabstr	00000000 .stabstr
+00000001 l       *ABS*	00000000 ARMv8MML
+00000001 l       *ABS*	00000000 DOMAIN_NS
+00000001 l       *ABS*	00000000 __GCC
+00000001 l       *ABS*	00000000 _RTE_
+00000014 l       *ABS*	00000000 I_T_RUN_OFS
+00000022 l       *ABS*	00000000 TCB_SF_OFS
+00000030 l       *ABS*	00000000 TCB_SM_OFS
+00000038 l       *ABS*	00000000 TCB_SP_OFS
+00000040 l       *ABS*	00000000 TCB_TZM_OFS
+000001e0 g       *ABS*	00000000 __stack_size__
+0000020f l       *ABS*	00000000 __UVISION_VERSION
+00000335 l       *ABS*	00000000 __GCC_VERSION
+00001000 g       *ABS*	00000000 __heap_size__
+000023d0 g       *ABS*	00000000 bss_size
+00050400 g     O .text	00000144 __Vectors
+00050400 l    d  .text	00000000 .text
+00050544 g       .text	00000000 __Vectors_End
+00050544 g       .text	00000000 __Vectors_Size
+00050544 l     F .text	00000000 __do_global_dtors_aux
+00050568 l     F .text	00000000 frame_dummy
+00050584  w    F .text	00000000 _stack_init
+0005058c g     F .text	00000000 _mainCRTStartup
+0005058c g     F .text	00000000 _start
+00050600  w    F .text	0000000e tfm_ns_platform_init
+0005060e  w    F .text	0000000e tfm_ns_cp_init
+0005061c g     F .text	0000004c main
+00050668  w    F .text	00000006 NMI_Handler
+0005066e  w    F .text	00000006 HardFault_Handler
+00050674  w    F .text	00000006 MemManage_Handler
+0005067a  w    F .text	00000006 BusFault_Handler
+00050680  w    F .text	00000006 UsageFault_Handler
+00050686  w    F .text	00000006 SecureFault_Handler
+0005068c  w    F .text	00000006 DebugMon_Handler
+00050692  w    F .text	00000006 SPU_IRQHandler
+00050698  w    F .text	00000006 CLOCK_POWER_IRQHandler
+0005069e  w    F .text	00000006 UARTE0_SPIM0_SPIS0_TWIM0_TWIS0_IRQHandler
+000506a4  w    F .text	00000006 UARTE1_SPIM1_SPIS1_TWIM1_TWIS1_IRQHandler
+000506aa  w    F .text	00000006 UARTE2_SPIM2_SPIS2_TWIM2_TWIS2_IRQHandler
+000506b0  w    F .text	00000006 UARTE3_SPIM3_SPIS3_TWIM3_TWIS3_IRQHandler
+000506b6  w    F .text	00000006 GPIOTE0_IRQHandler
+000506bc  w    F .text	00000006 SAADC_IRQHandler
+000506c2  w    F .text	00000006 TIMER0_IRQHandler
+000506c8  w    F .text	00000006 TIMER1_IRQHandler
+000506ce  w    F .text	00000006 TIMER2_IRQHandler
+000506d4  w    F .text	00000006 RTC0_IRQHandler
+000506da  w    F .text	00000006 RTC1_IRQHandler
+000506e0  w    F .text	00000006 WDT_IRQHandler
+000506e6  w    F .text	00000006 EGU0_IRQHandler
+000506ec  w    F .text	00000006 EGU1_IRQHandler
+000506f2  w    F .text	00000006 EGU2_IRQHandler
+000506f8  w    F .text	00000006 EGU3_IRQHandler
+000506fe  w    F .text	00000006 EGU4_IRQHandler
+00050704  w    F .text	00000006 EGU5_IRQHandler
+0005070a  w    F .text	00000006 PWM0_IRQHandler
+00050710  w    F .text	00000006 PWM1_IRQHandler
+00050716  w    F .text	00000006 PWM2_IRQHandler
+0005071c  w    F .text	00000006 PWM3_IRQHandler
+00050722  w    F .text	00000006 PDM_IRQHandler
+00050728  w    F .text	00000006 I2S_IRQHandler
+0005072e  w    F .text	00000006 IPC_IRQHandler
+00050734  w    F .text	00000006 FPU_IRQHandler
+0005073a  w    F .text	00000006 GPIOTE1_IRQHandler
+00050740  w    F .text	00000006 KMU_IRQHandler
+00050746  w    F .text	00000006 CRYPTOCELL_IRQHandler
+0005074c g     F .text	000000c4 Reset_Handler
+00050810 g     F .text	0000000e TZ_InitContextSystem_S
+0005081e g     F .text	00000014 TZ_AllocModuleContext_S
+00050832 g     F .text	00000014 TZ_FreeModuleContext_S
+00050846 g     F .text	00000014 TZ_LoadContext_S
+0005085a g     F .text	00000014 TZ_StoreContext_S
+0005086e  w    F .text	0000000a osRtxIdleThread
+00050878  w    F .text	00000030 osRtxErrorNotify
+000508a8  w    F .text	0000000c software_init_hook
+000508b4 g     F .text	00000028 os_wrapper_mutex_create
+000508dc l     F .text	00000040 _tfm_flush_formatted_buffer
+0005091c l     F .text	00000038 _tfm_string_output
+00050954 l     F .text	000000b8 _tfm_dec_num_output
+00050a0c l     F .text	00000078 _tfm_hex_num_output
+00050a84 l     F .text	00000248 _tfm_log_vprintf
+00050ccc g     F .text	0000002c tfm_log_printf
+00050cf8 g     F .text	0000004c stdio_output_string
+00050d44 g     F .text	00000020 _write
+00050d64 g     F .text	00000080 stdio_init
+00050de4 l     F .text	00000024 nrfx_is_in_ram
+00050e08 l     F .text	00000030 nrf_uarte_configure
+00050e38 l     F .text	0000001c nrf_uarte_baudrate_set
+00050e54 l     F .text	00000028 ARM_USART_GetVersion
+00050e7c l     F .text	00000012 ARM_USART_GetCapabilities
+00050e90 l     F .text	00000064 ARM_USARTx_Initialize
+00050ef4 l     F .text	00000020 ARM_USARTx_Uninitialize
+00050f14 l     F .text	00000024 ARM_USARTx_PowerControl
+00050f38 l     F .text	000000c4 ARM_USARTx_Send
+00050ffc l     F .text	00000064 ARM_USARTx_Receive
+00051060 l     F .text	0000001a ARM_USART_Transfer
+0005107a l     F .text	00000016 ARM_USARTx_GetTxCount
+00051090 l     F .text	00000016 ARM_USARTx_GetRxCount
+000510a8 l     F .text	000002d8 ARM_USARTx_Control
+00051380 l     F .text	00000016 ARM_USART_GetStatus
+00051396 l     F .text	00000018 ARM_USART_SetModemControl
+000513ae l     F .text	00000016 ARM_USART_GetModemStatus
+000513c4 l     F .text	00000020 ARM_USART0_Initialize
+000513e4 l     F .text	00000014 ARM_USART0_Uninitialize
+000513f8 l     F .text	00000024 ARM_USART0_PowerControl
+0005141c l     F .text	00000024 ARM_USART0_Send
+00051440 l     F .text	00000024 ARM_USART0_Receive
+00051464 l     F .text	00000014 ARM_USART0_GetTxCount
+00051478 l     F .text	00000014 ARM_USART0_GetRxCount
+0005148c l     F .text	00000024 ARM_USART0_Control
+000514b0 l     F .text	00000038 __NVIC_EnableIRQ
+000514e8 l     F .text	00000048 __NVIC_DisableIRQ
+00051530 l     F .text	00000054 __NVIC_SetPriority
+00051584 l     F .text	00000024 nrfx_is_in_ram
+000515a8 l     F .text	00000018 nrfx_get_irq_number
+000515c0 l     F .text	00000030 nrfx_coredep_delay_us
+000515f0 l     F .text	00000016 nrf_event_readback
+00051606 l     F .text	0000002a nrf_uarte_event_clear
+00051630 l     F .text	00000028 nrf_uarte_event_check
+00051658 l     F .text	00000024 nrf_uarte_shorts_enable
+0005167c l     F .text	00000026 nrf_uarte_shorts_disable
+000516a2 l     F .text	0000001c nrf_uarte_int_enable
+000516be l     F .text	0000001c nrf_uarte_int_disable
+000516da l     F .text	00000024 nrf_uarte_errorsrc_get_and_clear
+000516fe l     F .text	0000001a nrf_uarte_enable
+00051718 l     F .text	0000001a nrf_uarte_disable
+00051732 l     F .text	00000026 nrf_uarte_txrx_pins_set
+00051758 l     F .text	0000001e nrf_uarte_txrx_pins_disconnect
+00051776 l     F .text	00000018 nrf_uarte_tx_pin_get
+0005178e l     F .text	00000018 nrf_uarte_rx_pin_get
+000517a6 l     F .text	00000018 nrf_uarte_rts_pin_get
+000517be l     F .text	00000018 nrf_uarte_cts_pin_get
+000517d6 l     F .text	00000026 nrf_uarte_hwfc_pins_set
+000517fc l     F .text	0000001e nrf_uarte_hwfc_pins_disconnect
+0005181a l     F .text	00000020 nrf_uarte_task_trigger
+0005183a l     F .text	00000030 nrf_uarte_configure
+0005186a l     F .text	0000001c nrf_uarte_baudrate_set
+00051886 l     F .text	00000026 nrf_uarte_tx_buffer_set
+000518ac l     F .text	00000026 nrf_uarte_rx_buffer_set
+000518d4 l     F .text	00000060 nrf_gpio_pin_port_decode
+00051934 l     F .text	0000005c nrf_gpio_cfg
+00051990 l     F .text	00000024 nrf_gpio_cfg_output
+000519b4 l     F .text	00000028 nrf_gpio_cfg_input
+000519dc l     F .text	00000024 nrf_gpio_cfg_default
+00051a00 l     F .text	0000002a nrf_gpio_pin_set
+00051a2a l     F .text	0000001a nrf_gpio_port_out_set
+00051a44 l     F .text	00000048 nrf_gpio_pin_present_check
+00051a8c l     F .text	00000026 nrf_gpio_pin_port_number_extract
+00051ab2 l     F .text	000000fe apply_config
+00051bb0 l     F .text	00000094 interrupts_enable
+00051c44 l     F .text	00000034 interrupts_disable
+00051c78 l     F .text	000000d0 pins_to_default
+00051d48 l     F .text	00000094 apply_workaround_for_enable_anomaly
+00051ddc g     F .text	000000e4 nrfx_uarte_init
+00051ec0 g     F .text	000000d4 nrfx_uarte_uninit
+00051f94 g     F .text	000001bc nrfx_uarte_tx
+00052150 g     F .text	00000038 nrfx_uarte_tx_in_progress
+00052188 g     F .text	00000278 nrfx_uarte_rx
+00052400 g     F .text	0000001c SystemCoreClockUpdate
+0005241c g     F .text	0000000c SystemInit
+00052428 g     F .text	00000014 test_app
+0005243c g     F .text	0000009c SVC_Handler
+00052464 l       .text	00000000 SVC_Context
+00052472 l       .text	00000000 SVC_ContextSave
+00052480 l       .text	00000000 SVC_ContextSave1
+00052488 l       .text	00000000 SVC_ContextSave2
+0005248e l       .text	00000000 SVC_ContextSwitch
+00052490 l       .text	00000000 SVC_ContextRestore
+0005249c l       .text	00000000 SVC_ContextRestore1
+000524b6 l       .text	00000000 SVC_ContextRestore2
+000524ba l       .text	00000000 SVC_Exit
+000524bc l       .text	00000000 SVC_User
+000524d8 g     F .text	0000000e PendSV_Handler
+000524e6 g     F .text	0000000e SysTick_Handler
+000524f4 g     F .text	00000062 Sys_Context
+00052500 l       .text	00000000 Sys_ContextSave
+0005251a l       .text	00000000 Sys_ContextSave1
+00052522 l       .text	00000000 Sys_ContextSave2
+00052528 l       .text	00000000 Sys_ContextSwitch
+0005252a l       .text	00000000 Sys_ContextRestore
+00052536 l       .text	00000000 Sys_ContextRestore1
+00052550 l       .text	00000000 Sys_ContextRestore2
+00052554 l       .text	00000000 Sys_ContextExit
+00052560 g     F .text	00000074 osRtxTick_Handler
+000525d4 g     F .text	000000a8 osRtxPendSV_Handler
+0005267c g     F .text	00000074 osRtxPostProcess
+000526f0 l     F .text	0000016c svcRtxMessageQueueNew
+0005285c l     F .text	00000188 svcRtxMessageQueueGet
+000529e4 l     F .text	00000108 svcRtxMessageQueuePut
+00052aec l     F .text	00000152 osRtxMessageQueuePostProcess
+00052c40 g     F .text	00000024 osMessageQueueNew
+00052c64 g     F .text	0000007c osMessageQueuePut
+00052ce0 g     F .text	000000bc osMessageQueueGet
+00052d9c g     F .text	00000048 osRtxMemoryPoolInit
+00052de4 g     F .text	00000036 osRtxMemoryPoolAlloc
+00052e1c g     F .text	0000004a osRtxMemoryPoolFree
+00052e68  w    F .text	0000003a osRtxMemoryInit
+00052ea4  w    F .text	0000007a osRtxMemoryAlloc
+00052f20  w    F .text	00000076 osRtxMemoryFree
+00052f98 l     F .text	0000006c svcRtxMutexNew
+00053004 g     F .text	00000044 osRtxMutexOwnerRelease
+00053048 g     F .text	00000024 osMutexNew
+0005306c g     F .text	0000000c osThreadExit
+00053078 l     F .text	00000060 osRtxThreadFree
+000530d8 l     F .text	00000100 osRtxThreadPostProcess
+000531d8 g     F .text	00000044 osRtxThreadListPut
+0005321c g     F .text	00000012 osRtxThreadListGet
+00053230 g     F .text	00000012 osRtxThreadListRemove
+00053244 g     F .text	00000054 osRtxThreadReadyPut
+00053298 g     F .text	00000078 osRtxThreadDelayTick
+00053310 g     F .text	00000006 osRtxThreadRegPtr
+00053318  w    F .text	00000028 osRtxThreadStackCheck
+00053340 g     F .text	00000014 osRtxThreadSwitch
+00053354 g     F .text	00000120 osRtxThreadDispatch
+00053474 g     F .text	00000098 osRtxThreadWaitExit
+0005350c l     F .text	000002b0 svcRtxThreadNew
+000537bc l     F .text	000000f0 svcRtxThreadExit
+000538ac g     F .text	000000b4 osRtxThreadWaitEnter
+00053960 g     F .text	00000040 osRtxThreadStartup
+000539a0 g     F .text	00000024 osThreadNew
+000539c4 l     F .text	0000016c svcRtxKernelInitialize
+00053b30 l     F .text	000000a0 svcRtxKernelStart
+00053bd0  w    F .text	00000002 osRtxKernelPreInit
+00053bd4 g     F .text	0000002c osKernelInitialize
+00053c00 g     F .text	00000024 osKernelStart
+00053c24  w    F .text	00000048 OS_Tick_Setup
+00053c6c  w    F .text	0000002c OS_Tick_Enable
+00053c98  w    F .text	0000000c OS_Tick_AcknowledgeIRQ
+00053ca4  w    F .text	00000006 OS_Tick_GetIRQn
+00053cac l     F .text	000000c8 osRtxTimerTick
+00053d74  w    F .text	0000003c osRtxTimerThread
+00053db0 g     F .text	0000002c tfm_ns_interface_init
+00053ddc g     F .text	0000003c __assert_func
+00053e18 g     F .text	00000028 exit
+00053e40 g     F .text	00000024 fiprintf
+00053e40 g     F .text	00000024 fprintf
+00053e64 g     F .text	00000048 __libc_init_array
+00053eac g     F .text	0000001a memcpy
+00053ec6 g     F .text	00000010 memset
+00053ed6 l     F .text	0000002a __sfputc_r
+00053f00 g     F .text	00000024 __sfputs_r
+00053f24 g     F .text	00000260 _vfiprintf_r
+00053f24 g     F .text	00000260 _vfprintf_r
+00054184 g     F .text	000000e0 _printf_common
+00054264 g     F .text	0000024c _printf_i
+000544b0 g     F .text	000000a4 __swbuf_r
+00054554 g     F .text	000000dc __swsetup_r
+00054630 g     F .text	0000000e abort
+00054640 g     F .text	00000100 __sflush_r
+00054740 g     F .text	00000078 _fflush_r
+000547b8 l     F .text	00000048 std
+00054800 g     F .text	0000000c _cleanup_r
+0005480c g     F .text	0000002c __sfmoreglue
+00054838 g     F .text	0000000c __sfp_lock_acquire
+00054844 g     F .text	0000000c __sfp_lock_release
+00054850 g     F .text	0000000c __sinit_lock_acquire
+0005485c g     F .text	0000000c __sinit_lock_release
+00054868 g     F .text	00000070 __sinit
+000548d8 g     F .text	0000008c __sfp
+00054964 g     F .text	0000003e _fwalk_reent
+000549a2 g     F .text	00000002 __retarget_lock_init_recursive
+000549a4 g     F .text	00000002 __retarget_lock_acquire_recursive
+000549a6 g     F .text	00000002 __retarget_lock_release_recursive
+000549a8 g     F .text	0000004a __swhatbuf_r
+000549f4 g     F .text	00000080 __smakebuf_r
+00054a74 g     F .text	0000001c memchr
+00054a90 g     F .text	00000094 _free_r
+00054b24 l     F .text	00000040 sbrk_aligned
+00054b64 g     F .text	000000e8 _malloc_r
+00054c4c g     F .text	00000020 _sbrk_r
+00054c6c g     F .text	00000050 _raise_r
+00054cbc g     F .text	00000010 raise
+00054ccc g     F .text	00000024 _kill_r
+00054cf0 g     F .text	00000004 _getpid_r
+00054cf4 g     F .text	00000022 __sread
+00054d16 g     F .text	00000038 __swrite
+00054d4e g     F .text	00000024 __sseek
+00054d72 g     F .text	00000008 __sclose
+00054d7c g     F .text	00000024 _write_r
+00054da0 g     F .text	00000020 _close_r
+00054dc0 g     F .text	00000024 _fstat_r
+00054de4 g     F .text	00000020 _isatty_r
+00054e04 g     F .text	00000024 _lseek_r
+00054e28 g     F .text	0000000c __malloc_lock
+00054e34 g     F .text	0000000c __malloc_unlock
+00054e40 g     F .text	00000024 _read_r
+00054e64 g     F .text	00000010 _close
+00054e74 g     F .text	00000010 _fstat
+00054e84 g     F .text	00000010 _getpid
+00054e94 g     F .text	00000010 _isatty
+00054ea4 g     F .text	00000010 _kill
+00054eb4 g     F .text	00000010 _lseek
+00054ec4 g     F .text	00000010 _read
+00054ed4 g     F .text	00000020 _sbrk
+00054ef4 g     F .text	00000002 _exit
+00054ef8 g     F .text	00000000 _init
+00054f04 g     F .text	00000000 _fini
+00054f3c l     O .text	00000024 thread_attr
+00054f60 l     O .text	00000024 os_idle_thread_attr
+00054f84 l     O .text	00000024 os_timer_thread_attr
+00054fa8 l     O .text	00000018 os_timer_mq_attr
+00054fc0 g     O .text	00000068 osRtxConfig
+00055028 g     O .text	00000038 os_cb_sections
+00055060  w    O .text	00000004 osRtxUserSVC
+00055064 g     O .text	00000010 hex_digits_lo
+00055074 g     O .text	00000010 hex_digits_up
+00055108 l     O .text	0000000b __func__.1
+00055114 l     O .text	00000004 DriverVersion
+00055118 g     O .text	00000038 Driver_USART0
+000553f8 l     O .text	00000019 __func__.4
+00055420 l     O .text	00000006 delay_machine_code.3
+00055428 l     O .text	00000010 __func__.2
+00055438 l     O .text	0000000e __func__.1
+00055448 l     O .text	0000000e __func__.0
+000554a4 g     O .text	00000004 _global_impure_ptr
+000554dc g     O .text	00000020 __sf_fake_stderr
+000554fc g     O .text	00000020 __sf_fake_stdin
+0005551c g     O .text	00000020 __sf_fake_stdout
+0005553c l     O .text	00000000 __EH_FRAME_BEGIN__
+0005553c l     O .text	00000000 __FRAME_END__
+00055540 g       .text	00000000 __exidx_start
+00055540 l    d  .ARM.exidx	00000000 .ARM.exidx
+00055548 g       .ARM.exidx	00000000 __exidx_end
+00055548 g       .copy.table	00000000 __copy_table_start__
+00055548 l    d  .copy.table	00000000 .copy.table
+00055560 g       .copy.table	00000000 __copy_table_end__
+00055560 g       .zero.table	00000000 __zero_table_start__
+00055560 l    d  .zero.table	00000000 .zero.table
+00055570 g       .zero.table	00000000 __etext
+00055570 g       .zero.table	00000000 __zero_table_end__
+20016000 g       .data	00000000 __data_start__
+20016000 l    d  .data	00000000 .data
+20016000 l     O .data	00000004 thread_func
+20016004 l     O .data	00000020 UART0_initial_config
+20016024 l     O .data	00000020 UART0_Resources
+20016044 g     O .data	00000004 SystemCoreClock
+20016048 g     O .data	000000a4 osRtxInfo
+200160ec g     O .data	00000004 _impure_ptr
+200160f0 l     O .data	00000060 impure_data
+20016150 l       .data	00000000 __init_array_start
+20016150 l       .data	00000000 __preinit_array_end
+20016150 l       .data	00000000 __preinit_array_start
+20016150 l     O .data	00000000 __frame_dummy_init_array_entry
+20016154 l       .data	00000000 __init_array_end
+20016154 l     O .data	00000000 __do_global_dtors_aux_fini_array_entry
+20016158 g       .bss	00000000 __bss_start__
+20016158 g       .data	00000000 __data_end__
+20016158 l       .bss	00000001 completed.1
+20016158 l    d  .bss	00000000 .bss
+2001615c l       .bss	00000018 object.0
+20016178 l     O .bss	00002000 os_mem
+20018178 l     O .bss	00000040 os_isr_queue
+200181b8 l     O .bss	00000044 os_idle_thread_cb
+200181fc l     O .bss	00000044 os_timer_thread_cb
+20018240 l     O .bss	00000100 os_idle_thread_stack
+20018340 l     O .bss	00000100 os_timer_thread_stack
+20018440 l     O .bss	00000034 os_timer_mq_cb
+20018474 l     O .bss	00000050 os_timer_mq_data
+200184c4 l     O .bss	00000048 m_cb
+2001850c l     O .bss	00000001 PendST
+20018510 l     O .bss	00000004 ns_lock_handle
+20018514 g     O .bss	00000001 __lock___malloc_recursive_mutex
+20018515 g     O .bss	00000001 __lock___sfp_recursive_mutex
+20018516 g     O .bss	00000001 __lock___sinit_recursive_mutex
+20018518 g     O .bss	00000004 __malloc_free_list
+2001851c g     O .bss	00000004 __malloc_sbrk_start
+20018520 g     O .bss	00000004 errno
+20018524 l     O .bss	00000004 heap_end.0
+20018528 g       .bss	00000000 __bss_end__
+20018540 g       .stack	00000000 __StackLimit
+20018540 l    d  .stack	00000000 .stack
+20018720 g       .heap	00000000 end
+20018720 g       .heap	00000000 __end__
+20018720 g       .heap	00000000 __HeapBase
+20018720 g       .stack	00000000 __stack
+20018720 g       .stack	00000000 __StackTop
+20018720 l    d  .heap	00000000 .heap
+20019720 g       .heap	00000000 __heap_limit
+20019720 g       .heap	00000000 __HeapLimit
+bin/nrf9160dk/pkg-build/trusted_firmware_m/bin/tfm_ns.elf:     file format elf32-littlearm
+SYMBOL TABLE:
