@@ -1,0 +1,11 @@
+PKG_SOURCE_DIR ?= $(PKGDIRBASE)/trusted_firmware_m
+
+INCLUDES += -I$(PKG_SOURCE_DIR)
+INCLUDES += -I$(PKG_SOURCE_DIR)/interface/include
+INCLUDES += -I$(PKG_SOURCE_DIR)/interface/include/crypto_keys
+INCLUDES += -I$(PKG_SOURCE_DIR)/interface/include/multi_core
+INCLUDES += -I$(PKG_SOURCE_DIR)/interface/include/os_wrapper
+INCLUDES += -I$(PKG_SOURCE_DIR)/interface/include/psa
+INCLUDES += -I$(PKG_SOURCE_DIR)/interface/include/psa_manifest
+
+DIRS += $(RIOTPKG)/trusted_firmware_m/interface

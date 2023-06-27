@@ -105,7 +105,11 @@ void reset_handler_default(void)
     puf_sram_init((uint8_t *)&_srelocate, SEED_RAM_LEN);
 #endif
 
-    pre_startup();
+    // pre_startup();
+    __asm__ volatile ("nop");
+    __asm__ volatile ("nop");
+    __asm__ volatile ("nop");
+    __asm__ volatile ("nop");
 
 #ifdef DEVELHELP
     /* cppcheck-suppress constVariable

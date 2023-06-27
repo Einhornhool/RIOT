@@ -20,6 +20,7 @@
  */
 
 #include <stdio.h>
+// #include "psa/crypto.h"
 
 int main(void)
 {
@@ -27,6 +28,9 @@ int main(void)
 
     printf("You are running RIOT on a(n) %s board.\n", RIOT_BOARD);
     printf("This board features a(n) %s CPU.\n", RIOT_CPU);
+
+    // psa_status_t status = psa_crypto_init();
+    // printf("Status: %d\n", (int) status);
 
     return 0;
 }

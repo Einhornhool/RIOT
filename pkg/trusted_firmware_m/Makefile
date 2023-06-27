@@ -23,8 +23,6 @@ tfm: (PKG_BUILD_DIR)/Makefile
 			-DCMAKE_TOOLCHAIN_FILE=$(TOOLCHAIN_FILE) \
 			-H$(PKG_SOURCE_DIR) \
 			-B$(PKG_BUILD_DIR) \
-			-DNS=OFF \
-			-DTFM_PROFILE=profile_medium \
 			-DTFM_PLATFORM=nordic_nrf/nrf9160dk_nrf9160 \
 			-DTFM_TOOLCHAIN_FILE=$(PKG_SOURCE_DIR)/toolchain_GNUARM.cmake \
 			-DCMAKE_BUILD_TYPE=Debug \

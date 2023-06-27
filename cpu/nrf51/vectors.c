@@ -32,7 +32,7 @@ void pre_startup(void)
 {
     /* make sure all RAM blocks are turned on
      * -> see NRF51822 Product Anomaly Notice (PAN) #16 for more details */
-    NRF_POWER->RAMON = 0xf;
+    // NRF_POWER->RAMON = 0xf;
 }
 
 /* Cortex-M common interrupt vectors */
