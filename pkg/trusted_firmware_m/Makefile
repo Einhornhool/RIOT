@@ -1,7 +1,7 @@
 PKG_SOURCE_LOCAL=/home/lena/work/repos/trusted-firmware-m
 PKG_NAME=trusted_firmware_m
 PKG_URL=https://git.trustedfirmware.org/TF-M/trusted-firmware-m.git
-PKG_VERSION=55f3913f83529805ff178bda99224f8207fc7d3d
+PKG_VERSION=65d71a3f8b9f1787c0fe19ad25f5b76252f44cdc # last commit working
 PKG_LICENSE=BSD-3-Clause
 
 include $(RIOTBASE)/pkg/pkg.mk
