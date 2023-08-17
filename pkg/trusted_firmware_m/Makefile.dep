@@ -1,1 +1,1 @@
-USEMODULE += tfm_interface
+USEMODULE += tfm_contrib

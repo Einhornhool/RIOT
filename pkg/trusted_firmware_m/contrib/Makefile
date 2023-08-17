@@ -1,3 +1,3 @@
-MODULE = tfm_interface
+MODULE = tfm_contrib
 
 include $(RIOTBASE)/Makefile.base

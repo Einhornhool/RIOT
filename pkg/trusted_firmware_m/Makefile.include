@@ -8,4 +8,4 @@ INCLUDES += -I$(PKG_SOURCE_DIR)/interface/include/os_wrapper
 INCLUDES += -I$(PKG_SOURCE_DIR)/interface/include/psa
 INCLUDES += -I$(PKG_SOURCE_DIR)/interface/include/psa_manifest
 
-DIRS += $(RIOTPKG)/trusted_firmware_m/interface
+DIRS += $(RIOTPKG)/trusted_firmware_m/contrib

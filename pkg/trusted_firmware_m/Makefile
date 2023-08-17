@@ -12,13 +12,11 @@ CMAKE_MINIMAL_VERSION = 3.10
 
 TOOLCHAIN_FILE=$(PKG_SOURCE_DIR)/xcompile-toolchain.cmake
 
-all: tfm
-
-tfm: (PKG_BUILD_DIR)/Makefile
+all: $(PKG_BUILD_DIR)/Makefile
 	env -u CC -u CFLAGS \
  	$(MAKE) -C $(PKG_BUILD_DIR)
 
-(PKG_BUILD_DIR)/Makefile: $(TOOLCHAIN_FILE)
+$(PKG_BUILD_DIR)/Makefile: $(TOOLCHAIN_FILE)
 	env -u CC -u CFLAGS cmake \
 			-DCMAKE_TOOLCHAIN_FILE=$(TOOLCHAIN_FILE) \
 			-H$(PKG_SOURCE_DIR) \

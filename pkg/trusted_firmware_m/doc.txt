@@ -1,0 +1,9 @@
+/**
+ * @defgroup pkg_tfm Trusted Firmware M
+ * @ingroup  pkg drivers_misc
+ * @brief    Provides Trusted Firmware M for ARM devices
+ * @see      https://www.trustedfirmware.org/projects/tf-m/
+ *
+ * @note    As of now, TF-M can only be built with a specific toolchain, which can be downloaded
+ *          here: https://developer.arm.com/downloads/-/gnu-rm
+ */
