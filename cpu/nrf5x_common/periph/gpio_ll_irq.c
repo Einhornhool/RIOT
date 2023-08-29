@@ -40,7 +40,11 @@
 #include "periph_cpu.h"
 
 #ifdef NRF_GPIOTE0_S
+#if IS_ACTIVE(MODULE_TRUSTED_FIRMWARE_M)
+#define NRF_GPIOTE NRF_GPIOTE0_NS
+#else
 #define NRF_GPIOTE NRF_GPIOTE0_S
+#endif
 #define GPIOTE_IRQn GPIOTE0_IRQn
 #endif
 

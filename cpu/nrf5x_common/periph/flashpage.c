@@ -24,7 +24,11 @@
 #include "periph/flashpage.h"
 
 #ifndef NRF_NVMC
+#if IS_ACTIVE(MODULE_TRUSTED_FIRMWARE_M)
+#define NRF_NVMC NRF_NVMC_NS
+#else
 #define NRF_NVMC NRF_NVMC_S
+#endif
 #endif
 
 void flashpage_erase(unsigned page)

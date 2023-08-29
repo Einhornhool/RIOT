@@ -29,6 +29,9 @@ extern "C" {
  * @brief   Compatibility wrapper for nRF9160
  */
 #ifdef NRF_FICR_S
+#if IS_ACTIVE(MODULE_TRUSTED_FIRMWARE_M)
+#define NRF_FICR NRF_FICR_NS
+#else
 #define NRF_FICR NRF_FICR_S
 #endif
 

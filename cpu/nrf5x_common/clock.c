@@ -30,7 +30,11 @@
 
 /* Add compatibility wrapper defines for nRF families with Cortex-M33 core */
 #ifdef NRF_CLOCK_S
+#if IS_ACTIVE(MODULE_TRUSTED_FIRMWARE_M)
+#define NRF_CLOCK NRF_CLOCK_NS
+#else
 #define NRF_CLOCK NRF_CLOCK_S
+#endif
 #endif
 
 static unsigned _hfxo_requests = 0;

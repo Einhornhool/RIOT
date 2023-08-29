@@ -40,7 +40,11 @@
 
 /* Compatibility wrapper defines for nRF9160 */
 #ifdef NRF_P0_S
+#if IS_ACTIVE(MODULE_TRUSTED_FIRMWARE_M)
+#define NRF_P0 NRF_P0_NS
+#else
 #define NRF_P0 NRF_P0_S
+#endif
 #endif
 
 #ifdef NRF_P1_S
@@ -48,7 +52,11 @@
 #endif
 
 #ifdef NRF_GPIOTE0_S
+#if IS_ACTIVE(MODULE_TRUSTED_FIRMWARE_M)
+#define NRF_GPIOTE NRF_GPIOTE0_NS
+#else
 #define NRF_GPIOTE NRF_GPIOTE0_S
+#endif
 #define GPIOTE_IRQn GPIOTE0_IRQn
 #endif
 
@@ -87,6 +95,9 @@ static inline NRF_GPIO_Type *port(gpio_t pin)
 #if (CPU_FAM_NRF51)
     (void) pin;
     return NRF_GPIO;
+#elif defined(CPU_FAM_NRF9160) && IS_ACTIVE(MODULE_TRUSTED_FIRMWARE_M)
+    (void) pin;
+    return NRF_P0_NS;
 #elif defined(NRF_P1)
     return (pin & PORT_BIT) ? NRF_P1 : NRF_P0;
 #else

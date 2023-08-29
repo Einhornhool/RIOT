@@ -24,6 +24,8 @@
 
 #include "board.h"
 
+#include "kernel_defines.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -34,7 +36,11 @@ extern "C" {
  */
 static const i2c_conf_t i2c_config[] = {
     {
+#if IS_ACTIVE(MODULE_TRUSTED_FIRMWARE_M)
+        .dev = NRF_TWIM3_NS,
+#else
         .dev = NRF_TWIM3_S,
+#endif
         .scl = GPIO_PIN(0, 31),
         .sda = GPIO_PIN(0, 30),
         .speed = I2C_SPEED_NORMAL
@@ -49,7 +55,11 @@ static const i2c_conf_t i2c_config[] = {
  */
 static const spi_conf_t spi_config[] = {
     {
+#if IS_ACTIVE(MODULE_TRUSTED_FIRMWARE_M)
+        .dev  = NRF_SPIM2_NS,
+#else
         .dev  = NRF_SPIM2_S,
+#endif
         .sclk = GPIO_PIN(0, 13),
         .mosi = GPIO_PIN(0, 11),
         .miso = GPIO_PIN(0, 12),
@@ -65,6 +75,9 @@ static const spi_conf_t spi_config[] = {
  */
 static const timer_conf_t timer_config[] = {
     {
+#if IS_ACTIVE(MODULE_TRUSTED_FIRMWARE_M)
+        .dev      = NRF_TIMER0_NS,
+#else
         .dev      = NRF_TIMER0_S,
         /* using last channel for timer_read(), so only 5 of 6 channels available */
         .channels = 5,
@@ -72,6 +85,9 @@ static const timer_conf_t timer_config[] = {
         .irqn     = TIMER0_IRQn
     },
     {
+#if IS_ACTIVE(MODULE_TRUSTED_FIRMWARE_M)
+        .dev      = NRF_TIMER1_NS,
+#else
         .dev      = NRF_TIMER1_S,
         /* using last channel for timer_read(), so only 5 of 6 channels available */
         .channels = 5,
@@ -97,7 +113,12 @@ static const timer_conf_t timer_config[] = {
  */
 static const uart_conf_t uart_config[] = {
     {
-        .dev        = NRF_UARTE0_S,
+#if IS_ACTIVE(MODULE_TRUSTED_FIRMWARE_M)
+        .dev        = NRF_UARTE0_NS,
+#else
+        .dev        = NRF_UARTE0_
+        S,
+#endif
         .rx_pin     = GPIO_PIN(0, 28),
         .tx_pin     = GPIO_PIN(0, 29),
 #ifdef MODULE_PERIPH_UART_HW_FC
@@ -107,7 +128,11 @@ static const uart_conf_t uart_config[] = {
         .irqn       = UARTE0_SPIM0_SPIS0_TWIM0_TWIS0_IRQn,
     },
     {
+#if IS_ACTIVE(MODULE_TRUSTED_FIRMWARE_M)
+        .dev        = NRF_UARTE1_NS,
+#else
         .dev        = NRF_UARTE1_S,
+#endif
         .rx_pin     = GPIO_PIN(0, 0),
         .tx_pin     = GPIO_PIN(0, 1),
 #ifdef MODULE_PERIPH_UART_HW_FC

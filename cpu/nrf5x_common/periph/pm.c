@@ -24,7 +24,11 @@
 #include "cpu.h"
 
 #ifdef NRF_POWER_S
+#if IS_ACTIVE(MODULE_TRUSTED_FIRMWARE_M)
+#define NRF_POWER NRF_POWER_NS
+#else
 #define NRF_POWER NRF_POWER_S
+#endif
 #endif
 
 /* TODO: implement proper pm_off for nRF9160 */
