@@ -20,7 +20,18 @@
  */
 
 #include <stdio.h>
-// #include "psa/crypto.h"
+#include "psa/crypto.h"
+
+#include "clk.h"
+#include "board.h"
+#include "periph_conf.h"
+#include "timex.h"
+#include "ztimer.h"
+
+static void delay(void)
+{
+    ztimer_sleep(ZTIMER_USEC, 1 * US_PER_SEC);
+}
 
 int main(void)
 {
@@ -29,8 +40,18 @@ int main(void)
     printf("You are running RIOT on a(n) %s board.\n", RIOT_BOARD);
     printf("This board features a(n) %s CPU.\n", RIOT_CPU);
 
-    // psa_status_t status = psa_crypto_init();
-    // printf("Status: %d\n", (int) status);
+    int i = 5;
+    while (i > 0) {
+        delay();
+#ifdef LED0_TOGGLE
+        LED0_TOGGLE;
+#else
+        puts("Blink! (No LED present or configured...)");
+#endif
+        i--;
+    }
+    psa_status_t status = psa_crypto_init();
+    printf("Status: %d\n", (int) status);
 
     return 0;
 }

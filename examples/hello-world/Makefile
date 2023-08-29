@@ -15,6 +15,12 @@ DEVELHELP ?= 1
 # Change this to 0 show compiler invocation lines by default:
 QUIET ?= 1
 
+CFLAGS += -DTHREAD_STACKSIZE_MAIN=\(12*THREAD_STACKSIZE_DEFAULT\)
+
 USEPKG += trusted_firmware_m
+USEMODULE += ztimer_usec
+DISABLE_MODULE += core_idle_thread
+DISABLE_MODULE += core_thread
+DISABLE_MODULE += core_msg
 
 include $(RIOTBASE)/Makefile.include
