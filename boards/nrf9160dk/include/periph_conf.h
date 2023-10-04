@@ -79,6 +79,7 @@ static const timer_conf_t timer_config[] = {
         .dev      = NRF_TIMER0_NS,
 #else
         .dev      = NRF_TIMER0_S,
+#endif
         /* using last channel for timer_read(), so only 5 of 6 channels available */
         .channels = 5,
         .bitmode  = TIMER_BITMODE_BITMODE_32Bit,
@@ -89,6 +90,7 @@ static const timer_conf_t timer_config[] = {
         .dev      = NRF_TIMER1_NS,
 #else
         .dev      = NRF_TIMER1_S,
+#endif
         /* using last channel for timer_read(), so only 5 of 6 channels available */
         .channels = 5,
         .bitmode  = TIMER_BITMODE_BITMODE_08Bit,
@@ -116,8 +118,7 @@ static const uart_conf_t uart_config[] = {
 #if IS_ACTIVE(MODULE_TRUSTED_FIRMWARE_M)
         .dev        = NRF_UARTE0_NS,
 #else
-        .dev        = NRF_UARTE0_
-        S,
+        .dev        = NRF_UARTE0_S,
 #endif
         .rx_pin     = GPIO_PIN(0, 28),
         .tx_pin     = GPIO_PIN(0, 29),
@@ -170,7 +171,11 @@ static const uart_conf_t uart_config[] = {
  */
 static const pwm_conf_t pwm_config[] = {
     {
+#if IS_ACTIVE(MODULE_TRUSTED_FIRMWARE_M)
+        .dev = NRF_PWM0_NS,
+#else
         .dev = NRF_PWM0_S,
+#endif
         .pin = {
                     LED0_PIN,
                     LED1_PIN,

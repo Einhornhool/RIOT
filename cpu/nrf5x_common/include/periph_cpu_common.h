@@ -34,6 +34,7 @@ extern "C" {
 #else
 #define NRF_FICR NRF_FICR_S
 #endif
+#endif /* NRF_FICR_S */
 
 /**
  * @brief   Enable the workaround for the SPI single byte transmit errata (No.
