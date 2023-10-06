@@ -19,6 +19,8 @@ TOOLCHAIN_FILE=$(PKG_SOURCE_DIR)/xcompile-toolchain.cmake
 all: $(PKG_BUILD_DIR)/Makefile
 	$(MAKE) -C $(PKG_BUILD_DIR)
 	$(Q)cp $$(find $(PKG_BUILD_DIR)/secure_fw -name "*.a") $(BINDIR)/tfm_archives
+	$(Q)cp $$(find $(PKG_BUILD_DIR)/platform -name "*.a") $(BINDIR)/tfm_archives
+	$(Q)rm $$(find $(BINDIR)/tfm_archives -name "*bl2*")
 
 # env -u CC -u CFLAGS
 $(PKG_BUILD_DIR)/Makefile: $(TOOLCHAIN_FILE)
