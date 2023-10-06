@@ -88,7 +88,7 @@ extern isrpipe_t stdin_isrpipe;
 /**
  * @brief initialize the module
  */
-void stdio_init(void);
+void stdio_init_riot(void);
 
 #if IS_USED(MODULE_STDIO_AVAILABLE) || DOXYGEN
 /**
