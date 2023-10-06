@@ -28,9 +28,77 @@
 #include "timex.h"
 #include "ztimer.h"
 
-static void delay(void)
+#define ECDSA_MESSAGE_SIZE  (127)
+#define ECC_KEY_SIZE    (256)
+
+// static void delay(void)
+// {
+//     ztimer_sleep(ZTIMER_USEC, 1 * US_PER_SEC);
+// }
+
+psa_status_t example_ecdsa_p256(void)
 {
-    ztimer_sleep(ZTIMER_USEC, 1 * US_PER_SEC);
+    psa_key_id_t privkey_id;
+    psa_key_attributes_t privkey_attr = psa_key_attributes_init();
+    psa_key_id_t pubkey_id;
+    psa_key_attributes_t pubkey_attr = psa_key_attributes_init();
+
+    psa_key_usage_t usage = PSA_KEY_USAGE_SIGN_HASH | PSA_KEY_USAGE_VERIFY_HASH;
+    psa_key_type_t type = PSA_KEY_TYPE_ECC_KEY_PAIR(PSA_ECC_FAMILY_SECP_R1);
+    psa_algorithm_t alg =  PSA_ALG_ECDSA(PSA_ALG_SHA_256);
+    psa_key_bits_t bits = ECC_KEY_SIZE;
+    uint8_t bytes =
+        PSA_EXPORT_PUBLIC_KEY_OUTPUT_SIZE(PSA_KEY_TYPE_ECC_KEY_PAIR(PSA_ECC_FAMILY_SECP_R1), bits);
+
+    uint8_t public_key[PSA_EXPORT_PUBLIC_KEY_OUTPUT_SIZE(PSA_KEY_TYPE_ECC_KEY_PAIR(
+                                                             PSA_ECC_FAMILY_SECP_R1),
+                                                         ECC_KEY_SIZE)] = { 0 };
+    size_t pubkey_length;
+    uint8_t signature[PSA_SIGN_OUTPUT_SIZE(type, bits, alg)];
+    size_t sig_length;
+    uint8_t msg[ECDSA_MESSAGE_SIZE] = { 0x0b };
+    uint8_t hash[PSA_HASH_LENGTH(PSA_ALG_SHA_256)];
+    size_t hash_length;
+
+    psa_set_key_algorithm(&privkey_attr, alg);
+    psa_set_key_usage_flags(&privkey_attr, usage);
+    psa_set_key_type(&privkey_attr, type);
+    psa_set_key_bits(&privkey_attr, bits);
+
+    psa_status_t status = PSA_ERROR_DOES_NOT_EXIST;
+
+    status = psa_generate_key(&privkey_attr, &privkey_id);
+    if (status != PSA_SUCCESS) {
+        return status;
+    }
+
+    status = psa_export_public_key(privkey_id, public_key, sizeof(public_key), &pubkey_length);
+    if (status != PSA_SUCCESS) {
+        return status;
+    }
+
+    status = psa_hash_compute(PSA_ALG_SHA_256, msg, sizeof(msg), hash, sizeof(hash), &hash_length);
+    if (status != PSA_SUCCESS) {
+        return status;
+    }
+
+    psa_set_key_algorithm(&pubkey_attr, alg);
+    psa_set_key_usage_flags(&pubkey_attr, PSA_KEY_USAGE_VERIFY_HASH);
+    psa_set_key_bits(&pubkey_attr, PSA_BYTES_TO_BITS(bytes));
+    psa_set_key_type(&pubkey_attr, PSA_KEY_TYPE_ECC_PUBLIC_KEY(PSA_ECC_FAMILY_SECP_R1));
+
+    status = psa_import_key(&pubkey_attr, public_key, pubkey_length, &pubkey_id);
+    if (status != PSA_SUCCESS) {
+        return status;
+    }
+
+    status = psa_sign_hash(privkey_id, alg, hash, sizeof(hash), signature, sizeof(signature),
+                           &sig_length);
+    if (status != PSA_SUCCESS) {
+        return status;
+    }
+
+    return psa_verify_hash(pubkey_id, alg, hash, sizeof(hash), signature, sig_length);
 }
 
 int main(void)
@@ -40,18 +108,24 @@ int main(void)
     printf("You are running RIOT on a(n) %s board.\n", RIOT_BOARD);
     printf("This board features a(n) %s CPU.\n", RIOT_CPU);
 
-    int i = 5;
-    while (i > 0) {
-        delay();
-#ifdef LED0_TOGGLE
-        LED0_TOGGLE;
-#else
-        puts("Blink! (No LED present or configured...)");
-#endif
-        i--;
-    }
+//     int i = 5;
+//     while (i > 0) {
+//         delay();
+// #ifdef LED0_TOGGLE
+//         LED0_TOGGLE;
+// #else
+//         puts("Blink! (No LED present or configured...)");
+// #endif
+//         i--;
+//     }
     psa_status_t status = psa_crypto_init();
+
+    status = example_ecdsa_p256();
+    if (status != PSA_SUCCESS) {
+        printf("ECDSA failed");
+    }
     printf("Status: %d\n", (int) status);
+    puts("Done");
 
     return 0;
 }
