@@ -8,5 +8,5 @@ INCLUDES += -I$(PKG_SOURCE_DIR)/interface/include/os_wrapper
 INCLUDES += -I$(PKG_SOURCE_DIR)/interface/include/psa
 INCLUDES += -I$(PKG_SOURCE_DIR)/interface/include/psa_manifest
 
-DIRS += $(RIOTPKG)/trusted_firmware_m/contrib
+# DIRS += $(RIOTPKG)/trusted_firmware_m/contrib
 ARCHIVES += $(wildcard $(BINDIR)/tfm_archives/*.a)

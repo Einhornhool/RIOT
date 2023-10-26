@@ -21,6 +21,7 @@
 
 #include <stdio.h>
 #include "psa/crypto.h"
+#include "interface/include/tfm_ns_interface.h"
 
 #include "clk.h"
 #include "board.h"
@@ -118,6 +119,10 @@ int main(void)
 // #endif
 //         i--;
 //     }
+    if (tfm_ns_interface_init() != 0) {
+        printf("Failed to initialize secure interface.\n");
+        return 1;
+    }
     psa_status_t status = psa_crypto_init();
 
     status = example_ecdsa_p256();
