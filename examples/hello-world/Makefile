@@ -17,6 +17,8 @@ QUIET ?= 1
 
 CFLAGS += -DTHREAD_STACKSIZE_MAIN=\(12*THREAD_STACKSIZE_DEFAULT\)
 
+CFLAGS += -fno-tree-loop-distribute-patterns
+
 USEPKG += trusted_firmware_m
 USEMODULE += ztimer_usec
 

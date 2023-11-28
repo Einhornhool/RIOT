@@ -1,2 +1,2 @@
-# USEMODULE += tfm_contrib
+USEMODULE += tfm_contrib
 USEMODULE += cortexm_svc

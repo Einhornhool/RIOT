@@ -1,5 +1,7 @@
 PKG_SOURCE_DIR ?= $(PKGDIRBASE)/trusted_firmware_m
 
+DIRS += $(RIOTPKG)/trusted_firmware_m/contrib
+
 INCLUDES += -I$(PKG_SOURCE_DIR)
 INCLUDES += -I$(PKG_SOURCE_DIR)/interface/include
 INCLUDES += -I$(PKG_SOURCE_DIR)/interface/include/crypto_keys

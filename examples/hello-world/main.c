@@ -21,7 +21,7 @@
 
 #include <stdio.h>
 #include "psa/crypto.h"
-#include "interface/include/tfm_ns_interface.h"
+#include "tfm_ns_interface.h"
 
 #include "clk.h"
 #include "board.h"
@@ -109,16 +109,6 @@ int main(void)
     printf("You are running RIOT on a(n) %s board.\n", RIOT_BOARD);
     printf("This board features a(n) %s CPU.\n", RIOT_CPU);
 
-//     int i = 5;
-//     while (i > 0) {
-//         delay();
-// #ifdef LED0_TOGGLE
-//         LED0_TOGGLE;
-// #else
-//         puts("Blink! (No LED present or configured...)");
-// #endif
-//         i--;
-//     }
     if (tfm_ns_interface_init() != 0) {
         printf("Failed to initialize secure interface.\n");
         return 1;
