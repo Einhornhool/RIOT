@@ -3,7 +3,8 @@ RAM_LEN ?= 0x40000
 
 ifneq (,$(filter trusted_firmware_m,$(USEPKG)))
 RAM_LEN = 0x2a000
-RAM_START_ADDR ?= 0x20016000
+# RAM_START_ADDR ?= 0x20016000
+RAM_START_ADDR ?= 0x20020000
 
 # Export internal ROM alignment and slot sizes for bootloader support
 export MCUBOOT_IMAGE_ALIGN = 8
