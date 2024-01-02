@@ -34,6 +34,11 @@ ASSEMBLE_IMAGES = $(IMAGE_SIGNING_DIR)/scripts/assemble.py
 # 	$(Q)$(IMGTOOL) keygen -k $@ -t rsa-2048
 # endif
 
+# $(Q) $(_LINK) -o $(ELFFILE) && \
+# $(OBJCOPY) $(OFLAGS) -Obinary $(ELFFILE) $(BINFILE) && \
+
+$(info _LINK = $(_LINK))
+
 # 1. Re-link files with new offset
 # 2. Sign secure and non-secure image and merge them into one binary
 # This uses the scripts located at dist/tools/trusted_firmware_m.

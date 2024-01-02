@@ -7,6 +7,8 @@ PKG_URL=https://git.trustedfirmware.org/TF-M/trusted-firmware-m.git
 PKG_VERSION=65d71a3f8b9f1787c0fe19ad25f5b76252f44cdc
 PKG_LICENSE=BSD-3-Clause
 
+SP_RUNTIME_LIB_DIR = $(PKG_BUILD_DIR)/secure_fw/partitions/lib/runtime
+
 include $(RIOTBASE)/pkg/pkg.mk
 
 .PHONY: all..cmake_version_supported
@@ -16,11 +18,21 @@ CMAKE_MINIMAL_VERSION = 3.10
 TOOLCHAIN_FILE=$(PKG_SOURCE_DIR)/xcompile-toolchain.cmake
 
 # env -u CC -u CFLAGS
+# 1. build source files
+# 2. remove TF-M runtime library implementations from tfm-archives to only link toolchain
+#    implementations (SPRTL implementations access secure RAM and run into securefault)
+#    Workaround, since toolchain implementation does not fulfill all security requirements
+#    Alternative fix needed
+# 3. Copy all tf-m archive files to tfm_archive folder for linker to find
 all: $(PKG_BUILD_DIR)/Makefile
 	$(MAKE) -C $(PKG_BUILD_DIR)
+	$(AR) -d $(SP_RUNTIME_LIB_DIR)/libtfm_sprt.a $$(find $(SP_RUNTIME_LIB_DIR)/CMakeFiles -name "crt*.o")
 	$(Q)cp $$(find $(PKG_BUILD_DIR)/secure_fw -name "*.a") $(BINDIR)/tfm_archives
 	$(Q)cp $$(find $(PKG_BUILD_DIR)/platform -name "*.a") $(BINDIR)/tfm_archives
 	$(Q)rm $$(find $(BINDIR)/tfm_archives -name "*bl2*")
+	$(Q)$(OBJCOPY) \
+	  --redefine-sym printf=tfm_printf \
+	  $(BINDIR)/tfm_archives/libtfm_sprt.a
 
 # env -u CC -u CFLAGS
 $(PKG_BUILD_DIR)/Makefile: $(TOOLCHAIN_FILE)
@@ -33,9 +45,9 @@ $(PKG_BUILD_DIR)/Makefile: $(TOOLCHAIN_FILE)
 			-DTFM_TOOLCHAIN_FILE=$(PKG_SOURCE_DIR)/toolchain_GNUARM.cmake \
 			-DCMAKE_BUILD_TYPE=Debug \
 			-DCMAKE_C_COMPILER=/home/lena/apps/gcc-arm-none-eabi-10.3-2021.10/bin/arm-none-eabi-gcc \
-      -DTFM_PARTITION_CRYPTO=ON \
-      -DTFM_PARTITION_INTERNAL_TRUSTED_STORAGE=ON \
-      -DTFM_PSA_API=ON \
+			-DTFM_PARTITION_CRYPTO=ON \
+			-DTFM_PARTITION_INTERNAL_TRUSTED_STORAGE=ON \
+			-DTFM_PSA_API=ON \
 
 $(TOOLCHAIN_FILE): git-download
 	$(RIOTTOOLS)/cmake/generate-xcompile-toolchain.sh > $(TOOLCHAIN_FILE)

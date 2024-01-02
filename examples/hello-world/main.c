@@ -32,6 +32,8 @@
 #define ECDSA_MESSAGE_SIZE  (127)
 #define ECC_KEY_SIZE    (256)
 
+// const uint8_t hash_input[32] = { 0x88 };
+
 // static void delay(void)
 // {
 //     ztimer_sleep(ZTIMER_USEC, 1 * US_PER_SEC);
@@ -106,18 +108,24 @@ int main(void)
 {
     puts("Hello World!");
 
-    printf("You are running RIOT on a(n) %s board.\n", RIOT_BOARD);
-    printf("This board features a(n) %s CPU.\n", RIOT_CPU);
+    printf("You are running RIOT on a %s board.\n", RIOT_BOARD);
+    printf("This board features a %s MCU.\n", RIOT_MCU);
 
+    // uint8_t hash_output[PSA_HASH_LENGTH(PSA_ALG_SHA_256)];
+    // size_t hash_size = 0;
     if (tfm_ns_interface_init() != 0) {
         printf("Failed to initialize secure interface.\n");
         return 1;
     }
     psa_status_t status = psa_crypto_init();
+    // status = psa_hash_compute(PSA_ALG_SHA_256, hash_input, sizeof(hash_input), hash_output, sizeof(hash_output), &hash_size);
+    // if (status != PSA_SUCCESS) {
+    //     printf("Hash failed: %d\n", (int)status);
+    // }
 
     status = example_ecdsa_p256();
     if (status != PSA_SUCCESS) {
-        printf("ECDSA failed");
+        printf("ECDSA failed with status: %d\n", (int) status);
     }
     printf("Status: %d\n", (int) status);
     puts("Done");
