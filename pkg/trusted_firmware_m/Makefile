@@ -19,21 +19,23 @@ TOOLCHAIN_FILE=$(PKG_SOURCE_DIR)/xcompile-toolchain.cmake
 
 # env -u CC -u CFLAGS
 # 1. build source files
-# 2. remove TF-M runtime library implementations from tfm-archives to only link toolchain
+# 2. remove TF-M runtime library implementations from tf-m archives to only link toolchain
 #    implementations (SPRTL implementations access secure RAM and run into securefault)
 #    Workaround, since toolchain implementation does not fulfill all security requirements
 #    Alternative fix needed
 # 3. Copy all tf-m archive files to tfm_archive folder for linker to find
 all: $(PKG_BUILD_DIR)/Makefile
 	$(MAKE) -C $(PKG_BUILD_DIR)
+# $(Q)cp -u $$(find $(PKG_BUILD_DIR) -name "*.a") $(BINDIR)/tfm_archives
 	$(AR) -d $(SP_RUNTIME_LIB_DIR)/libtfm_sprt.a $$(find $(SP_RUNTIME_LIB_DIR)/CMakeFiles -name "crt*.o")
 	$(Q)cp $$(find $(PKG_BUILD_DIR)/secure_fw -name "*.a") $(BINDIR)/tfm_archives
 	$(Q)cp $$(find $(PKG_BUILD_DIR)/platform -name "*.a") $(BINDIR)/tfm_archives
 	$(Q)rm $$(find $(BINDIR)/tfm_archives -name "*bl2*")
-	$(Q)$(OBJCOPY) \
-	  --redefine-sym printf=tfm_printf \
-	  $(BINDIR)/tfm_archives/libtfm_sprt.a
+# $(Q)$(OBJCOPY) \
+#   --redefine-sym printf=tfm_printf \
+#   $(BINDIR)/tfm_archives/libtfm_sprt.a
 
+$(info $$**************PKG_BUILD_DIR is [${PKG_BUILD_DIR}])
 # env -u CC -u CFLAGS
 $(PKG_BUILD_DIR)/Makefile: $(TOOLCHAIN_FILE)
 	$(Q)mkdir -p $(BINDIR)/tfm_archives

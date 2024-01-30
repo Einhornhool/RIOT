@@ -21,11 +21,11 @@ SIGNING_KEYFILE_NS = $(PKG_SOURCE_DIR)/bl2/ext/mcuboot/root-RSA-3072_1.pem
 
 ASSEMBLE_IMAGES = $(IMAGE_SIGNING_DIR)/scripts/assemble.py
 
-# $(info $$**************Includes is [${INCLUDES}])
-# $(info $$**************objects is [${_LINK}])
-# $(info $$**************link is [${LINK}])
-# $(info $$**************baselibs is [${BASELIBS}])
-# $(info $$**************archives is [${ARCHIVES}])
+$(info $$**************Includes is [${INCLUDES}])
+$(info $$**************objects is [${_LINK}])
+$(info $$**************link is [${LINK}])
+$(info $$**************baselibs is [${BASELIBS}])
+$(info $$**************archives is [${ARCHIVES}])
 # tfm-create-key: $(SIGNING_KEYFILE)
 
 # ifeq ($(BINDIR)/key.pem,$(SIGNING_KEYFILE))
@@ -34,18 +34,11 @@ ASSEMBLE_IMAGES = $(IMAGE_SIGNING_DIR)/scripts/assemble.py
 # 	$(Q)$(IMGTOOL) keygen -k $@ -t rsa-2048
 # endif
 
-# $(Q) $(_LINK) -o $(ELFFILE) && \
-# $(OBJCOPY) $(OFLAGS) -Obinary $(ELFFILE) $(BINFILE) && \
-
-$(info _LINK = $(_LINK))
-
 # 1. Re-link files with new offset
 # 2. Sign secure and non-secure image and merge them into one binary
 # This uses the scripts located at dist/tools/trusted_firmware_m.
 trusted_firmware_m: ROM_OFFSET=$$(($(MCUBOOT_SLOT0_SIZE) + $(IMAGE_HDR_SIZE)))
 trusted_firmware_m: link # tfm-create-key
-	$(Q) $(_LINK) -o $(ELFFILE) && \
-	$(OBJCOPY) $(OFLAGS) -Obinary $(ELFFILE) $(BINFILE) && \
 	$(IMGTOOL_WRAPPER) -v 1.7.0 --layout $(SIGNING_LAYOUT_S) -k $(SIGNING_KEYFILE_S) \
 	--public-key-format full --align 1 --pad --pad-header -H $(IMAGE_HDR_SIZE) \
 	-s 1 -L 128 $(SECURE_IMAGE) --overwrite-only \
