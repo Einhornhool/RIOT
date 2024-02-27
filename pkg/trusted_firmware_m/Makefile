@@ -26,11 +26,11 @@ TOOLCHAIN_FILE=$(PKG_SOURCE_DIR)/xcompile-toolchain.cmake
 # 3. Copy all tf-m archive files to tfm_archive folder for linker to find
 all: $(PKG_BUILD_DIR)/Makefile
 	$(MAKE) -C $(PKG_BUILD_DIR)
+	$(Q)cp $$(find $(PKG_BUILD_DIR)/secure_fw -name "*crypto_api.o") $(BINDIR)/tfm_archives
 # $(Q)cp -u $$(find $(PKG_BUILD_DIR) -name "*.a") $(BINDIR)/tfm_archives
-	$(AR) -d $(SP_RUNTIME_LIB_DIR)/libtfm_sprt.a $$(find $(SP_RUNTIME_LIB_DIR)/CMakeFiles -name "crt*.o")
-	$(Q)cp $$(find $(PKG_BUILD_DIR)/secure_fw -name "*.a") $(BINDIR)/tfm_archives
-	$(Q)cp $$(find $(PKG_BUILD_DIR)/platform -name "*.a") $(BINDIR)/tfm_archives
-	$(Q)rm $$(find $(BINDIR)/tfm_archives -name "*bl2*")
+# $(AR) -d $(SP_RUNTIME_LIB_DIR)/libtfm_sprt.a $$(find $(SP_RUNTIME_LIB_DIR)/CMakeFiles -name "crt*.o")
+# $(Q)cp $$(find $(PKG_BUILD_DIR)/platform -name "*.a") $(BINDIR)/tfm_archives
+# $(Q)rm $$(find $(BINDIR)/tfm_archives -name "*bl2*")
 # $(Q)$(OBJCOPY) \
 #   --redefine-sym printf=tfm_printf \
 #   $(BINDIR)/tfm_archives/libtfm_sprt.a
