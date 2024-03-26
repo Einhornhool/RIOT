@@ -5,6 +5,8 @@ PKG_URL=https://git.trustedfirmware.org/TF-M/trusted-firmware-m.git
 # Problem has something to do with target_cfg.c files of nrf9160 and nrf5340
 # being merged afterwards. Didn't care for debugging this (TODO: should be done at some point).
 PKG_VERSION=65d71a3f8b9f1787c0fe19ad25f5b76252f44cdc
+
+#Last version used: ff32fe04626632c69966bea8e673e3797b321211
 PKG_LICENSE=BSD-3-Clause
 
 SP_RUNTIME_LIB_DIR = $(PKG_BUILD_DIR)/secure_fw/partitions/lib/runtime
