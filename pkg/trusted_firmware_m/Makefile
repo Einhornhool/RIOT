@@ -4,20 +4,19 @@ PKG_URL=https://git.trustedfirmware.org/TF-M/trusted-firmware-m.git
 # Last commit working
 # Problem has something to do with target_cfg.c files of nrf9160 and nrf5340
 # being merged afterwards. Didn't care for debugging this (TODO: should be done at some point).
-PKG_VERSION=65d71a3f8b9f1787c0fe19ad25f5b76252f44cdc
-
-#Last version used: ff32fe04626632c69966bea8e673e3797b321211
+# PKG_VERSION=65d71a3f8b9f1787c0fe19ad25f5b76252f44cdc
+PKG_VERSION=ff32fe04626632c69966bea8e673e3797b321211
 PKG_LICENSE=BSD-3-Clause
-
-SP_RUNTIME_LIB_DIR = $(PKG_BUILD_DIR)/secure_fw/partitions/lib/runtime
 
 include $(RIOTBASE)/pkg/pkg.mk
 
 .PHONY: all..cmake_version_supported
 
+TOOLCHAIN_FILE=$(PKG_SOURCE_DIR)/xcompile-toolchain.cmake
+
 CMAKE_MINIMAL_VERSION = 3.10
 
-TOOLCHAIN_FILE=$(PKG_SOURCE_DIR)/xcompile-toolchain.cmake
+CFLAGS += -Wno-unused-parameter
 
 # env -u CC -u CFLAGS
 # 1. build source files
@@ -26,32 +25,39 @@ TOOLCHAIN_FILE=$(PKG_SOURCE_DIR)/xcompile-toolchain.cmake
 #    Workaround, since toolchain implementation does not fulfill all security requirements
 #    Alternative fix needed
 # 3. Copy all tf-m archive files to tfm_archive folder for linker to find
-all: $(PKG_BUILD_DIR)/Makefile
-	$(MAKE) -C $(PKG_BUILD_DIR)
-	$(Q)cp $$(find $(PKG_BUILD_DIR)/secure_fw -name "*crypto_api.o") $(BINDIR)/tfm_archives
-# $(Q)cp -u $$(find $(PKG_BUILD_DIR) -name "*.a") $(BINDIR)/tfm_archives
-# $(AR) -d $(SP_RUNTIME_LIB_DIR)/libtfm_sprt.a $$(find $(SP_RUNTIME_LIB_DIR)/CMakeFiles -name "crt*.o")
-# $(Q)cp $$(find $(PKG_BUILD_DIR)/platform -name "*.a") $(BINDIR)/tfm_archives
-# $(Q)rm $$(find $(BINDIR)/tfm_archives -name "*bl2*")
-# $(Q)$(OBJCOPY) \
-#   --redefine-sym printf=tfm_printf \
-#   $(BINDIR)/tfm_archives/libtfm_sprt.a
+all: build_api_ns
+# env -u CC -u CFLAGS \
+#
+# "$(MAKE)" -C $(PKG_BUILD_DIR)/api_ns -f $(RIOTBASE)/Makefile.base MODULE=libapi_ns
 
-$(info $$**************PKG_BUILD_DIR is [${PKG_BUILD_DIR}])
-# env -u CC -u CFLAGS
-$(PKG_BUILD_DIR)/Makefile: $(TOOLCHAIN_FILE)
-	$(Q)mkdir -p $(BINDIR)/tfm_archives
+build_spe: $(PKG_BUILD_DIR)/Makefile
+	cmake --build $(PKG_BUILD_DIR) -- install
+
+$(PKG_BUILD_DIR)/Makefile:
 	cmake \
-			-DCMAKE_TOOLCHAIN_FILE=$(TOOLCHAIN_FILE) \
 			-S$(PKG_SOURCE_DIR) \
 			-B$(PKG_BUILD_DIR) \
 			-DTFM_PLATFORM=nordic_nrf/nrf9160dk_nrf9160 \
 			-DTFM_TOOLCHAIN_FILE=$(PKG_SOURCE_DIR)/toolchain_GNUARM.cmake \
 			-DCMAKE_BUILD_TYPE=Debug \
-			-DCMAKE_C_COMPILER=/home/lena/apps/gcc-arm-none-eabi-10.3-2021.10/bin/arm-none-eabi-gcc \
-			-DTFM_PARTITION_CRYPTO=ON \
-			-DTFM_PARTITION_INTERNAL_TRUSTED_STORAGE=ON \
-			-DTFM_PSA_API=ON \
+			-DTFM_PROFILE=profile_medium \
+			-DPLATFORM_DEFAULT_IMAGE_SIGNING=OFF \
+			-DCONFIG_TFM_FLOAT_ABI=hard \
+			-DCMAKE_C_COMPILER=/home/lena/apps/arm-gnu-toolchain-12.3.rel1-x86_64-arm-none-eabi/bin/arm-none-eabi-gcc
+
+build_api_ns: build_spe
+	cmake \
+		-B $(PKG_BUILD_DIR)/build_ns \
+		-DCONFIG_SPE_PATH=$(PKG_BUILD_DIR)/api_ns \
+		-DCMAKE_TOOLCHAIN_FILE=$(TOOLCHAIN_FILE) \
+    -DCMAKE_BUILD_TYPE=Debug \
+		-DTFM_TOOLCHAIN_FILE=$(PKG_BUILD_DIR)/api_ns/cmake/toolchain_ns_GNUARM.cmake \
+		-DCMAKE_C_COMPILER=/home/lena/apps/arm-gnu-toolchain-12.3.rel1-x86_64-arm-none-eabi/bin/arm-none-eabi-gcc
+	cmake --build $(PKG_BUILD_DIR)/build_ns
+	cp $(PKG_BUILD_DIR)/build_ns/libtfm_ns.a $(BINDIR)/libapi_ns.a
+	cp $(PKG_BUILD_DIR)/build_ns/spe/platform/libplatform_ns.a $(BINDIR)/libplatform_ns.a
+
+# "$(MAKE)" -C $(PKG_BUILD_DIR)/api_ns/interface/src -f $(RIOTBASE)/Makefile.base MODULE=api_ns
 
 $(TOOLCHAIN_FILE): git-download
 	$(RIOTTOOLS)/cmake/generate-xcompile-toolchain.sh > $(TOOLCHAIN_FILE)

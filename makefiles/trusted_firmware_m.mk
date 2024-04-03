@@ -38,7 +38,7 @@ ASSEMBLE_IMAGES = $(IMAGE_SIGNING_DIR)/scripts/assemble.py
 # 2. Sign secure and non-secure image and merge them into one binary
 # This uses the scripts located at dist/tools/trusted_firmware_m.
 trusted_firmware_m: ROM_OFFSET=$$(($(MCUBOOT_SLOT0_SIZE) + $(IMAGE_HDR_SIZE)))
-trusted_firmware_m: #link # tfm-create-key
+trusted_firmware_m: link # tfm-create-key
 	$(IMGTOOL_WRAPPER) -v 1.7.0 --layout $(SIGNING_LAYOUT_S) -k $(SIGNING_KEYFILE_S) \
 	--public-key-format full --align 1 --pad --pad-header -H $(IMAGE_HDR_SIZE) \
 	-s 1 -L 128 $(SECURE_IMAGE) --overwrite-only \

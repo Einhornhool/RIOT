@@ -13,29 +13,29 @@
  */
 
 #include <stdint.h>
-#include "mutex.h"
+// #include "mutex.h"
 #include "tfm_ns_interface.h"
 
 #define ENABLE_DEBUG 1
 #include "debug.h"
 
-static mutex_t ns_mutex;
+// static mutex_t ns_mutex;
 
 int32_t tfm_ns_interface_dispatch(veneer_fn fn,
                                   uint32_t arg0, uint32_t arg1,
                                   uint32_t arg2, uint32_t arg3)
 {
     int32_t result;
-    DEBUG("[tfm interface] Interface Dispatch\n");
+    // DEBUG("[tfm interface] Interface Dispatch\n");
 
-    /* TFM request protected by NS lock */
-    while (mutex_trylock(&ns_mutex) != TFM_SUCCESS) {
-        DEBUG("[tfm interface] In Mutex While Loop\n");
-    }
+    // /* TFM request protected by NS lock */
+    // while (mutex_trylock(&ns_mutex) != 0) {
+    //     DEBUG("[tfm interface] In Mutex While Loop\n");
+    // }
 
     result = fn(arg0, arg1, arg2, arg3);
 
-    mutex_unlock(&ns_mutex);
+    // mutex_unlock(&ns_mutex);
 
     return result;
 }
@@ -43,7 +43,7 @@ int32_t tfm_ns_interface_dispatch(veneer_fn fn,
 uint32_t tfm_ns_interface_init(void)
 {
     DEBUG("[tfm interface] Interface Init\n");
-    mutex_init(&ns_mutex);
+    // mutex_init(&ns_mutex);
 
-    return TFM_SUCCESS;
+    return 0;
 }

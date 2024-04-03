@@ -21,23 +21,18 @@
 
 #include <stdio.h>
 #include "psa/crypto.h"
-#include "tfm_ns_interface.h"
+#include "psa/client.h"
 
-#include "clk.h"
-#include "board.h"
-#include "periph_conf.h"
-#include "timex.h"
-#include "ztimer.h"
+// #include "clk.h"
+// #include "board.h"
+// #include "periph_conf.h"
+// #include "timex.h"
+// #include "ztimer.h"
 
 #define ECDSA_MESSAGE_SIZE  (127)
 #define ECC_KEY_SIZE    (256)
 
-// const uint8_t hash_input[32] = { 0x88 };
-
-// static void delay(void)
-// {
-//     ztimer_sleep(ZTIMER_USEC, 1 * US_PER_SEC);
-// }
+const uint8_t hash_input[32] = { 0x88 };
 
 psa_status_t example_ecdsa_p256(void)
 {
@@ -111,17 +106,27 @@ int main(void)
     printf("You are running RIOT on a %s board.\n", RIOT_BOARD);
     printf("This board features a %s MCU.\n", RIOT_MCU);
 
-    // uint8_t hash_output[PSA_HASH_LENGTH(PSA_ALG_SHA_256)];
-    // size_t hash_size = 0;
-    if (tfm_ns_interface_init() != 0) {
-        printf("Failed to initialize secure interface.\n");
-        return 1;
+    uint32_t fw_version = psa_framework_version();
+    printf("FW  version = %ld\r\n", fw_version);
+
+    uint8_t number;
+    printf("Testing psa get random number...\r\n");
+    for (int i = 0; i < 5; i++) {
+        if (psa_generate_random(&number, sizeof(number)) == PSA_SUCCESS) {
+            printf("%d: psa_generate_random() = %d\r\n", i, number);
+        }
     }
+    uint8_t hash_output[PSA_HASH_LENGTH(PSA_ALG_SHA_256)];
+    size_t hash_size = 0;
+
     psa_status_t status = psa_crypto_init();
-    // status = psa_hash_compute(PSA_ALG_SHA_256, hash_input, sizeof(hash_input), hash_output, sizeof(hash_output), &hash_size);
-    // if (status != PSA_SUCCESS) {
-    //     printf("Hash failed: %d\n", (int)status);
-    // }
+    status = psa_hash_compute(PSA_ALG_SHA_256, hash_input, sizeof(hash_input), hash_output, sizeof(hash_output), &hash_size);
+    if (status == PSA_SUCCESS) {
+        printf("Hash success\n");
+    }
+    else {
+        printf("Hash failed: %d\n", (int)status);
+    }
 
     status = example_ecdsa_p256();
     if (status != PSA_SUCCESS) {

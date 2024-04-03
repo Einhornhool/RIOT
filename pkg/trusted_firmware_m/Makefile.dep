@@ -1,2 +1,3 @@
 USEMODULE += tfm_contrib
 USEMODULE += cortexm_svc
+# USEMODULE += core_mutex

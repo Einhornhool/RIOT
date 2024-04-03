@@ -1,14 +1,13 @@
-PKG_SOURCE_DIR ?= $(PKGDIRBASE)/trusted_firmware_m
+TFM_API_NS_DIR ?= $(BINDIR)/pkg-build/trusted_firmware_m/api_ns
+PKG_SOURCE_DIR ?= $(RIOTBASE)/build/pkg/trusted_firmware_m
+
+INCLUDES += -I$(TFM_API_NS_DIR)/interface/include
+INCLUDES += -I$(TFM_API_NS_DIR)/interface/include/crypto_keys
+INCLUDES += -I$(TFM_API_NS_DIR)/interface/include/os_wrapper
+INCLUDES += -I$(TFM_API_NS_DIR)/interface/include/psa
+INCLUDES += -I$(TFM_API_NS_DIR)/interface/include/psa_manifest
 
 DIRS += $(RIOTPKG)/trusted_firmware_m/contrib
-
-INCLUDES += -I$(PKG_SOURCE_DIR)
-INCLUDES += -I$(PKG_SOURCE_DIR)/interface/include
-INCLUDES += -I$(PKG_SOURCE_DIR)/interface/include/crypto_keys
-INCLUDES += -I$(PKG_SOURCE_DIR)/interface/include/multi_core
-INCLUDES += -I$(PKG_SOURCE_DIR)/interface/include/os_wrapper
-INCLUDES += -I$(PKG_SOURCE_DIR)/interface/include/psa
-INCLUDES += -I$(PKG_SOURCE_DIR)/interface/include/psa_manifest
-
-# DIRS += $(RIOTPKG)/trusted_firmware_m/contrib
-ARCHIVES += $(wildcard $(BINDIR)/tfm_archives/*.o)
+ARCHIVES += $(BINDIR)/libapi_ns.a
+ARCHIVES += $(TFM_API_NS_DIR)/interface/lib/s_veneers.o
+ARCHIVES += $(BINDIR)/libplatform_ns.a
