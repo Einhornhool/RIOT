@@ -43,6 +43,9 @@ $(PKG_BUILD_DIR)/Makefile:
 			-DTFM_PROFILE=profile_medium \
 			-DPLATFORM_DEFAULT_IMAGE_SIGNING=OFF \
 			-DCONFIG_TFM_FLOAT_ABI=hard \
+			-DCONFIG_TFM_ENABLE_FP=ON \
+			-DCONFIG_TFM_ENABLE_MVE=ON \
+			-DCONFIG_TFM_ENABLE_MVE_FP=ON \
 			-DCMAKE_C_COMPILER=/home/lena/apps/arm-gnu-toolchain-12.3.rel1-x86_64-arm-none-eabi/bin/arm-none-eabi-gcc
 
 build_api_ns: build_spe
@@ -50,7 +53,7 @@ build_api_ns: build_spe
 		-B $(PKG_BUILD_DIR)/build_ns \
 		-DCONFIG_SPE_PATH=$(PKG_BUILD_DIR)/api_ns \
 		-DCMAKE_TOOLCHAIN_FILE=$(TOOLCHAIN_FILE) \
-    -DCMAKE_BUILD_TYPE=Debug \
+		-DCMAKE_BUILD_TYPE=Debug \
 		-DTFM_TOOLCHAIN_FILE=$(PKG_BUILD_DIR)/api_ns/cmake/toolchain_ns_GNUARM.cmake \
 		-DCMAKE_C_COMPILER=/home/lena/apps/arm-gnu-toolchain-12.3.rel1-x86_64-arm-none-eabi/bin/arm-none-eabi-gcc
 	cmake --build $(PKG_BUILD_DIR)/build_ns

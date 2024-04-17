@@ -26,9 +26,9 @@ int32_t tfm_ns_interface_dispatch(veneer_fn fn,
                                   uint32_t arg2, uint32_t arg3)
 {
     int32_t result;
-    // DEBUG("[tfm interface] Interface Dispatch\n");
+    DEBUG("[tfm interface] Interface Dispatch\n");
 
-    // /* TFM request protected by NS lock */
+    /* TFM request protected by NS lock */
     // while (mutex_trylock(&ns_mutex) != 0) {
     //     DEBUG("[tfm interface] In Mutex While Loop\n");
     // }

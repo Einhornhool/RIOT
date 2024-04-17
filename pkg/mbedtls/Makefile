@@ -1,3 +1,4 @@
+PKG_SOURCE_LOCAL=~/work/repos/mbedcrypto-src
 PKG_NAME=mbedtls
 PKG_URL=https://github.com/ARMmbed/mbedtls.git
 # v2.28.0

@@ -1,3 +1,6 @@
 USEMODULE += tfm_contrib
 USEMODULE += cortexm_svc
+
+DISABLE_MODULE += core_idle_thread
+DISABLE_MODULE += core_thread
 # USEMODULE += core_mutex

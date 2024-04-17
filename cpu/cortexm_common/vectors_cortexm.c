@@ -106,10 +106,6 @@ void reset_handler_default(void)
 #endif
 
     pre_startup();
-    __asm__ volatile ("nop");
-    __asm__ volatile ("nop");
-    __asm__ volatile ("nop");
-    __asm__ volatile ("nop");
 
 #ifdef DEVELHELP
     /* cppcheck-suppress constVariable
