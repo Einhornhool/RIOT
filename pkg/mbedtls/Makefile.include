@@ -2,8 +2,15 @@ INCLUDES += -I$(PKGDIRBASE)/mbedtls/include
 INCLUDES += -I$(PKGDIRBASE)/mbedtls/include/mbedtls
 
 INCLUDES += -I$(RIOTPKG)/mbedtls/include
+INCLUDES += -I$(RIOTPKG)/mbedtls/tfm_contrib
+# CFLAGS += -DMBEDTLS_CONFIG_FILE='<tfm_mbedcrypto_config_profile_medium.h>'
+CFLAGS += -DMBEDTLS_CONFIG_FILE='<$(RIOTBASE)/build/pkg/mbedtls/configs/tfm_mbedcrypto_config_profile_medium.h>'
+CFLAGS += -DMBEDTLS_PSA_CRYPTO_CONFIG_FILE='<$(RIOTBASE)/build/pkg/mbedtls/configs/crypto_config_profile_medium.h>'
 
-CFLAGS += -DMBEDTLS_CONFIG_FILE='<riot_mbedtls_config.h>'
+CFLAGS += -Wno-cast-align -O2
+
+DIRS += $(RIOTPKG)/mbedtls/tfm_contrib
+ARCHIVES += $(BINDIR)/mbedtls_tfm_contrib/*.o
 
 # these PSEUDOMODULES can be used to enable/disable an entropy source
 PSEUDOMODULES += mbedtls_entropy_source_hwrng

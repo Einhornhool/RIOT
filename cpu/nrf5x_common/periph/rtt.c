@@ -28,7 +28,11 @@
 /* get the IRQ configuration */
 #ifdef NRF_RTC0_S
 #if (RTT_DEV == 0)
+#if IS_ACTIVE(MODULE_TRUSTED_FIRMWARE_M)
+#define DEV             NRF_RTC0_NS
+#else
 #define DEV             NRF_RTC0_S
+#endif
 #define ISR             isr_rtc0
 #define IRQn            RTC0_IRQn
 #elif (RTT_DEV == 1)

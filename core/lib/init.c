@@ -135,7 +135,7 @@ void early_init(void)
         led_init();
     }
 
-    stdio_init_riot();
+    stdio_init();
 
 #if MODULE_VFS
     vfs_bind_stdio();
