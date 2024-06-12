@@ -29,8 +29,12 @@ extern "C" {
  * @brief   Compatibility wrapper for nRF9160
  */
 #ifdef NRF_FICR_S
+#ifdef BOARD_NRF9160DK_NS
+#define NRF_FICR NRF_FICR_NS
+#else
 #define NRF_FICR NRF_FICR_S
 #endif
+#endif /* NRF_FICR_S */
 
 /**
  * @brief   Enable the workaround for the SPI single byte transmit errata (No.

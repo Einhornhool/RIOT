@@ -24,7 +24,11 @@
 #include "periph/flashpage.h"
 
 #ifndef NRF_NVMC
+#ifdef BOARD_NRF9160DK_NS
+#define NRF_NVMC NRF_NVMC_NS
+#else
 #define NRF_NVMC NRF_NVMC_S
+#endif
 #endif
 
 void flashpage_erase(unsigned page)

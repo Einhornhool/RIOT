@@ -40,7 +40,11 @@
 #include "periph_cpu.h"
 
 #ifdef NRF_GPIOTE0_S
+#ifdef BOARD_NRF9160DK_NS
+#define NRF_GPIOTE NRF_GPIOTE0_NS
+#else
 #define NRF_GPIOTE NRF_GPIOTE0_S
+#endif
 #define GPIOTE_IRQn GPIOTE0_IRQn
 #endif
 

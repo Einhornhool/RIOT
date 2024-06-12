@@ -164,6 +164,7 @@ SECTIONS
         _sstack = .;
         KEEP (*(.isr_stack))
         . = ALIGN(8);
+        . += 4K;
         _estack = .;
     } > ram
 
