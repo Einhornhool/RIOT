@@ -29,6 +29,7 @@
 #else
 #define NRF_POWER NRF_POWER_S
 #endif
+#endif
 
 /* Workaround inconsistency between nRF9160 / nRF53 headers */
 #ifdef REGULATORS_SYSTEMOFF_SYSTEMOFF_Enable
