@@ -2,10 +2,17 @@
 APPLICATION = blinky
 
 # If no BOARD is found in the environment, use this default:
-BOARD ?= native
+BOARD ?= nrf9160dk-ns
 
 # This has to be the absolute path to the RIOT base directory:
 RIOTBASE ?= $(CURDIR)/../..
+
+USEPKG += nrfx
+
+USEMODULE += cortexm_svc
+
+DISABLE_MODULE += core_idle_thread
+DISABLE_MODULE += core_thread
 
 # Comment this out to disable code in RIOT that does safety checking
 # which is not needed in a production environment but helps in the
@@ -16,6 +23,6 @@ DEVELHELP ?= 1
 QUIET ?= 1
 
 # Use a peripheral timer for the delay, if available
-FEATURES_OPTIONAL += periph_timer
+# FEATURES_OPTIONAL += periph_timer
 
 include $(RIOTBASE)/Makefile.include
